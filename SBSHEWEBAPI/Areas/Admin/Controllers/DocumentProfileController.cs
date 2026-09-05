@@ -515,10 +515,6 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
         {
             try
             {
-                // =========================================================
-                // 1. GET DIPLOMA DATA
-                // =========================================================
-
                 var data = await _unitOfWork.DocumentProfile
                     .GetDiplomaPrintData(id);
 
@@ -530,28 +526,14 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                     });
                 }
 
-
-                // =========================================================
-                // 2. STUDENT IMAGE -> BASE64
-                // =========================================================
-
                 string selfImageBase64 = "";
 
                 try
                 {
                     if (!string.IsNullOrWhiteSpace(data.SelfImage))
                     {
-                        // -------------------------------------------------
-                        // Only filename rakhenge
-                        // -------------------------------------------------
-
                         string fileName =
                             Path.GetFileName(data.SelfImage);
-
-                        // -------------------------------------------------
-                        // Physical file path
-                        // wwwroot/Uploads/filename.jpg
-                        // -------------------------------------------------
 
                         string imagePath = Path.Combine(
                             _appEnvironment.WebRootPath,
@@ -564,11 +546,6 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                             imagePath
                         );
 
-
-                        // -------------------------------------------------
-                        // File exist check
-                        // -------------------------------------------------
-
                         if (System.IO.File.Exists(imagePath))
                         {
                             byte[] imageBytes =
@@ -576,15 +553,9 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                                     imagePath
                                 );
 
-
-                            // -------------------------------------------------
-                            // Detect extension
-                            // -------------------------------------------------
-
                             string extension =
                                 Path.GetExtension(imagePath)
                                     .ToLowerInvariant();
-
 
                             string mimeType = extension switch
                             {
@@ -593,21 +564,14 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                                 ".png" => "image/png",
                                 ".gif" => "image/gif",
                                 ".webp" => "image/webp",
-
                                 _ => "application/octet-stream"
                             };
-
-
-                            // -------------------------------------------------
-                            // BYTE[] -> BASE64
-                            // -------------------------------------------------
 
                             selfImageBase64 =
                                 $"data:{mimeType};base64," +
                                 Convert.ToBase64String(
                                     imageBytes
                                 );
-
 
                             Console.WriteLine(
                                 "Student Image Base64 generated."
@@ -638,66 +602,46 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                     selfImageBase64 = "";
                 }
 
-
-                // =========================================================
-                // 3. GENERATE QR CODE -> BASE64
-                // =========================================================
-
                 string qrImage = "";
 
                 try
                 {
-                    // -------------------------------------------------
-                    // QR DATA
-                    // -------------------------------------------------
-
                     string qrText =
                         "Name-" + (data.Name ?? "") +
                         ",FatherName-" + (data.FatherName ?? "") +
                         ",EnrollmentNo-" + (data.EnrollmentNo ?? "") +
                         ",Course-" + (data.CourseName ?? "");
 
-
-                    // -------------------------------------------------
-                    // QR GENERATOR
-                    // -------------------------------------------------
-
                     using (QRCodeGenerator qrGenerator =
                            new QRCodeGenerator())
+                    using (QRCodeData qrCodeData =
+                           qrGenerator.CreateQrCode(
+                               qrText,
+                               QRCodeGenerator.ECCLevel.Q))
                     {
-                        using (QRCodeData qrCodeData =
-                               qrGenerator.CreateQrCode(
-                                   qrText,
-                                   QRCodeGenerator.ECCLevel.Q))
-                        {
-                            // -------------------------------------------------
-                            // Generate PNG bytes
-                            // -------------------------------------------------
+                        var qrCode =
+                            new PngByteQRCode(
+                                qrCodeData
+                            );
 
-                            var qrCode =
-                                new PngByteQRCode(
-                                    qrCodeData
-                                );
+                        byte[] qrBytes =
+                            qrCode.GetGraphic(
+                                20,
+                                System.Drawing.Color.Black,
+                                System.Drawing.Color.Transparent,
+                                false
+                            );
 
-                            byte[] qrBytes =
-                                qrCode.GetGraphic(20);
+                        qrImage =
+                            "data:image/png;base64," +
+                            Convert.ToBase64String(
+                                qrBytes
+                            );
 
-
-                            // -------------------------------------------------
-                            // PNG bytes -> Base64
-                            // -------------------------------------------------
-
-                            qrImage =
-                                "data:image/png;base64," +
-                                Convert.ToBase64String(
-                                    qrBytes
-                                );
-                        }
+                        Console.WriteLine(
+                            "QR Base64 generated successfully."
+                        );
                     }
-
-                    Console.WriteLine(
-                        "QR Base64 generated successfully."
-                    );
                 }
                 catch (Exception qrEx)
                 {
@@ -709,63 +653,70 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                     qrImage = "";
                 }
 
-
-                // =========================================================
-                // 4. API RESPONSE
-                // =========================================================
-
                 return Ok(new
                 {
                     name = data.Name ?? "",
                     firstName = data.FirstName ?? "",
 
-                    studentNameHindi = data.StudentNameHindi ?? "",
+                    studentNameHindi =
+                        data.StudentNameHindi ?? "",
 
-                    fatherName = data.FatherName ?? "",
+                    fatherName =
+                        data.FatherName ?? "",
 
-                    fatherNameHindi = data.FatherNameHindi ?? "",
+                    fatherNameHindi =
+                        data.FatherNameHindi ?? "",
 
-                    motherName = data.MotherName ?? "",
+                    motherName =
+                        data.MotherName ?? "",
 
-                    courseNameHindi = data.CourseNameHindi ?? "",
+                    courseNameHindi =
+                        data.CourseNameHindi ?? "",
 
-                    enrollmentNo = data.EnrollmentNo ?? "",
+                    enrollmentNo =
+                        data.EnrollmentNo ?? "",
 
-                    rollno = data.Rollno ?? "",
+                    rollno =
+                        data.Rollno ?? "",
 
-                    srnoDiploma = data.SrnoDiploma ?? "",
+                    srnoDiploma =
+                        data.SrnoDiploma ?? "",
 
-                    issueDate = data.IssueDate ?? "",
-                    startDate = data.StartDate ?? "",
-                    endDate = data.EndDate ?? "",
-                    dOB1 = data.DOB1 ?? "",
-                    address = data.Address ?? "",
+                    issueDate =
+                        data.IssueDate ?? "",
 
-                    issueYear = data.IssueYear ?? "",
+                    startDate =
+                        data.StartDate ?? "",
 
-                    courseName = data.CourseName ?? "",
+                    endDate =
+                        data.EndDate ?? "",
 
-                    departmentName = data.DepartmentName ?? "",
+                    dOB1 =
+                        data.DOB1 ?? "",
 
-                    certificateName = data.CertificateName ?? "",
-                    migrationSrno = data.MigrationSrno ?? "",
-                    centreName = data.CentreName ?? "",
+                    address =
+                        data.Address ?? "",
 
+                    issueYear =
+                        data.IssueYear ?? "",
 
-                    // =====================================================
-                    // IMPORTANT
-                    // =====================================================
-                    // Yahan data.SelfImage nahi lagana hai.
-                    // selfImageBase64 lagana hai.
-                    // =====================================================
+                    courseName =
+                        data.CourseName ?? "",
+
+                    departmentName =
+                        data.DepartmentName ?? "",
+
+                    certificateName =
+                        data.CertificateName ?? "",
+
+                    migrationSrno =
+                        data.MigrationSrno ?? "",
+
+                    centreName =
+                        data.CentreName ?? "",
 
                     selfImage =
                         selfImageBase64,
-
-
-                    // =====================================================
-                    // QR BASE64
-                    // =====================================================
 
                     qrimage =
                         qrImage
@@ -773,23 +724,25 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
-                {
-                    message =
-                        "Diploma data fetch failed.",
+                return StatusCode(
+                    500,
+                    new
+                    {
+                        message =
+                            "Diploma data fetch failed.",
 
-                    error =
-                        ex.Message,
+                        error =
+                            ex.Message,
 
-                    innerError =
-                        ex.InnerException?.Message
-                });
+                        innerError =
+                            ex.InnerException?.Message
+                    }
+                );
             }
         }
 
 
 
-     
 
         [HttpGet("diploma-print-new/{id:int}")]
         public async Task<IActionResult> DiplomaPrintNew(int id)
