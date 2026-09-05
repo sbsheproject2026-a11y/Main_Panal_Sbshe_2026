@@ -1,0 +1,32 @@
+﻿using Application.DTOs;
+
+namespace Application.Repository
+{
+    public interface IStudentRepository
+    {
+
+        Task<List<StudentGetDTOs>> GetAll(int ReferenceId, int pageNo, int pageSize, string? search);
+        Task<List<StudentGetDTOs>> GetSendToConfirm(int ReferenceId, int pageNo, int pageSize, string? search);
+        Task<List<StudentGetDTOs>> GetConfirmToAdmin( int pageNo, int pageSize, string? search);
+        Task<List<StudentGetDTOs>> GetConfirmAddmissions( int pageNo, int pageSize, string? search);
+
+        Task<string> Create(StudentPostDTOs model);
+        Task<string> CreateAcademicDetail(int entityId, AcademicDetailDTO model);
+        Task<StudentGetDTOs> GetById(int id);
+        Task<string> Update(StudentPostDTOs model);
+        Task<string> Delete(int Id);
+        Task<string> GetUpdateStudent(int Id);
+        Task<string> ConfirmToAdmin(int Id);
+
+        Task<List<StudentGetDTOs>> UnSetMarksStudents(int pageNo, int pageSize, string? search);
+        Task<List<GetStudentMarksGetDTOs>> getStudentSubjectMarks(string rollno);
+
+        Task<string> SaveStudentMarks(StudentMarksDto model);
+
+        Task<List<StudentGetDTOs>> GetUpgradeStudentList(int pageNo, int pageSize, string? search);
+
+        Task<string> AddClassStudent(StudentClassDto model);
+        Task<List<AcademicDetailGetDTO>> GetAcademicDetailsById(int id);
+
+    }
+}

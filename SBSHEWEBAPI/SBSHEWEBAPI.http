@@ -1,0 +1,6 @@
+@SBSHEWEBAPI_HostAddress = http://localhost:5188
+
+GET {{SBSHEWEBAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

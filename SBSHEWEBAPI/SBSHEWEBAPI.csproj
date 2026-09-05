@@ -1,0 +1,63 @@
+﻿ <Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+
+    <!-- Authentication / Security -->
+    <PackageReference Include="BCrypt.Net-Next" Version="4.2.0" />
+
+    <!-- Excel -->
+    <PackageReference Include="EPPlus" Version="7.0.0" />
+
+    <!-- Roslyn -->
+    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.8.0" />
+
+    <!-- Entity Framework Core 8 -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.19" />
+
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.19">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.19" />
+
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.19">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+
+    <!-- QR Code -->
+    <PackageReference Include="QRCoder" Version="1.8.0" />
+
+    <!-- RDLC Report -->
+    <PackageReference Include="ReportViewerCore.NETCore" Version="15.1.16" />
+    
+
+    <!-- Swagger -->
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+
+  </ItemGroup>
+
+  <ItemGroup>
+
+    <ProjectReference Include="..\Application\Application.csproj" />
+    <ProjectReference Include="..\Domain\Domain.csproj" />
+    <ProjectReference Include="..\Model\Model.csproj" />
+
+  </ItemGroup>
+
+  <ItemGroup>
+
+    <Folder Include="wwwroot\Uploads\" />
+
+  </ItemGroup>
+
+</Project>
+
+
