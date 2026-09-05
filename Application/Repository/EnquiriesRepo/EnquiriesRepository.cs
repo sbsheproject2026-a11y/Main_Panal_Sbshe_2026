@@ -63,8 +63,7 @@ namespace Application.Repository
                     Status = model.Status ?? null,
                     Remarks = model.Remarks ?? null,
                     TypeId = model.TypeId,
-                    IsActive=1
-
+                    IsActive=1 
 
                 };
 
