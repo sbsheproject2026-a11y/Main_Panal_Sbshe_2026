@@ -50,6 +50,7 @@ namespace Application.Repository
 
                                     EnrollmentNo = reader["EnrollmentNo"]?.ToString(),
                                     Rollno = reader["Rollno"]?.ToString(),
+                                    RollNo1 = reader["RollNo1"]?.ToString(),
                                     Name = reader["Name"]?.ToString(),
                                     FirstName = reader["FirstName"]?.ToString(),
                                     StudentNameHindi = reader["StudentNameHindi"]?.ToString(),

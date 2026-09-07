@@ -658,11 +658,9 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                     name = data.Name ?? "",
                     firstName = data.FirstName ?? "",
 
-                    studentNameHindi =
-                        data.StudentNameHindi ?? "",
+                    studentNameHindi =  data.StudentNameHindi ?? "",
 
-                    fatherName =
-                        data.FatherName ?? "",
+                    fatherName =   data.FatherName ?? "",
 
                     fatherNameHindi =
                         data.FatherNameHindi ?? "",
@@ -676,8 +674,16 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                     enrollmentNo =
                         data.EnrollmentNo ?? "",
 
-                    rollno =
-                        data.Rollno ?? "",
+                    rollnoa =  data.Rollno ?? "",
+                    rollno1 =  data.RollNo1 ?? "",
+                    rollno = !string.IsNullOrWhiteSpace(data.RollNo1)
+    ? $"{data.Rollno ?? ""} , {data.RollNo1}"
+    : data.Rollno ?? "",
+
+
+
+
+
 
                     srnoDiploma =
                         data.SrnoDiploma ?? "",

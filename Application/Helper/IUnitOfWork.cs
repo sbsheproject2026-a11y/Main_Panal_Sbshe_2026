@@ -24,6 +24,7 @@ namespace Application.Helper
         ILectureRepository Lecture { get; }
         IWebsiteContentRepository WebsiteContent { get; }
         IEnquiriesRepository Enquiries { get; }
+        IAccRepository AccRegistration { get; }
 
 
 

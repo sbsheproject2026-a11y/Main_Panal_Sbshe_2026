@@ -29,6 +29,7 @@ namespace Application.Helper
         public ILectureRepository Lecture { get; private set; }
         public IWebsiteContentRepository WebsiteContent { get; private set; }
         public IEnquiriesRepository Enquiries { get; private set; }
+        public IAccRepository AccRegistration { get; private set; }
 
 
 
@@ -50,6 +51,8 @@ namespace Application.Helper
             Lecture = new LectureRepository(_context);
             WebsiteContent = new WebsiteContentRepository(_context);
             Enquiries = new EnquiriesRepository(_context);
+            AccRegistration = new AccRepository(_context);
+
 
         }
         public void save()

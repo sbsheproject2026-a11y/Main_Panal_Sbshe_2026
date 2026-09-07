@@ -53,7 +53,7 @@ namespace Application.Repository
                     Code = model.Code,
                     Name = model.Name,
                     Date = DateTime.Now,
-                    ParentId = model.ParentId ?? 0,
+                    ParentId = model.ParentId ?? null,
                     IsActive = model.IsActive,
                     TypeId=model.TypeId,
                      
@@ -107,7 +107,7 @@ namespace Application.Repository
 
                 data.Name = model.Name;
                 data.Code = model.Code;
-                data.ParentId = model.ParentId ?? 0;
+                data.ParentId = model.ParentId ?? null;
                 data.IsActive = model.IsActive;
                 data.TypeId = model.TypeId;
                  
