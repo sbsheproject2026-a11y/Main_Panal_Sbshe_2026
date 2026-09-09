@@ -16,11 +16,13 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
 
         private readonly IUnitOfWork _unitOfWork;
         private readonly IConfiguration _configuration;
+        private readonly IWebHostEnvironment _environment;
 
-        public FrenchiseController(IUnitOfWork unitOfWork, IConfiguration configuration)
+        public FrenchiseController(IUnitOfWork unitOfWork, IConfiguration configuration, IWebHostEnvironment environment)
         {
             _unitOfWork = unitOfWork;
             _configuration = configuration;
+            _environment = environment;
         }
         [HttpGet("frenchise-getall")]
 
@@ -112,6 +114,42 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                 });
             }
 
+            string folderPath = Path.Combine(_environment.WebRootPath, "Uploads");
+            Directory.CreateDirectory(folderPath);
+
+            async Task<string> UploadFile(IFormFile file)
+            {
+                string fileName = $"{Guid.NewGuid():N}"[..8] + "_" +
+                                  Path.GetFileName(file.FileName);
+
+                string filePath = Path.Combine(folderPath, fileName);
+
+                using var stream = new FileStream(filePath, FileMode.Create);
+                await file.CopyToAsync(stream);
+
+                return fileName;
+            }
+
+            if (model.PassportPhoto1 != null && model.PassportPhoto1.Length > 0)
+                model.PassportPhoto = await UploadFile(model.PassportPhoto1);
+
+            if (model.AuthorizedSignature1 != null && model.AuthorizedSignature1.Length > 0)
+                model.AuthorizedSignature = await UploadFile(model.AuthorizedSignature1);
+
+            if (model.AadhaarCard1 != null && model.AadhaarCard1.Length > 0)
+                model.AadhaarCardimage = await UploadFile(model.AadhaarCard1);
+
+            if (model.PanCard1 != null && model.PanCard1.Length > 0)
+                model.PanCardimage = await UploadFile(model.PanCard1);
+
+            if (model.InstituteCertificate1 != null && model.InstituteCertificate1.Length > 0)
+                model.InstituteCertificate = await UploadFile(model.InstituteCertificate1);
+
+            if (model.BuildingPhoto11 != null && model.BuildingPhoto11.Length > 0)
+                model.BuildingPhoto1 = await UploadFile(model.BuildingPhoto11);
+
+            if (model.BuildingPhoto22 != null && model.BuildingPhoto22.Length > 0)
+                model.BuildingPhoto2 = await UploadFile(model.BuildingPhoto22);
             var result = await _unitOfWork.Frenchise.Update(model);
 
             return Ok(new

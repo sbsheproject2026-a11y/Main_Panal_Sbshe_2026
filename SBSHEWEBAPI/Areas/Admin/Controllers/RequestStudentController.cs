@@ -38,6 +38,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                     Success = true,
                     PageNo = pageNo,
                     PageSize = pageSize,
+                    TotalRecords = data.Count,
                     Data = data
                 });
             }
@@ -66,6 +67,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                     Success = true,
                     PageNo = pageNo,
                     PageSize = pageSize,
+                    TotalRecords = data.Count,
                     Data = data
                 });
             }
@@ -150,6 +152,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                     Success = true,
                     PageNo = pageNo,
                     PageSize = pageSize,
+                    TotalRecords = data.Count,
                     Data = data
                 });
             }
@@ -183,6 +186,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                 return Ok(new
                 {
                     Success = true,
+                    TotalRecords = data.Count,
                     Data = data
                 });
             }
@@ -256,6 +260,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                     Success = true,
                     PageNo = pageNo,
                     PageSize = pageSize,
+                    TotalRecords = data.Count,
                     Data = data
                 });
             }

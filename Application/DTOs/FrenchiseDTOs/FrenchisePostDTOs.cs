@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -33,6 +34,32 @@ namespace Application.DTOs
         public string? UserName { get; set; }
         public string? Password { get; set; }
         public string? PasswordHash { get; set; }
+        public string? AadhaarCardimage { get; set; }
+        public IFormFile? AadhaarCard1 { get; set; }
+        public string? PanCardimage { get; set; }
+        public IFormFile? PanCard1 { get; set; }
+        public string? PassportPhoto { get; set; }
+        public IFormFile? PassportPhoto1 { get; set; }
+        public string? AuthorizedSignature { get; set; }
+        public IFormFile? AuthorizedSignature1 { get; set; }
+        public string? InstituteCertificate { get; set; }
+        public IFormFile? InstituteCertificate1 { get; set; }
+        public string? BuildingPhoto1 { get; set; }
+        public IFormFile? BuildingPhoto11 { get; set; }
+        public string? BuildingPhoto2 { get; set; }
+        public IFormFile? BuildingPhoto22 { get; set; }
+        public int? InstituteTypeId { get; set; }
+        public int? NumberofClassrooms { get; set; }
+        public int? ComputerLabAvailable { get; set; }
+        public int? NumberofComputers { get; set; }
+        public string? Affiliation { get; set; }
+        public string? Website { get; set; }
+        public string? TotalArea { get; set; }
+        public string? OtherFacilities { get; set; }
+        public string? AadhaarCardNumber { get; set; }
+        public string? PANCardNumber { get; set; }
+        public string? Remark { get; set; }
+        public string? Experience { get; set; }
 
 
 

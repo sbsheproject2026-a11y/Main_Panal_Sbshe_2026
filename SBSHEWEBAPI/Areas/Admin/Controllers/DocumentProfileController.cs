@@ -182,57 +182,42 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
 
                 try
                 {
-                    // -------------------------------------------------
-                    // QR DATA
-                    // -------------------------------------------------
-
                     string qrText =
                         "Name-" + (data.Name ?? "") +
                         ",FatherName-" + (data.FatherName ?? "") +
                         ",EnrollmentNo-" + (data.EnrollmentNo ?? "") +
                         ",Course-" + (data.CourseName ?? "");
 
-
-                    // -------------------------------------------------
-                    // QR GENERATOR
-                    // -------------------------------------------------
-
                     using (QRCodeGenerator qrGenerator =
                            new QRCodeGenerator())
+                    using (QRCodeData qrCodeData =
+                           qrGenerator.CreateQrCode(
+                               qrText,
+                               QRCodeGenerator.ECCLevel.Q))
                     {
-                        using (QRCodeData qrCodeData =
-                               qrGenerator.CreateQrCode(
-                                   qrText,
-                                   QRCodeGenerator.ECCLevel.Q))
-                        {
-                            // -------------------------------------------------
-                            // Generate PNG bytes
-                            // -------------------------------------------------
+                        var qrCode =
+                            new PngByteQRCode(
+                                qrCodeData
+                            );
 
-                            var qrCode =
-                                new PngByteQRCode(
-                                    qrCodeData
-                                );
+                        byte[] qrBytes =
+                            qrCode.GetGraphic(
+                                20,
+                                System.Drawing.Color.Black,
+                                System.Drawing.Color.Transparent,
+                                false
+                            );
 
-                            byte[] qrBytes =
-                                qrCode.GetGraphic(20);
+                        qrImage =
+                            "data:image/png;base64," +
+                            Convert.ToBase64String(
+                                qrBytes
+                            );
 
-
-                            // -------------------------------------------------
-                            // PNG bytes -> Base64
-                            // -------------------------------------------------
-
-                            qrImage =
-                                "data:image/png;base64," +
-                                Convert.ToBase64String(
-                                    qrBytes
-                                );
-                        }
+                        Console.WriteLine(
+                            "QR Base64 generated successfully."
+                        );
                     }
-
-                    Console.WriteLine(
-                        "QR Base64 generated successfully."
-                    );
                 }
                 catch (Exception qrEx)
                 {
@@ -243,6 +228,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
 
                     qrImage = "";
                 }
+
 
 
                 // =========================================================

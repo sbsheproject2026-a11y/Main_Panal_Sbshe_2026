@@ -107,6 +107,26 @@ namespace Application.Repository
                     command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@FatherEntityTypeId", model.FatherEntityTypeId));
                     command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@WhatsAppNo", model.WhatsAppNo));
                     command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@PasswordHash", model.PasswordHash));
+                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@InstituteTypeId", model.InstituteTypeId));
+                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Affiliation", model.Affiliation));
+                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Website", model.Website));
+                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@TotalArea", model.TotalArea));
+                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@NumberofClassrooms", model.NumberofClassrooms));
+                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@ComputerLabAvailable", model.ComputerLabAvailable));
+                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@NumberofComputers", model.NumberofComputers));
+                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@OtherFacilities", model.OtherFacilities));
+                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@AadhaarCardNumber", model.AadhaarCardNumber));
+                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@PANCardNumber", model.PANCardNumber));
+                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Remark", model.Remark));
+                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Experience", model.Experience));
+
+                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@SelfImage", model.PassportPhoto));
+                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@SignatureImage", model.AuthorizedSignature));
+                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@AadhaarCardimage", model.AadhaarCardimage));
+                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Pancardimage", model.PanCardimage));
+                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@InstituteCertificateimage", model.InstituteCertificate));
+                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@BuildingPhoto1image", model.BuildingPhoto1));
+                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@BuildingPhoto2image", model.BuildingPhoto2));
 
                     if (command.Connection.State != System.Data.ConnectionState.Open)
                         await command.Connection.OpenAsync();
@@ -150,6 +170,11 @@ namespace Application.Repository
                                     LocationId = Convert.ToInt32(reader["LocationId"]),
                                     DistrictId = Convert.ToInt32(reader["DistrictId"]),
                                     StateId = Convert.ToInt32(reader["StateId"]),
+                                    InstituteTypeId = Convert.ToInt32(reader["InstituteTypeId"]),
+                                    
+                                    NumberofClassrooms = Convert.ToInt32(reader["NumberofClassrooms"]),
+                                    ComputerLabAvailable = Convert.ToInt32(reader["ComputerLabAvailable"]),
+                                    NumberofComputers = Convert.ToInt32(reader["NumberofComputers"]),
                                     Name = reader["Name"]?.ToString(),
                                     FatherName = reader["FatherName"]?.ToString(),
                                     Address = reader["Address"]?.ToString(),
@@ -157,6 +182,21 @@ namespace Application.Repository
                                     MobileNo = reader["MobileNo"]?.ToString(),
                                     WhatsAppNo = reader["WhatsAppNo"]?.ToString(),
                                     Email = reader["Email"]?.ToString(),
+                                    Affiliation = reader["Affiliation"]?.ToString(),
+                                    Website = reader["Website"]?.ToString(),
+                                    TotalArea = reader["TotalArea"]?.ToString(),
+                                    OtherFacilities = reader["OtherFacilities"]?.ToString(),
+                                    AadhaarCardNumber = reader["AadhaarCardNumber"]?.ToString(),
+                                    PANCardNumber = reader["PANCardNumber"]?.ToString(),
+                                    Experience = reader["Experience"]?.ToString(),
+                                    Remark = reader["Remark"]?.ToString(),
+                                    PassportPhoto = reader["SelfImage"]?.ToString(),
+                                    AuthorizedSignature = reader["SignatureImage"]?.ToString(),
+                                    AadhaarCardimage = reader["AadhaarCardFrant"]?.ToString(),
+                                    PanCardimage = reader["Pancardimage"]?.ToString(),
+                                    InstituteCertificate = reader["InstituteCertificateimage"]?.ToString(),
+                                    BuildingPhoto1 = reader["BuildingPhoto1image"]?.ToString(),
+                                    BuildingPhoto2 = reader["BuildingPhoto2image"]?.ToString(),
                                 };
                             }
                         }
@@ -191,6 +231,27 @@ namespace Application.Repository
                     command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@MobileNo", model.MobileNo));
                     command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Email", model.Email));
                     command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@WhatsAppNo", model.WhatsAppNo));
+
+                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@InstituteTypeId", model.InstituteTypeId));
+                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Affiliation", model.Affiliation));
+                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Website", model.Website));
+                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@TotalArea", model.TotalArea));
+                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@NumberofClassrooms", model.NumberofClassrooms));
+                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@ComputerLabAvailable", model.ComputerLabAvailable));
+                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@NumberofComputers", model.NumberofComputers));
+                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@OtherFacilities", model.OtherFacilities));
+                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@AadhaarCardNumber", model.AadhaarCardNumber));
+                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@PANCardNumber", model.PANCardNumber));
+                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Remark", model.Remark));
+                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Experience", model.Experience));
+
+                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@SelfImage", model.PassportPhoto));
+                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@SignatureImage", model.AuthorizedSignature));
+                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@AadhaarCardimage", model.AadhaarCardimage));
+                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Pancardimage", model.PanCardimage));
+                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@InstituteCertificateimage", model.InstituteCertificate));
+                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@BuildingPhoto1image", model.BuildingPhoto1));
+                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@BuildingPhoto2image", model.BuildingPhoto2));
 
                     if (command.Connection.State != System.Data.ConnectionState.Open)
                         await command.Connection.OpenAsync();

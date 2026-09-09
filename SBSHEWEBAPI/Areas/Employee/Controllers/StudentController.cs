@@ -140,6 +140,7 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
                 model.ReferenceId = Convert.ToInt32(userId);
                 model.UserName = $"{num}@SBSHE";
                 model.Password = $"SBSHE@{num}";
+                model.StudyModeId = model.StudyModeId == 0 ? 88 : model.StudyModeId;
 
 
 
