@@ -40,6 +40,7 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
                     Success = true,
                     PageNo = pageNo,
                     PageSize = pageSize,
+                    TotalRecords = data.Count,
                     Data = data
                 });
             }
@@ -69,6 +70,7 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
                     Success = true,
                     PageNo = pageNo,
                     PageSize = pageSize,
+                    TotalRecords = data.Count,
                     Data = data
                 });
             }

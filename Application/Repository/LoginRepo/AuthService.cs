@@ -1,11 +1,6 @@
 ﻿using Application.DTOs.MasterTypeDTOs;
 using Domain;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.Repository.LoginRepo
 {
@@ -26,10 +21,8 @@ namespace Application.Repository.LoginRepo
 
         public async Task<string> Login(LoginDTOs model)
         {
-            var result = await (
-                from ml in _context.MasterLogin
-                join bp in _context.BasicProfile
-                    on ml.EntityId equals bp.EntityId
+            var result = await (  from ml in _context.MasterLogin
+                join bp in _context.BasicProfile   on ml.EntityId equals bp.EntityId
                 where ml.UserName == model.Email
                 select new
                 {

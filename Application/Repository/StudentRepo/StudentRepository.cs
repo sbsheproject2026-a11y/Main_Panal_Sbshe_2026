@@ -5,6 +5,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Model;
 using System.Data;
+using System.Linq;
 
 
 
@@ -28,45 +29,43 @@ namespace Application.Repository
             {
                 var data = new List<StudentGetDTOs>();
 
-                using (var connection = _context.Database.GetDbConnection())
+                var connectionString = _context.Database.GetConnectionString();
+
+                using (var connection = new SqlConnection(connectionString))
+                using (var command = new SqlCommand("GetStudent", connection))
                 {
-                    using (var command = connection.CreateCommand())
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    command.Parameters.Add(new SqlParameter("@ReferenceId", referenceId));
+                    command.Parameters.Add(new SqlParameter("@PageNo", pageNo));
+                    command.Parameters.Add(new SqlParameter("@PageSize", pageSize));
+                    command.Parameters.Add(new SqlParameter("@Search", search ?? (object)DBNull.Value));
+
+                    await connection.OpenAsync();
+
+                    using (var reader = await command.ExecuteReaderAsync())
                     {
-                        command.CommandText = "GetStudent";
-                        command.CommandType = CommandType.StoredProcedure;
-
-                        command.Parameters.Add(new SqlParameter("@ReferenceId", referenceId));
-                        command.Parameters.Add(new SqlParameter("@PageNo", pageNo));
-                        command.Parameters.Add(new SqlParameter("@PageSize", pageSize));
-                        command.Parameters.Add(new SqlParameter("@Search", search ?? (object)DBNull.Value));
-
-                        if (connection.State != ConnectionState.Open)
-                            await connection.OpenAsync();
-
-                        using (var reader = await command.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
                         {
-                            while (await reader.ReadAsync())
+                            data.Add(new StudentGetDTOs
                             {
-                                data.Add(new StudentGetDTOs
-                                {
-                                    Id = Convert.ToInt32(reader["Id"]),
-                                    ReferenceId = Convert.ToInt32(reader["ReferenceId"]),
-                                    Code = reader["Code"]?.ToString(),
-                                    Name = reader["Name"]?.ToString(),
-                                    FatherName = reader["FatherName"]?.ToString(),
-                                    MotherName = reader["MotherName"]?.ToString(),
-                                    Address = reader["Address"]?.ToString(),
-                                    MobileNo = reader["MobileNo"]?.ToString(),
-                                    Email = reader["Email"]?.ToString(),
-                                    UserName = reader["UserName"]?.ToString(),
-                                    Password = reader["Password"]?.ToString(),
-                                    CityName = reader["CityName"]?.ToString(),
-                                    DistrictName = reader["DistrictName"]?.ToString(),
-                                    StateName = reader["StateName"]?.ToString(),
-                                    SelfImageShow = "http://localhost:5188/Uploads/" + reader["SelfImage"]?.ToString(),
-                                    CourseName = reader["CourseName"]?.ToString(),
-                                });
-                            }
+                                Id = Convert.ToInt32(reader["Id"]),
+                                ReferenceId = Convert.ToInt32(reader["ReferenceId"]),
+                                Code = reader["Code"]?.ToString(),
+                                Name = reader["Name"]?.ToString(),
+                                FatherName = reader["FatherName"]?.ToString(),
+                                MotherName = reader["MotherName"]?.ToString(),
+                                Address = reader["Address"]?.ToString(),
+                                MobileNo = reader["MobileNo"]?.ToString(),
+                                Email = reader["Email"]?.ToString(),
+                                UserName = reader["UserName"]?.ToString(),
+                                Password = reader["Password"]?.ToString(),
+                                CityName = reader["CityName"]?.ToString(),
+                                DistrictName = reader["DistrictName"]?.ToString(),
+                                StateName = reader["StateName"]?.ToString(),
+                                SelfImageShow = "http://localhost:5188/Uploads/" + reader["SelfImage"]?.ToString(),
+                                CourseName = reader["CourseName"]?.ToString(),
+                            });
                         }
                     }
                 }
@@ -85,45 +84,43 @@ namespace Application.Repository
             {
                 var data = new List<StudentGetDTOs>();
 
-                using (var connection = _context.Database.GetDbConnection())
+                var connectionString = _context.Database.GetConnectionString();
+
+                using (var connection = new SqlConnection(connectionString))
+                using (var command = new SqlCommand("GetStudentSendtoConfirm", connection))
                 {
-                    using (var command = connection.CreateCommand())
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    command.Parameters.Add(new SqlParameter("@ReferenceId", referenceId));
+                    command.Parameters.Add(new SqlParameter("@PageNo", pageNo));
+                    command.Parameters.Add(new SqlParameter("@PageSize", pageSize));
+                    command.Parameters.Add(new SqlParameter("@Search", search ?? (object)DBNull.Value));
+
+                    await connection.OpenAsync();
+
+                    using (var reader = await command.ExecuteReaderAsync())
                     {
-                        command.CommandText = "GetStudentSendtoConfirm";
-                        command.CommandType = CommandType.StoredProcedure;
-
-                        command.Parameters.Add(new SqlParameter("@ReferenceId", referenceId));
-                        command.Parameters.Add(new SqlParameter("@PageNo", pageNo));
-                        command.Parameters.Add(new SqlParameter("@PageSize", pageSize));
-                        command.Parameters.Add(new SqlParameter("@Search", search ?? (object)DBNull.Value));
-
-                        if (connection.State != ConnectionState.Open)
-                            await connection.OpenAsync();
-
-                        using (var reader = await command.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
                         {
-                            while (await reader.ReadAsync())
+                            data.Add(new StudentGetDTOs
                             {
-                                data.Add(new StudentGetDTOs
-                                {
-                                    Id = Convert.ToInt32(reader["Id"]),
-                                    ReferenceId = Convert.ToInt32(reader["ReferenceId"]),
-                                    Code = reader["Code"]?.ToString(),
-                                    Name = reader["Name"]?.ToString(),
-                                    FatherName = reader["FatherName"]?.ToString(),
-                                    MotherName = reader["MotherName"]?.ToString(),
-                                    Address = reader["Address"]?.ToString(),
-                                    MobileNo = reader["MobileNo"]?.ToString(),
-                                    Email = reader["Email"]?.ToString(),
-                                    UserName = reader["UserName"]?.ToString(),
-                                    Password = reader["Password"]?.ToString(),
-                                    CityName = reader["CityName"]?.ToString(),
-                                    DistrictName = reader["DistrictName"]?.ToString(),
-                                    StateName = reader["StateName"]?.ToString(),
-                                    SelfImageShow = "http://localhost:5188/Uploads/" + reader["SelfImage"]?.ToString(),
-                                    CourseName = reader["CourseName"]?.ToString(),
-                                });
-                            }
+                                Id = Convert.ToInt32(reader["Id"]),
+                                ReferenceId = Convert.ToInt32(reader["ReferenceId"]),
+                                Code = reader["Code"]?.ToString(),
+                                Name = reader["Name"]?.ToString(),
+                                FatherName = reader["FatherName"]?.ToString(),
+                                MotherName = reader["MotherName"]?.ToString(),
+                                Address = reader["Address"]?.ToString(),
+                                MobileNo = reader["MobileNo"]?.ToString(),
+                                Email = reader["Email"]?.ToString(),
+                                UserName = reader["UserName"]?.ToString(),
+                                Password = reader["Password"]?.ToString(),
+                                CityName = reader["CityName"]?.ToString(),
+                                DistrictName = reader["DistrictName"]?.ToString(),
+                                StateName = reader["StateName"]?.ToString(),
+                                SelfImageShow = "http://localhost:5188/Uploads/" + reader["SelfImage"]?.ToString(),
+                                CourseName = reader["CourseName"]?.ToString(),
+                            });
                         }
                     }
                 }
@@ -135,51 +132,49 @@ namespace Application.Repository
                 throw new Exception("Error while fetching Frenchise data.", ex);
             }
         }
+
         public async Task<List<StudentGetDTOs>> GetConfirmToAdmin(int pageNo, int pageSize, string? search)
         {
             try
             {
                 var data = new List<StudentGetDTOs>();
 
-                using (var connection = _context.Database.GetDbConnection())
+                var connectionString = _context.Database.GetConnectionString();
+
+                using (var connection = new SqlConnection(connectionString))
+                using (var command = new SqlCommand("GetConfirmToAdmin", connection))
                 {
-                    using (var command = connection.CreateCommand())
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    command.Parameters.Add(new SqlParameter("@PageNo", pageNo));
+                    command.Parameters.Add(new SqlParameter("@PageSize", pageSize));
+                    command.Parameters.Add(new SqlParameter("@Search", search ?? (object)DBNull.Value));
+
+                    await connection.OpenAsync();
+
+                    using (var reader = await command.ExecuteReaderAsync())
                     {
-                        command.CommandText = "GetConfirmToAdmin";
-                        command.CommandType = CommandType.StoredProcedure;
-
-                        // command.Parameters.Add(new SqlParameter("@ReferenceId", referenceId));
-                        command.Parameters.Add(new SqlParameter("@PageNo", pageNo));
-                        command.Parameters.Add(new SqlParameter("@PageSize", pageSize));
-                        command.Parameters.Add(new SqlParameter("@Search", search ?? (object)DBNull.Value));
-
-                        if (connection.State != ConnectionState.Open)
-                            await connection.OpenAsync();
-
-                        using (var reader = await command.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
                         {
-                            while (await reader.ReadAsync())
+                            data.Add(new StudentGetDTOs
                             {
-                                data.Add(new StudentGetDTOs
-                                {
-                                    Id = Convert.ToInt32(reader["Id"]),
-                                    ReferenceId = Convert.ToInt32(reader["ReferenceId"]),
-                                    Code = reader["Code"]?.ToString(),
-                                    Name = reader["Name"]?.ToString(),
-                                    FatherName = reader["FatherName"]?.ToString(),
-                                    MotherName = reader["MotherName"]?.ToString(),
-                                    Address = reader["Address"]?.ToString(),
-                                    MobileNo = reader["MobileNo"]?.ToString(),
-                                    Email = reader["Email"]?.ToString(),
-                                    UserName = reader["UserName"]?.ToString(),
-                                    Password = reader["Password"]?.ToString(),
-                                    CityName = reader["CityName"]?.ToString(),
-                                    DistrictName = reader["DistrictName"]?.ToString(),
-                                    StateName = reader["StateName"]?.ToString(),
-                                    SelfImageShow = "http://localhost:5188/Uploads/" + reader["SelfImage"]?.ToString(),
-                                    CourseName = reader["CourseName"]?.ToString(),
-                                });
-                            }
+                                Id = Convert.ToInt32(reader["Id"]),
+                                ReferenceId = Convert.ToInt32(reader["ReferenceId"]),
+                                Code = reader["Code"]?.ToString(),
+                                Name = reader["Name"]?.ToString(),
+                                FatherName = reader["FatherName"]?.ToString(),
+                                MotherName = reader["MotherName"]?.ToString(),
+                                Address = reader["Address"]?.ToString(),
+                                MobileNo = reader["MobileNo"]?.ToString(),
+                                Email = reader["Email"]?.ToString(),
+                                UserName = reader["UserName"]?.ToString(),
+                                Password = reader["Password"]?.ToString(),
+                                CityName = reader["CityName"]?.ToString(),
+                                DistrictName = reader["DistrictName"]?.ToString(),
+                                StateName = reader["StateName"]?.ToString(),
+                                SelfImageShow = "http://localhost:5188/Uploads/" + reader["SelfImage"]?.ToString(),
+                                CourseName = reader["CourseName"]?.ToString(),
+                            });
                         }
                     }
                 }
@@ -188,57 +183,56 @@ namespace Application.Repository
             }
             catch (Exception ex)
             {
-                throw new Exception("Error while fetching Frenchise data.", ex);
+                throw new Exception("Error while fetching students for admin confirmation.", ex);
             }
         }
+
         public async Task<List<StudentGetDTOs>> GetConfirmAddmissions(int pageNo, int pageSize, string? search)
         {
             try
             {
                 var data = new List<StudentGetDTOs>();
 
-                using (var connection = _context.Database.GetDbConnection())
+                var connectionString = _context.Database.GetConnectionString();
+
+                using (var connection = new SqlConnection(connectionString))
+                using (var command = new SqlCommand("GetConfirmAddmissions", connection))
                 {
-                    using (var command = connection.CreateCommand())
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    // command.Parameters.Add(new SqlParameter("@ReferenceId", referenceId));
+                    command.Parameters.Add(new SqlParameter("@PageNo", pageNo));
+                    command.Parameters.Add(new SqlParameter("@PageSize", pageSize));
+                    command.Parameters.Add(new SqlParameter("@Search", search ?? (object)DBNull.Value));
+
+                    await connection.OpenAsync();
+
+                    using (var reader = await command.ExecuteReaderAsync())
                     {
-                        command.CommandText = "GetConfirmAddmissions";
-                        command.CommandType = CommandType.StoredProcedure;
-
-                        // command.Parameters.Add(new SqlParameter("@ReferenceId", referenceId));
-                        command.Parameters.Add(new SqlParameter("@PageNo", pageNo));
-                        command.Parameters.Add(new SqlParameter("@PageSize", pageSize));
-                        command.Parameters.Add(new SqlParameter("@Search", search ?? (object)DBNull.Value));
-
-                        if (connection.State != ConnectionState.Open)
-                            await connection.OpenAsync();
-
-                        using (var reader = await command.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
                         {
-                            while (await reader.ReadAsync())
+                            data.Add(new StudentGetDTOs
                             {
-                                data.Add(new StudentGetDTOs
-                                {
-                                    Id = Convert.ToInt32(reader["Id"]),
-                                    ReferenceId = Convert.ToInt32(reader["ReferenceId"]),
-                                    Code = reader["Code"]?.ToString(),
-                                    EnrollmentNo = reader["EnrollmentNo"]?.ToString(),
-                                    Rollno = reader["Rollno"]?.ToString(),
-                                    RollNo1 = reader["RollNo1"]?.ToString(),
-                                    Name = reader["Name"]?.ToString(),
-                                    FatherName = reader["FatherName"]?.ToString(),
-                                    MotherName = reader["MotherName"]?.ToString(),
-                                    Address = reader["Address"]?.ToString(),
-                                    MobileNo = reader["MobileNo"]?.ToString(),
-                                    Email = reader["Email"]?.ToString(),
-                                    UserName = reader["UserName"]?.ToString(),
-                                    Password = reader["Password"]?.ToString(),
-                                    CityName = reader["CityName"]?.ToString(),
-                                    DistrictName = reader["DistrictName"]?.ToString(),
-                                    StateName = reader["StateName"]?.ToString(),
-                                    SelfImageShow = "http://localhost:5188/Uploads/" + reader["SelfImage"]?.ToString(),
-                                    CourseName = reader["CourseName"]?.ToString(),
-                                });
-                            }
+                                Id = Convert.ToInt32(reader["Id"]),
+                                ReferenceId = Convert.ToInt32(reader["ReferenceId"]),
+                                Code = reader["Code"]?.ToString(),
+                                EnrollmentNo = reader["EnrollmentNo"]?.ToString(),
+                                Rollno = reader["Rollno"]?.ToString(),
+                                RollNo1 = reader["RollNo1"]?.ToString(),
+                                Name = reader["Name"]?.ToString(),
+                                FatherName = reader["FatherName"]?.ToString(),
+                                MotherName = reader["MotherName"]?.ToString(),
+                                Address = reader["Address"]?.ToString(),
+                                MobileNo = reader["MobileNo"]?.ToString(),
+                                Email = reader["Email"]?.ToString(),
+                                UserName = reader["UserName"]?.ToString(),
+                                Password = reader["Password"]?.ToString(),
+                                CityName = reader["CityName"]?.ToString(),
+                                DistrictName = reader["DistrictName"]?.ToString(),
+                                StateName = reader["StateName"]?.ToString(),
+                                SelfImageShow = "http://localhost:5188/Uploads/" + reader["SelfImage"]?.ToString(),
+                                CourseName = reader["CourseName"]?.ToString(),
+                            });
                         }
                     }
                 }
@@ -247,7 +241,7 @@ namespace Application.Repository
             }
             catch (Exception ex)
             {
-                throw new Exception("Error while fetching Frenchise data.", ex);
+                throw new Exception("Error while fetching confirmed admissions.", ex);
             }
         }
 
@@ -256,50 +250,48 @@ namespace Application.Repository
         {
             try
             {
-                using (var command = _context.Database.GetDbConnection().CreateCommand())
+                var connectionString = _context.Database.GetConnectionString();
+
+                using (var connection = new SqlConnection(connectionString))
+                using (var command = new SqlCommand("InsStudent", connection))
                 {
-                    command.CommandText = "InsStudent";
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.CommandType = CommandType.StoredProcedure;
 
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Code", model.Code));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Name", model.Name));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@StudentNameHindi", model.StudentNameHindi));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@FatherName", model.FatherName));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@FatherNameHindi", model.FatherNameHindi));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@MotherName", model.MotherName));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@MotherNameHindi", model.MotherNameHindi));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@LocationId", model.LocationId));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Address", model.Address));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Pincode", model.Pincode));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@MobileNo", model.MobileNo));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Email", model.Email));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@UserName", model.UserName));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Password", model.Password));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@ReferenceId", model.ReferenceId));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@PasswordHash", model.PasswordHash));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@GenderId", model.GenderId));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@IdNumber", model.IdNumber));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@SelfImage", model.SelfImage));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@SignatureImage", model.SignatureImage));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@AadhaarCardFrant", model.AadhaarCardFrant));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@AadhaarCardBack", model.AadhaarCardBack));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@IsActive", model.IsActive));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@AdmissionDate", model.AdmissionDate));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@DOB", model.DOB));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@CasteCategory", model.CasteCategory));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@CourseId", model.CourseId));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@ExamSessionId", model.ExamSessionId));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@StudyModeId", model.StudyModeId));
+                    command.Parameters.Add(new SqlParameter("@Code", model.Code));
+                    command.Parameters.Add(new SqlParameter("@Name", model.Name));
+                    command.Parameters.Add(new SqlParameter("@StudentNameHindi", model.StudentNameHindi));
+                    command.Parameters.Add(new SqlParameter("@FatherName", model.FatherName));
+                    command.Parameters.Add(new SqlParameter("@FatherNameHindi", model.FatherNameHindi));
+                    command.Parameters.Add(new SqlParameter("@MotherName", model.MotherName));
+                    command.Parameters.Add(new SqlParameter("@MotherNameHindi", model.MotherNameHindi));
+                    command.Parameters.Add(new SqlParameter("@LocationId", model.LocationId));
+                    command.Parameters.Add(new SqlParameter("@Address", model.Address));
+                    command.Parameters.Add(new SqlParameter("@Pincode", model.Pincode));
+                    command.Parameters.Add(new SqlParameter("@MobileNo", model.MobileNo));
+                    command.Parameters.Add(new SqlParameter("@Email", model.Email));
+                    command.Parameters.Add(new SqlParameter("@UserName", model.UserName));
+                    command.Parameters.Add(new SqlParameter("@Password", model.Password));
+                    command.Parameters.Add(new SqlParameter("@ReferenceId", model.ReferenceId));
+                    command.Parameters.Add(new SqlParameter("@PasswordHash", model.PasswordHash));
+                    command.Parameters.Add(new SqlParameter("@GenderId", model.GenderId));
+                    command.Parameters.Add(new SqlParameter("@IdNumber", model.IdNumber));
+                    command.Parameters.Add(new SqlParameter("@SelfImage", model.SelfImage));
+                    command.Parameters.Add(new SqlParameter("@SignatureImage", model.SignatureImage));
+                    command.Parameters.Add(new SqlParameter("@AadhaarCardFrant", model.AadhaarCardFrant));
+                    command.Parameters.Add(new SqlParameter("@AadhaarCardBack", model.AadhaarCardBack));
+                    command.Parameters.Add(new SqlParameter("@IsActive", model.IsActive));
+                    command.Parameters.Add(new SqlParameter("@AdmissionDate", model.AdmissionDate));
+                    command.Parameters.Add(new SqlParameter("@DOB", model.DOB));
+                    command.Parameters.Add(new SqlParameter("@CasteCategory", model.CasteCategory));
+                    command.Parameters.Add(new SqlParameter("@CourseId", model.CourseId));
+                    command.Parameters.Add(new SqlParameter("@ExamSessionId", model.ExamSessionId));
+                    command.Parameters.Add(new SqlParameter("@StudyModeId", model.StudyModeId));
 
-
-
-
-                    if (command.Connection.State != System.Data.ConnectionState.Open)
-                        await command.Connection.OpenAsync();
+                    await connection.OpenAsync();
 
                     var result = await command.ExecuteScalarAsync();
 
-                    return result?.ToString() ?? "Frenchise created successfully";
+                    return result?.ToString() ?? "Student created successfully";
                 }
             }
             catch (Exception ex)
@@ -307,26 +299,28 @@ namespace Application.Repository
                 return "Something went wrong: " + ex.Message;
             }
         }
-       
-        public async Task<string> CreateAcademicDetail(int entityId,AcademicDetailDTO model)
+
+
+        public async Task<string> CreateAcademicDetail(int entityId, AcademicDetailDTO model)
         {
             try
             {
-                using (var command = _context.Database.GetDbConnection().CreateCommand())
-                {
-                    command.CommandText = "InsAcademicDetails";
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                var connectionString = _context.Database.GetConnectionString();
 
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@LevelTypeId", model.LevelTypeId));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@EntityId", entityId));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@SchoolCollege", model.SchoolCollege));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@RollNo", model.RollNo));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@BoardUniversity", model.BoardUniversity));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@PercentageCgpa", model.PercentageCgpa));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@FileName", model.FileName));
-                     
-                    if (command.Connection.State != System.Data.ConnectionState.Open)
-                        await command.Connection.OpenAsync();
+                using (var connection = new SqlConnection(connectionString))
+                using (var command = new SqlCommand("InsAcademicDetails", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    command.Parameters.Add(new SqlParameter("@LevelTypeId", model.LevelTypeId));
+                    command.Parameters.Add(new SqlParameter("@EntityId", entityId));
+                    command.Parameters.Add(new SqlParameter("@SchoolCollege", model.SchoolCollege));
+                    command.Parameters.Add(new SqlParameter("@RollNo", model.RollNo));
+                    command.Parameters.Add(new SqlParameter("@BoardUniversity", model.BoardUniversity));
+                    command.Parameters.Add(new SqlParameter("@PercentageCgpa", model.PercentageCgpa));
+                    command.Parameters.Add(new SqlParameter("@FileName", model.FileName));
+
+                    await connection.OpenAsync();
 
                     var result = await command.ExecuteScalarAsync();
 
@@ -346,78 +340,72 @@ namespace Application.Repository
             {
                 StudentGetDTOs data = null;
 
-                using (var connection = _context.Database.GetDbConnection())
+                var connectionString = _context.Database.GetConnectionString();
+
+                using (var connection = new SqlConnection(connectionString))
+                using (var command = new SqlCommand("GetEditStudent", connection))
                 {
-                    using (var command = connection.CreateCommand())
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    command.Parameters.Add(new SqlParameter("@Id", id));
+
+                    await connection.OpenAsync();
+
+                    using (var reader = await command.ExecuteReaderAsync())
                     {
-                        command.CommandText = "GetEditStudent";
-                        command.CommandType = CommandType.StoredProcedure;
-
-                        command.Parameters.Add(new SqlParameter("@Id", id));
-
-                        if (connection.State != ConnectionState.Open)
-                            await connection.OpenAsync();
-
-                        using (var reader = await command.ExecuteReaderAsync())
+                        if (await reader.ReadAsync())
                         {
-                            if (await reader.ReadAsync())
+                            data = new StudentGetDTOs
                             {
-                                data = new StudentGetDTOs
-                                {
-                                    Id = Convert.ToInt32(reader["Id"]),
-                                    LocationId = Convert.ToInt32(reader["LocationId"]),
-                                    DistrictId = Convert.ToInt32(reader["DistrictId"]),
-                                    StateId = Convert.ToInt32(reader["StateId"]),
-                                    GenderId = Convert.ToInt32(reader["GenderId"]),
-                                    CasteCategoryId = Convert.ToInt32(reader["CasteCategoryId"]),
+                                Id = Convert.ToInt32(reader["Id"]),
+                                LocationId = Convert.ToInt32(reader["LocationId"]),
+                                DistrictId = Convert.ToInt32(reader["DistrictId"]),
+                                StateId = Convert.ToInt32(reader["StateId"]),
+                                GenderId = Convert.ToInt32(reader["GenderId"]),
+                                CasteCategoryId = Convert.ToInt32(reader["CasteCategoryId"]),
 
-                                    CourseId = Convert.ToInt32(reader["CourseId"]),
-                                    CourseCategoryId = Convert.ToInt32(reader["CourseCategoryId"]),
-                                    CourseTypeId = Convert.ToInt32(reader["CourseTypeId"]),
-                                    ExamSessionId = Convert.ToInt32(reader["ExamSessionId"]),
+                                CourseId = Convert.ToInt32(reader["CourseId"]),
+                                CourseCategoryId = Convert.ToInt32(reader["CourseCategoryId"]),
+                                CourseTypeId = Convert.ToInt32(reader["CourseTypeId"]),
+                                ExamSessionId = Convert.ToInt32(reader["ExamSessionId"]),
 
-                                    Name = reader["Name"]?.ToString(),
-                                    StudentNameHindi = reader["StudentNameHindi"]?.ToString(),
-                                    FatherNameHindi = reader["FatherNameHindi"]?.ToString(),
-                                    DOB = Convert.ToDateTime(reader["DOB"]),
-                                    FatherName = reader["FatherName"]?.ToString(),
-                                    MotherName = reader["MotherName"]?.ToString(),
-                                    Address = reader["Address"]?.ToString(),
-                                    Pincode = reader["PinCode"]?.ToString(),
-                                    MobileNo = reader["MobileNo"]?.ToString(),
+                                Name = reader["Name"]?.ToString(),
+                                StudentNameHindi = reader["StudentNameHindi"]?.ToString(),
+                                DOB = Convert.ToDateTime(reader["DOB"]),
+                                FatherNameHindi = reader["FatherNameHindi"]?.ToString(),
+                                FatherName = reader["FatherName"]?.ToString(),
+                                MotherName = reader["MotherName"]?.ToString(),
+                                Address = reader["Address"]?.ToString(),
+                                Pincode = reader["PinCode"]?.ToString(),
+                                MobileNo = reader["MobileNo"]?.ToString(),
 
-                                    Email = reader["Email"]?.ToString(),
-                                    SelfImage = reader["SelfImage"]?.ToString(),
-                                    SignatureImage = reader["SignatureImage"]?.ToString(),
-                                    AadhaarCardFrant = reader["AadhaarCardFrant"]?.ToString(),
-                                    AadhaarCardBack = reader["AadhaarCardBack"]?.ToString(),
-                                    SelfImageShow = "http://localhost:5188/Uploads/" + reader["SelfImage"]?.ToString(),
-                                    SignatureImageShow = "http://localhost:5188/Uploads/" + reader["SignatureImage"]?.ToString(),
-                                    AadhaarCardFrantShow = "http://localhost:5188/Uploads/" + reader["AadhaarCardFrant"]?.ToString(),
-                                    AadhaarCardBackShow = "http://localhost:5188/Uploads/" + reader["AadhaarCardBack"]?.ToString(),
-                                    IdNumber = reader["IdNumber"]?.ToString(),
+                                Email = reader["Email"]?.ToString(),
+                                SelfImage = reader["SelfImage"]?.ToString(),
+                                SignatureImage = reader["SignatureImage"]?.ToString(),
+                                AadhaarCardFrant = reader["AadhaarCardFrant"]?.ToString(),
+                                AadhaarCardBack = reader["AadhaarCardBack"]?.ToString(),
 
+                                SelfImageShow = "http://localhost:5188/Uploads/" + reader["SelfImage"]?.ToString(),
+                                SignatureImageShow = "http://localhost:5188/Uploads/" + reader["SignatureImage"]?.ToString(),
+                                AadhaarCardFrantShow = "http://localhost:5188/Uploads/" + reader["AadhaarCardFrant"]?.ToString(),
+                                AadhaarCardBackShow = "http://localhost:5188/Uploads/" + reader["AadhaarCardBack"]?.ToString(),
 
+                                IdNumber = reader["IdNumber"]?.ToString()
+                            };
 
-
-                                };
-                                if (data != null)
-                                {
-                                    data.DOB1 = data.DOB?.ToString("yyyy-MM-dd");
-
-                                }
+                            if (data != null)
+                            {
+                                data.DOB1 = data.DOB?.ToString("yyyy-MM-dd");
                             }
                         }
                     }
                 }
 
-
                 return data;
-
             }
             catch (Exception ex)
             {
-                throw new Exception("Error while fetching Employee by id.", ex);
+                throw new Exception("Error while fetching Student by id.", ex);
             }
         }
 
@@ -426,39 +414,39 @@ namespace Application.Repository
         {
             try
             {
-                using (var command = _context.Database.GetDbConnection().CreateCommand())
+                var connectionString = _context.Database.GetConnectionString();
+
+                using (var connection = new SqlConnection(connectionString))
+                using (var command = new SqlCommand("UpdateStudent", connection))
                 {
-                    command.CommandText = "UpdateStudent";
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.CommandType = CommandType.StoredProcedure;
 
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Id", model.Id));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Code", model.Code));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Name", model.Name));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@StudentNameHindi", model.StudentNameHindi));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@FatherName", model.FatherName));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@FatherNameHindi", model.FatherNameHindi));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@MotherName", model.MotherName));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@MotherNameHindi", model.MotherNameHindi));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@LocationId", model.LocationId));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Address", model.Address));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Pincode", model.Pincode));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@MobileNo", model.MobileNo));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Email", model.Email));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@GenderId", model.GenderId));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@IdNumber", model.IdNumber));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@SelfImage", model.SelfImage));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@SignatureImage", model.SignatureImage));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@AadhaarCardFrant", model.AadhaarCardFrant));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@AadhaarCardBack", model.AadhaarCardBack));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@IsActive", model.IsActive));
+                    command.Parameters.Add(new SqlParameter("@Id", model.Id));
+                    command.Parameters.Add(new SqlParameter("@Code", model.Code));
+                    command.Parameters.Add(new SqlParameter("@Name", model.Name));
+                    command.Parameters.Add(new SqlParameter("@StudentNameHindi", model.StudentNameHindi));
+                    command.Parameters.Add(new SqlParameter("@FatherName", model.FatherName));
+                    command.Parameters.Add(new SqlParameter("@FatherNameHindi", model.FatherNameHindi));
+                    command.Parameters.Add(new SqlParameter("@MotherName", model.MotherName));
+                    command.Parameters.Add(new SqlParameter("@MotherNameHindi", model.MotherNameHindi));
+                    command.Parameters.Add(new SqlParameter("@LocationId", model.LocationId));
+                    command.Parameters.Add(new SqlParameter("@Address", model.Address));
+                    command.Parameters.Add(new SqlParameter("@Pincode", model.Pincode));
+                    command.Parameters.Add(new SqlParameter("@MobileNo", model.MobileNo));
+                    command.Parameters.Add(new SqlParameter("@Email", model.Email));
+                    command.Parameters.Add(new SqlParameter("@GenderId", model.GenderId));
+                    command.Parameters.Add(new SqlParameter("@IdNumber", model.IdNumber));
+                    command.Parameters.Add(new SqlParameter("@SelfImage", model.SelfImage));
+                    command.Parameters.Add(new SqlParameter("@SignatureImage", model.SignatureImage));
+                    command.Parameters.Add(new SqlParameter("@AadhaarCardFrant", model.AadhaarCardFrant));
+                    command.Parameters.Add(new SqlParameter("@AadhaarCardBack", model.AadhaarCardBack));
+                    command.Parameters.Add(new SqlParameter("@IsActive", model.IsActive));
+                    command.Parameters.Add(new SqlParameter("@DOB", model.DOB));
+                    command.Parameters.Add(new SqlParameter("@CasteCategory", model.CasteCategory));
+                    command.Parameters.Add(new SqlParameter("@CourseId", model.CourseId));
+                    command.Parameters.Add(new SqlParameter("@ExamSessionId", model.ExamSessionId));
 
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@DOB", model.DOB));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@CasteCategory", model.CasteCategory));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@CourseId", model.CourseId));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@ExamSessionId", model.ExamSessionId));
-
-                    if (command.Connection.State != System.Data.ConnectionState.Open)
-                        await command.Connection.OpenAsync();
+                    await connection.OpenAsync();
 
                     var result = await command.ExecuteScalarAsync();
 
@@ -477,16 +465,17 @@ namespace Application.Repository
         {
             try
             {
-                using (var command = _context.Database.GetDbConnection().CreateCommand())
+                var connectionString = _context.Database.GetConnectionString();
+
+                using (var connection = new SqlConnection(connectionString))
+                using (var command = new SqlCommand("GetDelete", connection))
                 {
-                    command.CommandText = "GetDelete";
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.CommandType = CommandType.StoredProcedure;
 
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Id", Id));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Code", 12));
+                    command.Parameters.Add(new SqlParameter("@Id", Id));
+                    command.Parameters.Add(new SqlParameter("@Code", 12));
 
-                    if (command.Connection.State != System.Data.ConnectionState.Open)
-                        await command.Connection.OpenAsync();
+                    await connection.OpenAsync();
 
                     var result = await command.ExecuteScalarAsync();
 
@@ -498,20 +487,22 @@ namespace Application.Repository
                 return "Something went wrong: " + ex.Message;
             }
         }
+
         public async Task<string> GetUpdateStudent(int Id)
         {
             try
             {
-                using (var command = _context.Database.GetDbConnection().CreateCommand())
+                var connectionString = _context.Database.GetConnectionString();
+
+                using (var connection = new SqlConnection(connectionString))
+                using (var command = new SqlCommand("GetSendToAdmin", connection))
                 {
-                    command.CommandText = "GetSendToAdmin";
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.CommandType = CommandType.StoredProcedure;
 
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Id", Id));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Code", 12));
+                    command.Parameters.Add(new SqlParameter("@Id", Id));
+                    command.Parameters.Add(new SqlParameter("@Code", 12));
 
-                    if (command.Connection.State != System.Data.ConnectionState.Open)
-                        await command.Connection.OpenAsync();
+                    await connection.OpenAsync();
 
                     var result = await command.ExecuteScalarAsync();
 
@@ -523,20 +514,23 @@ namespace Application.Repository
                 return "Something went wrong: " + ex.Message;
             }
         }
+
+
         public async Task<string> ConfirmToAdmin(int Id)
         {
             try
             {
-                using (var command = _context.Database.GetDbConnection().CreateCommand())
+                var connectionString = _context.Database.GetConnectionString();
+
+                using (var connection = new SqlConnection(connectionString))
+                using (var command = new SqlCommand("GetUpdateStudentStatus", connection))
                 {
-                    command.CommandText = "GetUpdateStudentStatus";
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.CommandType = CommandType.StoredProcedure;
 
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Id", Id));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Code", 12));
+                    command.Parameters.Add(new SqlParameter("@Id", Id));
+                    command.Parameters.Add(new SqlParameter("@Code", 12));
 
-                    if (command.Connection.State != System.Data.ConnectionState.Open)
-                        await command.Connection.OpenAsync();
+                    await connection.OpenAsync();
 
                     var result = await command.ExecuteScalarAsync();
 
@@ -557,48 +551,45 @@ namespace Application.Repository
             {
                 var data = new List<StudentGetDTOs>();
 
-                using (var connection = _context.Database.GetDbConnection())
+                var connectionString = _context.Database.GetConnectionString();
+
+                using (var connection = new SqlConnection(connectionString))
+                using (var command = new SqlCommand("GetUnSetMarksStudents", connection))
                 {
-                    using (var command = connection.CreateCommand())
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    command.Parameters.Add(new SqlParameter("@PageNo", pageNo));
+                    command.Parameters.Add(new SqlParameter("@PageSize", pageSize));
+                    command.Parameters.Add(new SqlParameter("@Search", search ?? (object)DBNull.Value));
+
+                    await connection.OpenAsync();
+
+                    using (var reader = await command.ExecuteReaderAsync())
                     {
-                        command.CommandText = "GetUnSetMarksStudents";
-                        command.CommandType = CommandType.StoredProcedure;
-
-                        // command.Parameters.Add(new SqlParameter("@ReferenceId", referenceId));
-                        command.Parameters.Add(new SqlParameter("@PageNo", pageNo));
-                        command.Parameters.Add(new SqlParameter("@PageSize", pageSize));
-                        command.Parameters.Add(new SqlParameter("@Search", search ?? (object)DBNull.Value));
-
-                        if (connection.State != ConnectionState.Open)
-                            await connection.OpenAsync();
-
-                        using (var reader = await command.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
                         {
-                            while (await reader.ReadAsync())
+                            data.Add(new StudentGetDTOs
                             {
-                                data.Add(new StudentGetDTOs
-                                {
-                                    Id = Convert.ToInt32(reader["Id"]),
-                                    PuId = Convert.ToInt32(reader["PuId"]),
-                                    ReferenceId = Convert.ToInt32(reader["ReferenceId"]),
-                                    Code = reader["Code"]?.ToString(),
-                                    EnrollmentNo = reader["EnrollmentNo"]?.ToString(),
-                                    Rollno = reader["Rollno"]?.ToString(),
-                                    Name = reader["Name"]?.ToString(),
-                                    FatherName = reader["FatherName"]?.ToString(),
-                                    MotherName = reader["MotherName"]?.ToString(),
-                                    Address = reader["Address"]?.ToString(),
-                                    MobileNo = reader["MobileNo"]?.ToString(),
-                                    Email = reader["Email"]?.ToString(),
-                                    UserName = reader["UserName"]?.ToString(),
-                                    Password = reader["Password"]?.ToString(),
-                                    CityName = reader["CityName"]?.ToString(),
-                                    DistrictName = reader["DistrictName"]?.ToString(),
-                                    StateName = reader["StateName"]?.ToString(),
-                                    SelfImageShow = "http://localhost:5188/Uploads/" + reader["SelfImage"]?.ToString(),
-                                    CourseName = reader["CourseName"]?.ToString(),
-                                });
-                            }
+                                Id = Convert.ToInt32(reader["Id"]),
+                                PuId = Convert.ToInt32(reader["PuId"]),
+                                ReferenceId = Convert.ToInt32(reader["ReferenceId"]),
+                                Code = reader["Code"]?.ToString(),
+                                EnrollmentNo = reader["EnrollmentNo"]?.ToString(),
+                                Rollno = reader["Rollno"]?.ToString(),
+                                Name = reader["Name"]?.ToString(),
+                                FatherName = reader["FatherName"]?.ToString(),
+                                MotherName = reader["MotherName"]?.ToString(),
+                                Address = reader["Address"]?.ToString(),
+                                MobileNo = reader["MobileNo"]?.ToString(),
+                                Email = reader["Email"]?.ToString(),
+                                UserName = reader["UserName"]?.ToString(),
+                                Password = reader["Password"]?.ToString(),
+                                CityName = reader["CityName"]?.ToString(),
+                                DistrictName = reader["DistrictName"]?.ToString(),
+                                StateName = reader["StateName"]?.ToString(),
+                                SelfImageShow = "http://localhost:5188/Uploads/" + reader["SelfImage"]?.ToString(),
+                                CourseName = reader["CourseName"]?.ToString(),
+                            });
                         }
                     }
                 }
@@ -617,37 +608,33 @@ namespace Application.Repository
             {
                 var data = new List<GetStudentMarksGetDTOs>();
 
-                using (var connection = _context.Database.GetDbConnection())
+                var connectionString = _context.Database.GetConnectionString();
+
+                using (var connection = new SqlConnection(connectionString))
+                using (var command = new SqlCommand("getStudentSubjectMarks", connection))
                 {
-                    using (var command = connection.CreateCommand())
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    command.Parameters.Add(new SqlParameter("@Rollno", rollno));
+
+                    await connection.OpenAsync();
+
+                    using (var reader = await command.ExecuteReaderAsync())
                     {
-                        command.CommandText = "getStudentSubjectMarks";
-                        command.CommandType = CommandType.StoredProcedure;
-
-                        command.Parameters.Add(new SqlParameter("@Rollno", rollno));
-
-
-                        if (connection.State != ConnectionState.Open)
-                            await connection.OpenAsync();
-
-                        using (var reader = await command.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
                         {
-                            while (await reader.ReadAsync())
+                            data.Add(new GetStudentMarksGetDTOs
                             {
-                                data.Add(new GetStudentMarksGetDTOs
-                                {
-                                    CourseName = reader["CourseName"]?.ToString(),
-                                    Code = reader["Code"]?.ToString(),
-                                    Name = reader["Name"]?.ToString(),
-                                    Rollno = reader["Rollno"]?.ToString(),
-                                    TheoryMarks = Convert.ToInt32(reader["TheoryMarks"]),
-                                    PracticalMarks = Convert.ToInt32(reader["PracticalMarks"]),
-                                    AssignmentMarks = Convert.ToInt32(reader["AssignmentMarks"]),
-                                    PuId = Convert.ToInt32(reader["PuId"]),
-                                    SubjectId = Convert.ToInt32(reader["SubjectId"]),
-
-                                });
-                            }
+                                CourseName = reader["CourseName"]?.ToString(),
+                                Code = reader["Code"]?.ToString(),
+                                Name = reader["Name"]?.ToString(),
+                                Rollno = reader["Rollno"]?.ToString(),
+                                TheoryMarks = Convert.ToInt32(reader["TheoryMarks"]),
+                                PracticalMarks = Convert.ToInt32(reader["PracticalMarks"]),
+                                AssignmentMarks = Convert.ToInt32(reader["AssignmentMarks"]),
+                                PuId = Convert.ToInt32(reader["PuId"]),
+                                SubjectId = Convert.ToInt32(reader["SubjectId"]),
+                            });
                         }
                     }
                 }
@@ -656,7 +643,7 @@ namespace Application.Repository
             }
             catch (Exception ex)
             {
-                throw new Exception("Error while fetching Frenchise data.", ex);
+                throw new Exception("Error while fetching Student Subject Marks.", ex);
             }
         }
 
@@ -673,22 +660,24 @@ namespace Application.Repository
                     return "No subjects found";
                 }
 
+                var studentIds = model.Marks
+                    .Select(x => x.Pid)
+                    .Distinct()
+                    .ToList();
+
+                // Existing marks delete karo
+                var oldMarks = await _context.StudentMarks
+                    .Where(x => studentIds.Contains((int)x.StudentId))
+                    .ToListAsync();
+
+                if (oldMarks.Any())
+                {
+                    _context.StudentMarks.RemoveRange(oldMarks);
+                }
+
+                // New marks insert karo
                 foreach (var item in model.Marks)
                 {
-                    // Old marks find karo
-                    var oldMarks = await _context.StudentMarks
-                        .Where(x =>
-                            x.StudentId == item.Pid
-                        )
-                        .ToListAsync();
-
-                    // Old marks delete karo
-                    if (oldMarks.Any())
-                    {
-                        _context.StudentMarks.RemoveRange(oldMarks);
-                    }
-
-                    // New marks insert karo
                     var data = new StudentMarks
                     {
                         StudentId = item.Pid,
@@ -717,48 +706,53 @@ namespace Application.Repository
 
 
 
-        public async Task<List<StudentGetDTOs>> GetUpgradeStudentList(int pageNo, int pageSize, string? search)
+        public async Task<List<StudentGetDTOs>> GetUpgradeStudentList(
+     int pageNo,
+     int pageSize,
+     string? search)
         {
             try
             {
                 var data = new List<StudentGetDTOs>();
 
-                using (var connection = _context.Database.GetDbConnection())
+                var connectionString = _context.Database.GetConnectionString();
+
+                using (var connection = new SqlConnection(connectionString))
+                using (var command = new SqlCommand("GetUpgradeStudentList", connection))
                 {
-                    using (var command = connection.CreateCommand())
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    command.Parameters.Add(new SqlParameter("@PageNo", pageNo));
+                    command.Parameters.Add(new SqlParameter("@PageSize", pageSize));
+                    command.Parameters.Add(new SqlParameter(
+                        "@Search",
+                        search ?? (object)DBNull.Value));
+
+                    await connection.OpenAsync();
+
+                    using (var reader = await command.ExecuteReaderAsync())
                     {
-                        command.CommandText = "GetUpgradeStudentList";
-                        command.CommandType = CommandType.StoredProcedure;
-
-                        // command.Parameters.Add(new SqlParameter("@ReferenceId", referenceId));
-                        command.Parameters.Add(new SqlParameter("@PageNo", pageNo));
-                        command.Parameters.Add(new SqlParameter("@PageSize", pageSize));
-                        command.Parameters.Add(new SqlParameter("@Search", search ?? (object)DBNull.Value));
-
-                        if (connection.State != ConnectionState.Open)
-                            await connection.OpenAsync();
-
-                        using (var reader = await command.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
                         {
-                            while (await reader.ReadAsync())
+                            data.Add(new StudentGetDTOs
                             {
-                                data.Add(new StudentGetDTOs
-                                {
-                                    Id = Convert.ToInt32(reader["Id"]),
-                                    PuId = Convert.ToInt32(reader["PuId"]),
-                                    CourseId = Convert.ToInt32(reader["CourseId"]),
-                                    EnrollmentNo = reader["EnrollmentNo"]?.ToString(),
-                                    Name = reader["Name"]?.ToString(),
-                                    FatherName = reader["FatherName"]?.ToString(),
-                                    MotherName = reader["MotherName"]?.ToString(),
-                                    Address = reader["Address"]?.ToString(),
-                                    MobileNo = reader["MobileNo"]?.ToString(),
-                                    Email = reader["Email"]?.ToString(),
+                                Id = Convert.ToInt32(reader["Id"]),
+                                PuId = Convert.ToInt32(reader["PuId"]),
+                                CourseId = Convert.ToInt32(reader["CourseId"]),
+                                EnrollmentNo = reader["EnrollmentNo"]?.ToString(),
+                                Name = reader["Name"]?.ToString(),
+                                FatherName = reader["FatherName"]?.ToString(),
+                                MotherName = reader["MotherName"]?.ToString(),
+                                Address = reader["Address"]?.ToString(),
+                                MobileNo = reader["MobileNo"]?.ToString(),
+                                Email = reader["Email"]?.ToString(),
 
-                                    SelfImageShow = "http://localhost:5188/Uploads/" + reader["SelfImage"]?.ToString(),
-                                    CourseName = reader["CourseName"]?.ToString(),
-                                });
-                            }
+                                SelfImageShow =
+                                    "http://localhost:5188/Uploads/" +
+                                    reader["SelfImage"]?.ToString(),
+
+                                CourseName = reader["CourseName"]?.ToString(),
+                            });
                         }
                     }
                 }
@@ -767,7 +761,7 @@ namespace Application.Repository
             }
             catch (Exception ex)
             {
-                throw new Exception("Error while fetching Frenchise data.", ex);
+                throw new Exception("Error while fetching Upgrade Student data.", ex);
             }
         }
 
@@ -776,17 +770,23 @@ namespace Application.Repository
         {
             try
             {
-                using (var command = _context.Database.GetDbConnection().CreateCommand())
+                var connectionString = _context.Database.GetConnectionString();
+
+                using (var connection = new SqlConnection(connectionString))
+                using (var command = new SqlCommand("AddClassStudentNew", connection))
                 {
-                    command.CommandText = "AddClassStudentNew";
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.CommandType = CommandType.StoredProcedure;
 
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@puId", model.PUid[0]));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@ClassId", model.ClassId));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@ExamSession", model.ExamSessionId));
+                    command.Parameters.Add(
+                        new SqlParameter("@puId", model.PUid[0]));
 
-                    if (command.Connection.State != System.Data.ConnectionState.Open)
-                        await command.Connection.OpenAsync();
+                    command.Parameters.Add(
+                        new SqlParameter("@ClassId", model.ClassId));
+
+                    command.Parameters.Add(
+                        new SqlParameter("@ExamSession", model.ExamSessionId));
+
+                    await connection.OpenAsync();
 
                     var result = await command.ExecuteScalarAsync();
 
@@ -800,50 +800,42 @@ namespace Application.Repository
         }
 
 
-        
+
         public async Task<List<AcademicDetailGetDTO>> GetAcademicDetailsById(int id)
         {
             try
             {
                 var data = new List<AcademicDetailGetDTO>();
 
-                using (var connection = _context.Database.GetDbConnection())
+                var connectionString = _context.Database.GetConnectionString();
+
+                using (var connection = new SqlConnection(connectionString))
+                using (var command = new SqlCommand("GetAcademicDetailsByEntityId", connection))
                 {
-                    using (var command = connection.CreateCommand())
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    command.Parameters.Add(
+                        new SqlParameter("@EntityId", id));
+
+                    await connection.OpenAsync();
+
+                    using (var reader = await command.ExecuteReaderAsync())
                     {
-                        command.CommandText = "GetAcademicDetailsByEntityId";
-                        command.CommandType = CommandType.StoredProcedure;
-
-                        command.Parameters.Add(new SqlParameter("@EntityId", id));
-                         
-
-                        if (connection.State != ConnectionState.Open)
-                            await connection.OpenAsync();
-
-                        using (var reader = await command.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
                         {
-                            while (await reader.ReadAsync())
+                            data.Add(new AcademicDetailGetDTO
                             {
-                                data.Add(new AcademicDetailGetDTO
-                                {
-                                    Id = Convert.ToInt32(reader["Id"]),
-
-
-                                    LevelTypeId = Convert.ToInt32(reader["LevelTypeId"]),
-
-                                    EntityId = Convert.ToInt32(reader["EntityId"]),
-
-                                    SchoolCollege = reader["SchoolCollege"]?.ToString(),
-
-                                    RollNo = reader["RollNo"]?.ToString(),
-
-                                    BoardUniversity = reader["BoardUniversity"]?.ToString(),
-
-                                    PercentageCgpa = reader["PercentageCgpa"]?.ToString(),
-
-                                    FileName = "http://localhost:5188/uploads/" + reader["FileName"]?.ToString()
-                                });
-                            }
+                                Id = Convert.ToInt32(reader["Id"]),
+                                LevelTypeId = Convert.ToInt32(reader["LevelTypeId"]),
+                                EntityId = Convert.ToInt32(reader["EntityId"]),
+                                SchoolCollege = reader["SchoolCollege"]?.ToString(),
+                                RollNo = reader["RollNo"]?.ToString(),
+                                BoardUniversity = reader["BoardUniversity"]?.ToString(),
+                                PercentageCgpa = reader["PercentageCgpa"]?.ToString(),
+                                FileName =
+                                    "http://localhost:5188/uploads/" +
+                                    reader["FileName"]?.ToString()
+                            });
                         }
                     }
                 }
@@ -852,7 +844,9 @@ namespace Application.Repository
             }
             catch (Exception ex)
             {
-                throw new Exception("Error while fetching Frenchise data.", ex);
+                throw new Exception(
+                    "Error while fetching Academic Details.",
+                    ex);
             }
         }
 

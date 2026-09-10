@@ -1,15 +1,11 @@
 ﻿using Application.DTOs;
- 
 using Domain;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Model;
 using System.Data;
 
-
-
-
-namespace Application.Repository 
+namespace Application.Repository
 {
     public class FrenchiseRepository : IFrenchiseRepository
     {
@@ -22,49 +18,53 @@ namespace Application.Repository
 
         //---------------------------------------Frenchise Start------------------------------
 
-        public async Task<List<FrenchiseGetDTOs>> GetAll(int referenceId, int pageNo, int pageSize, string? search)
+        public async Task<List<FrenchiseGetDTOs>> GetAll(
+            int referenceId,
+            int pageNo,
+            int pageSize,
+            string? search)
         {
             try
             {
                 var data = new List<FrenchiseGetDTOs>();
 
-                using (var connection = _context.Database.GetDbConnection())
+                var connectionString = _context.Database.GetConnectionString();
+
+                using (var connection = new SqlConnection(connectionString))
+                using (var command = new SqlCommand("GetFrenchise", connection))
                 {
-                    using (var command = connection.CreateCommand())
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    command.Parameters.Add(new SqlParameter("@ReferenceId", referenceId));
+                    command.Parameters.Add(new SqlParameter("@PageNo", pageNo));
+                    command.Parameters.Add(new SqlParameter("@PageSize", pageSize));
+                    command.Parameters.Add(new SqlParameter(
+                        "@Search",
+                        search ?? (object)DBNull.Value));
+
+                    await connection.OpenAsync();
+
+                    using (var reader = await command.ExecuteReaderAsync())
                     {
-                        command.CommandText = "GetFrenchise";
-                        command.CommandType = CommandType.StoredProcedure;
-
-                        command.Parameters.Add(new SqlParameter("@ReferenceId", referenceId));
-                        command.Parameters.Add(new SqlParameter("@PageNo", pageNo));
-                        command.Parameters.Add(new SqlParameter("@PageSize", pageSize));
-                        command.Parameters.Add(new SqlParameter("@Search", search ?? (object)DBNull.Value));
-
-                        if (connection.State != ConnectionState.Open)
-                            await connection.OpenAsync();
-
-                        using (var reader = await command.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
                         {
-                            while (await reader.ReadAsync())
+                            data.Add(new FrenchiseGetDTOs
                             {
-                                data.Add(new FrenchiseGetDTOs
-                                {
-                                    Id = Convert.ToInt32(reader["Id"]),
-                                    ReferenceId = Convert.ToInt32(reader["ReferenceId"]),
-                                    Code = reader["Code"]?.ToString(),
-                                    Name = reader["Name"]?.ToString(),
-                                    FatherName = reader["FatherName"]?.ToString(),
-                                    Address = reader["Address"]?.ToString(),
-                                    Pincode = reader["PinCode"]?.ToString(),
-                                    MobileNo = reader["MobileNo"]?.ToString(),
-                                    Email = reader["Email"]?.ToString(),
-                                    UserName = reader["UserName"]?.ToString(),
-                                    Password = reader["Password"]?.ToString(),
-                                    CityName = reader["CityName"]?.ToString(),
-                                    DistrictName = reader["DistrictName"]?.ToString(),
-                                    StateName = reader["StateName"]?.ToString()
-                                });
-                            }
+                                Id = Convert.ToInt32(reader["Id"]),
+                                ReferenceId = Convert.ToInt32(reader["ReferenceId"]),
+                                Code = reader["Code"]?.ToString(),
+                                Name = reader["Name"]?.ToString(),
+                                FatherName = reader["FatherName"]?.ToString(),
+                                Address = reader["Address"]?.ToString(),
+                                Pincode = reader["PinCode"]?.ToString(),
+                                MobileNo = reader["MobileNo"]?.ToString(),
+                                Email = reader["Email"]?.ToString(),
+                                UserName = reader["UserName"]?.ToString(),
+                                Password = reader["Password"]?.ToString(),
+                                CityName = reader["CityName"]?.ToString(),
+                                DistrictName = reader["DistrictName"]?.ToString(),
+                                StateName = reader["StateName"]?.ToString()
+                            });
                         }
                     }
                 }
@@ -76,60 +76,60 @@ namespace Application.Repository
                 throw new Exception("Error while fetching Frenchise data.", ex);
             }
         }
-       
-        
+
         public async Task<string> Create(FrenchisePostDTOs model)
         {
             try
             {
-                using (var command = _context.Database.GetDbConnection().CreateCommand())
+                var connectionString = _context.Database.GetConnectionString();
+
+                using (var connection = new SqlConnection(connectionString))
+                using (var command = new SqlCommand("InsFrenchise", connection))
                 {
-                    command.CommandText = "InsFrenchise";
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.CommandType = CommandType.StoredProcedure;
 
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Code", model.Code));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Name", model.Name ));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@FatherName", model.FatherName));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@LocationId", model.LocationId));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Address", model.Address));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Pincode", model.Pincode));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@ContactTypeId", model.ContactTypeId));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@AddressTypeId", model.AddressTypeId));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@MobileNo", model.MobileNo));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Email", model.Email));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@DesignationId", model.RoleId));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@RoleId", model.RoleId));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@UserName", model.UserName));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Password", model.Password));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@ReferenceId", model.ReferenceId));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@EntityTypeId", model.EntityTypeId));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@WhatsAppContactTypeId", model.WhatsAppContactTypeId));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@FatherEntityTypeId", model.FatherEntityTypeId));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@WhatsAppNo", model.WhatsAppNo));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@PasswordHash", model.PasswordHash));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@InstituteTypeId", model.InstituteTypeId));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Affiliation", model.Affiliation));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Website", model.Website));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@TotalArea", model.TotalArea));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@NumberofClassrooms", model.NumberofClassrooms));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@ComputerLabAvailable", model.ComputerLabAvailable));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@NumberofComputers", model.NumberofComputers));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@OtherFacilities", model.OtherFacilities));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@AadhaarCardNumber", model.AadhaarCardNumber));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@PANCardNumber", model.PANCardNumber));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Remark", model.Remark));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Experience", model.Experience));
+                    command.Parameters.Add(new SqlParameter("@Code", model.Code));
+                    command.Parameters.Add(new SqlParameter("@Name", model.Name));
+                    command.Parameters.Add(new SqlParameter("@FatherName", model.FatherName));
+                    command.Parameters.Add(new SqlParameter("@LocationId", model.LocationId));
+                    command.Parameters.Add(new SqlParameter("@Address", model.Address));
+                    command.Parameters.Add(new SqlParameter("@Pincode", model.Pincode));
+                    command.Parameters.Add(new SqlParameter("@ContactTypeId", model.ContactTypeId));
+                    command.Parameters.Add(new SqlParameter("@AddressTypeId", model.AddressTypeId));
+                    command.Parameters.Add(new SqlParameter("@MobileNo", model.MobileNo));
+                    command.Parameters.Add(new SqlParameter("@Email", model.Email));
+                    command.Parameters.Add(new SqlParameter("@DesignationId", model.RoleId));
+                    command.Parameters.Add(new SqlParameter("@RoleId", model.RoleId));
+                    command.Parameters.Add(new SqlParameter("@UserName", model.UserName));
+                    command.Parameters.Add(new SqlParameter("@Password", model.Password));
+                    command.Parameters.Add(new SqlParameter("@ReferenceId", model.ReferenceId));
+                    command.Parameters.Add(new SqlParameter("@EntityTypeId", model.EntityTypeId));
+                    command.Parameters.Add(new SqlParameter("@WhatsAppContactTypeId", model.WhatsAppContactTypeId));
+                    command.Parameters.Add(new SqlParameter("@FatherEntityTypeId", model.FatherEntityTypeId));
+                    command.Parameters.Add(new SqlParameter("@WhatsAppNo", model.WhatsAppNo));
+                    command.Parameters.Add(new SqlParameter("@PasswordHash", model.PasswordHash));
+                    command.Parameters.Add(new SqlParameter("@InstituteTypeId", model.InstituteTypeId));
+                    command.Parameters.Add(new SqlParameter("@Affiliation", model.Affiliation));
+                    command.Parameters.Add(new SqlParameter("@Website", model.Website));
+                    command.Parameters.Add(new SqlParameter("@TotalArea", model.TotalArea));
+                    command.Parameters.Add(new SqlParameter("@NumberofClassrooms", model.NumberofClassrooms));
+                    command.Parameters.Add(new SqlParameter("@ComputerLabAvailable", model.ComputerLabAvailable));
+                    command.Parameters.Add(new SqlParameter("@NumberofComputers", model.NumberofComputers));
+                    command.Parameters.Add(new SqlParameter("@OtherFacilities", model.OtherFacilities));
+                    command.Parameters.Add(new SqlParameter("@AadhaarCardNumber", model.AadhaarCardNumber));
+                    command.Parameters.Add(new SqlParameter("@PANCardNumber", model.PANCardNumber));
+                    command.Parameters.Add(new SqlParameter("@Remark", model.Remark));
+                    command.Parameters.Add(new SqlParameter("@Experience", model.Experience));
 
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@SelfImage", model.PassportPhoto));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@SignatureImage", model.AuthorizedSignature));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@AadhaarCardimage", model.AadhaarCardimage));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Pancardimage", model.PanCardimage));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@InstituteCertificateimage", model.InstituteCertificate));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@BuildingPhoto1image", model.BuildingPhoto1));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@BuildingPhoto2image", model.BuildingPhoto2));
+                    command.Parameters.Add(new SqlParameter("@SelfImage", model.PassportPhoto));
+                    command.Parameters.Add(new SqlParameter("@SignatureImage", model.AuthorizedSignature));
+                    command.Parameters.Add(new SqlParameter("@AadhaarCardimage", model.AadhaarCardimage));
+                    command.Parameters.Add(new SqlParameter("@Pancardimage", model.PanCardimage));
+                    command.Parameters.Add(new SqlParameter("@InstituteCertificateimage", model.InstituteCertificate));
+                    command.Parameters.Add(new SqlParameter("@BuildingPhoto1image", model.BuildingPhoto1));
+                    command.Parameters.Add(new SqlParameter("@BuildingPhoto2image", model.BuildingPhoto2));
 
-                    if (command.Connection.State != System.Data.ConnectionState.Open)
-                        await command.Connection.OpenAsync();
+                    await connection.OpenAsync();
 
                     var result = await command.ExecuteScalarAsync();
 
@@ -148,57 +148,77 @@ namespace Application.Repository
             {
                 FrenchiseGetDTOs data = null;
 
-                using (var connection = _context.Database.GetDbConnection())
+                var connectionString = _context.Database.GetConnectionString();
+
+                using (var connection = new SqlConnection(connectionString))
+                using (var command = new SqlCommand("getEditFrenchise", connection))
                 {
-                    using (var command = connection.CreateCommand())
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    command.Parameters.Add(new SqlParameter("@Id", id));
+
+                    await connection.OpenAsync();
+
+                    using (var reader = await command.ExecuteReaderAsync())
                     {
-                        command.CommandText = "getEditFrenchise";
-                        command.CommandType = CommandType.StoredProcedure;
-
-                        command.Parameters.Add(new SqlParameter("@Id", id));
-
-                        if (connection.State != ConnectionState.Open)
-                            await connection.OpenAsync();
-
-                        using (var reader = await command.ExecuteReaderAsync())
+                        if (await reader.ReadAsync())
                         {
-                            if (await reader.ReadAsync())
+                            data = new FrenchiseGetDTOs
                             {
-                                data = new FrenchiseGetDTOs
-                                {
-                                    Id = Convert.ToInt32(reader["Id"]),
-                                    LocationId = Convert.ToInt32(reader["LocationId"]),
-                                    DistrictId = Convert.ToInt32(reader["DistrictId"]),
-                                    StateId = Convert.ToInt32(reader["StateId"]),
-                                    InstituteTypeId = Convert.ToInt32(reader["InstituteTypeId"]),
-                                    
-                                    NumberofClassrooms = Convert.ToInt32(reader["NumberofClassrooms"]),
-                                    ComputerLabAvailable = Convert.ToInt32(reader["ComputerLabAvailable"]),
-                                    NumberofComputers = Convert.ToInt32(reader["NumberofComputers"]),
-                                    Name = reader["Name"]?.ToString(),
-                                    FatherName = reader["FatherName"]?.ToString(),
-                                    Address = reader["Address"]?.ToString(),
-                                    Pincode = reader["PinCode"]?.ToString(),
-                                    MobileNo = reader["MobileNo"]?.ToString(),
-                                    WhatsAppNo = reader["WhatsAppNo"]?.ToString(),
-                                    Email = reader["Email"]?.ToString(),
-                                    Affiliation = reader["Affiliation"]?.ToString(),
-                                    Website = reader["Website"]?.ToString(),
-                                    TotalArea = reader["TotalArea"]?.ToString(),
-                                    OtherFacilities = reader["OtherFacilities"]?.ToString(),
-                                    AadhaarCardNumber = reader["AadhaarCardNumber"]?.ToString(),
-                                    PANCardNumber = reader["PANCardNumber"]?.ToString(),
-                                    Experience = reader["Experience"]?.ToString(),
-                                    Remark = reader["Remark"]?.ToString(),
-                                    PassportPhoto = reader["SelfImage"]?.ToString(),
-                                    AuthorizedSignature = reader["SignatureImage"]?.ToString(),
-                                    AadhaarCardimage = reader["AadhaarCardFrant"]?.ToString(),
-                                    PanCardimage = reader["Pancardimage"]?.ToString(),
-                                    InstituteCertificate = reader["InstituteCertificateimage"]?.ToString(),
-                                    BuildingPhoto1 = reader["BuildingPhoto1image"]?.ToString(),
-                                    BuildingPhoto2 = reader["BuildingPhoto2image"]?.ToString(),
-                                };
-                            }
+                                Id = Convert.ToInt32(reader["Id"]),
+                                LocationId = Convert.ToInt32(reader["LocationId"]),
+                                DistrictId = Convert.ToInt32(reader["DistrictId"]),
+                                StateId = Convert.ToInt32(reader["StateId"]),
+                                InstituteTypeId = Convert.ToInt32(reader["InstituteTypeId"]),
+
+                                NumberofClassrooms =
+                                    Convert.ToInt32(reader["NumberofClassrooms"]),
+
+                                ComputerLabAvailable =
+                                    Convert.ToInt32(reader["ComputerLabAvailable"]),
+
+                                NumberofComputers =
+                                    Convert.ToInt32(reader["NumberofComputers"]),
+
+                                Name = reader["Name"]?.ToString(),
+                                FatherName = reader["FatherName"]?.ToString(),
+                                Address = reader["Address"]?.ToString(),
+                                Pincode = reader["PinCode"]?.ToString(),
+                                MobileNo = reader["MobileNo"]?.ToString(),
+                                WhatsAppNo = reader["WhatsAppNo"]?.ToString(),
+                                Email = reader["Email"]?.ToString(),
+                                Affiliation = reader["Affiliation"]?.ToString(),
+                                Website = reader["Website"]?.ToString(),
+                                TotalArea = reader["TotalArea"]?.ToString(),
+                                OtherFacilities = reader["OtherFacilities"]?.ToString(),
+                                AadhaarCardNumber =
+                                    reader["AadhaarCardNumber"]?.ToString(),
+                                PANCardNumber =
+                                    reader["PANCardNumber"]?.ToString(),
+                                Experience = reader["Experience"]?.ToString(),
+                                Remark = reader["Remark"]?.ToString(),
+
+                                PassportPhoto =
+                                    reader["SelfImage"]?.ToString(),
+
+                                AuthorizedSignature =
+                                    reader["SignatureImage"]?.ToString(),
+
+                                AadhaarCardimage =
+                                    reader["AadhaarCardFrant"]?.ToString(),
+
+                                PanCardimage =
+                                    reader["Pancardimage"]?.ToString(),
+
+                                InstituteCertificate =
+                                    reader["InstituteCertificateimage"]?.ToString(),
+
+                                BuildingPhoto1 =
+                                    reader["BuildingPhoto1image"]?.ToString(),
+
+                                BuildingPhoto2 =
+                                    reader["BuildingPhoto2image"]?.ToString()
+                            };
                         }
                     }
                 }
@@ -211,50 +231,50 @@ namespace Application.Repository
             }
         }
 
-        
         public async Task<string> Update(FrenchisePostDTOs model)
         {
             try
             {
-                using (var command = _context.Database.GetDbConnection().CreateCommand())
+                var connectionString = _context.Database.GetConnectionString();
+
+                using (var connection = new SqlConnection(connectionString))
+                using (var command = new SqlCommand("UpdateFrenchise", connection))
                 {
-                    command.CommandText = "UpdateFrenchise";
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.CommandType = CommandType.StoredProcedure;
 
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Id", model.Id));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Code", model.Code));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Name", model.Name));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@FatherName", model.FatherName));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@LocationId", model.LocationId));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Address", model.Address));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Pincode", model.Pincode));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@MobileNo", model.MobileNo));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Email", model.Email));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@WhatsAppNo", model.WhatsAppNo));
+                    command.Parameters.Add(new SqlParameter("@Id", model.Id));
+                    command.Parameters.Add(new SqlParameter("@Code", model.Code));
+                    command.Parameters.Add(new SqlParameter("@Name", model.Name));
+                    command.Parameters.Add(new SqlParameter("@FatherName", model.FatherName));
+                    command.Parameters.Add(new SqlParameter("@LocationId", model.LocationId));
+                    command.Parameters.Add(new SqlParameter("@Address", model.Address));
+                    command.Parameters.Add(new SqlParameter("@Pincode", model.Pincode));
+                    command.Parameters.Add(new SqlParameter("@MobileNo", model.MobileNo));
+                    command.Parameters.Add(new SqlParameter("@Email", model.Email));
+                    command.Parameters.Add(new SqlParameter("@WhatsAppNo", model.WhatsAppNo));
 
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@InstituteTypeId", model.InstituteTypeId));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Affiliation", model.Affiliation));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Website", model.Website));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@TotalArea", model.TotalArea));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@NumberofClassrooms", model.NumberofClassrooms));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@ComputerLabAvailable", model.ComputerLabAvailable));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@NumberofComputers", model.NumberofComputers));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@OtherFacilities", model.OtherFacilities));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@AadhaarCardNumber", model.AadhaarCardNumber));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@PANCardNumber", model.PANCardNumber));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Remark", model.Remark));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Experience", model.Experience));
+                    command.Parameters.Add(new SqlParameter("@InstituteTypeId", model.InstituteTypeId));
+                    command.Parameters.Add(new SqlParameter("@Affiliation", model.Affiliation));
+                    command.Parameters.Add(new SqlParameter("@Website", model.Website));
+                    command.Parameters.Add(new SqlParameter("@TotalArea", model.TotalArea));
+                    command.Parameters.Add(new SqlParameter("@NumberofClassrooms", model.NumberofClassrooms));
+                    command.Parameters.Add(new SqlParameter("@ComputerLabAvailable", model.ComputerLabAvailable));
+                    command.Parameters.Add(new SqlParameter("@NumberofComputers", model.NumberofComputers));
+                    command.Parameters.Add(new SqlParameter("@OtherFacilities", model.OtherFacilities));
+                    command.Parameters.Add(new SqlParameter("@AadhaarCardNumber", model.AadhaarCardNumber));
+                    command.Parameters.Add(new SqlParameter("@PANCardNumber", model.PANCardNumber));
+                    command.Parameters.Add(new SqlParameter("@Remark", model.Remark));
+                    command.Parameters.Add(new SqlParameter("@Experience", model.Experience));
 
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@SelfImage", model.PassportPhoto));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@SignatureImage", model.AuthorizedSignature));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@AadhaarCardimage", model.AadhaarCardimage));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Pancardimage", model.PanCardimage));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@InstituteCertificateimage", model.InstituteCertificate));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@BuildingPhoto1image", model.BuildingPhoto1));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@BuildingPhoto2image", model.BuildingPhoto2));
+                    command.Parameters.Add(new SqlParameter("@SelfImage", model.PassportPhoto));
+                    command.Parameters.Add(new SqlParameter("@SignatureImage", model.AuthorizedSignature));
+                    command.Parameters.Add(new SqlParameter("@AadhaarCardimage", model.AadhaarCardimage));
+                    command.Parameters.Add(new SqlParameter("@Pancardimage", model.PanCardimage));
+                    command.Parameters.Add(new SqlParameter("@InstituteCertificateimage", model.InstituteCertificate));
+                    command.Parameters.Add(new SqlParameter("@BuildingPhoto1image", model.BuildingPhoto1));
+                    command.Parameters.Add(new SqlParameter("@BuildingPhoto2image", model.BuildingPhoto2));
 
-                    if (command.Connection.State != System.Data.ConnectionState.Open)
-                        await command.Connection.OpenAsync();
+                    await connection.OpenAsync();
 
                     var result = await command.ExecuteScalarAsync();
 
@@ -267,22 +287,21 @@ namespace Application.Repository
             }
         }
 
-
-        
         public async Task<string> Delete(int Id)
         {
             try
             {
-                using (var command = _context.Database.GetDbConnection().CreateCommand())
-                {
-                    command.CommandText = "GetDelete";
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                var connectionString = _context.Database.GetConnectionString();
 
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Id",Id));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Code", 1));
-   
-                    if (command.Connection.State != System.Data.ConnectionState.Open)
-                        await command.Connection.OpenAsync();
+                using (var connection = new SqlConnection(connectionString))
+                using (var command = new SqlCommand("GetDelete", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    command.Parameters.Add(new SqlParameter("@Id", Id));
+                    command.Parameters.Add(new SqlParameter("@Code", 1));
+
+                    await connection.OpenAsync();
 
                     var result = await command.ExecuteScalarAsync();
 
@@ -296,9 +315,5 @@ namespace Application.Repository
         }
 
         //---------------------------------------Frenchise End------------------------------
-
-
-
-
     }
 }

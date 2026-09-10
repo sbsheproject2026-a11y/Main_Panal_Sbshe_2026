@@ -1,223 +1,126 @@
 ﻿using Application.DTOs;
-using Application.DTOs.EmployeeDTOs;
 using Domain;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Model;
 using System.Data;
-
-
-
 
 namespace Application.Repository
 {
     public class DocumentProfileRepository : IDocumentProfileRepository
     {
         private readonly ApplicationDbContext _context;
+        private readonly string _connectionString;
 
         public DocumentProfileRepository(ApplicationDbContext context)
         {
             _context = context;
+
+            _connectionString = _context.Database.GetConnectionString()
+                ?? throw new InvalidOperationException(
+                    "Database connection string not found.");
         }
 
-        //---------------------------------------Frenchise Start------------------------------
+        // ---------------------------------------------
+        // Diploma Print Data
+        // ---------------------------------------------
 
-        public async Task<StudentGetDTOs> GetDiplomaPrintData(int id)
+        public async Task<StudentGetDTOs?> GetDiplomaPrintData(int id)
         {
             try
             {
-                StudentGetDTOs data = null;
+                StudentGetDTOs? data = null;
 
-                using (var connection = _context.Database.GetDbConnection())
+                using (var connection = new SqlConnection(_connectionString))
+                using (var command = new SqlCommand("GetDiplomaPrintData", connection))
                 {
-                    using (var command = connection.CreateCommand())
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    command.Parameters.Add(
+                        new SqlParameter("@Id", id));
+
+                    await connection.OpenAsync();
+
+                    using (var reader = await command.ExecuteReaderAsync())
                     {
-                        command.CommandText = "GetDiplomaPrintData";
-                        command.CommandType = CommandType.StoredProcedure;
-
-                        command.Parameters.Add(new SqlParameter("@Id", id));
-
-                        if (connection.State != ConnectionState.Open)
-                            await connection.OpenAsync();
-
-                        using (var reader = await command.ExecuteReaderAsync())
+                        if (await reader.ReadAsync())
                         {
-                            if (await reader.ReadAsync())
+                            data = new StudentGetDTOs
                             {
-                                data = new StudentGetDTOs
-                                {
-                                    Id = Convert.ToInt32(reader["Id"]),
+                                Id = GetInt(reader, "Id"),
 
-                                    EnrollmentNo = reader["EnrollmentNo"]?.ToString(),
-                                    Rollno = reader["Rollno"]?.ToString(),
-                                    RollNo1 = reader["RollNo1"]?.ToString(),
-                                    Name = reader["Name"]?.ToString(),
-                                    FirstName = reader["FirstName"]?.ToString(),
-                                    StudentNameHindi = reader["StudentNameHindi"]?.ToString(),
-                                    FatherNameHindi = reader["FatherNameHindi"]?.ToString(),
-                                    CourseName = reader["CourseName"]?.ToString(),
-                                    CourseNameHindi = reader["CourseNameHindi"]?.ToString(),
-                                    DOB = Convert.ToDateTime(reader["DOB"]),
-                                    DOB1 = reader["DOB1"]?.ToString(),
-                                
-                                    FatherName = reader["FatherName"]?.ToString(),
-                                    MotherName = reader["MotherName"]?.ToString(),
-                                    Address = reader["Address"]?.ToString(),
-                                    Pincode = reader["PinCode"]?.ToString(),
-                                    MobileNo = reader["MobileNo"]?.ToString(),
+                                EnrollmentNo = GetString(reader, "EnrollmentNo"),
+                                Rollno = GetString(reader, "Rollno"),
+                                RollNo1 = GetString(reader, "RollNo1"),
 
-                                    Email = reader["Email"]?.ToString(),
-                                    SelfImage = reader["SelfImage"]?.ToString(),
-                                    IssueDate = reader["IssueDate"]?.ToString(),
-                                    StartDate = reader["StartDate"]?.ToString(),
-                                    EndDate = reader["EndDate"]?.ToString(),
-                                    IssueYear = reader["IssueYear"]?.ToString(),
-                                    AdmissionDate1 = reader["AdmissionDate"]?.ToString(),
-                                    SrnoDiploma = reader["SrnoDiploma"]?.ToString(),
-                                    MigrationSrno = reader["MigrationSrno"]?.ToString(),
-                                    DepartmentName = reader["DepartmentName"]?.ToString(),
-                                    CertificateName = reader["CertificateName"]?.ToString(),
-                                    CentreName = reader["CentreName"]?.ToString(),
+                                Name = GetString(reader, "Name"),
+                                FirstName = GetString(reader, "FirstName"),
 
-                                };
+                                StudentNameHindi =
+                                    GetString(reader, "StudentNameHindi"),
 
-                            }
-                        }
-                    }
-                }
+                                FatherNameHindi =
+                                    GetString(reader, "FatherNameHindi"),
 
+                                CourseName =
+                                    GetString(reader, "CourseName"),
 
-                return data;
+                                CourseNameHindi =
+                                    GetString(reader, "CourseNameHindi"),
 
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Error while fetching Student Print Data by id.", ex);
-            }
-        }
-        public async Task<StudentGetDTOs> GetMarksheetPrintData(string id)
-        {
-            try
-            {
-                StudentGetDTOs data = null;
+                                DOB = GetDateTime(reader, "DOB"),
+                                DOB1 = GetString(reader, "DOB1"),
 
-                using (var connection = _context.Database.GetDbConnection())
-                {
-                    using (var command = connection.CreateCommand())
-                    {
-                        command.CommandText = "GetMarksheetPrintData";
-                        command.CommandType = CommandType.StoredProcedure;
+                                FatherName =
+                                    GetString(reader, "FatherName"),
 
-                        command.Parameters.Add(new SqlParameter("@Id", id));
+                                MotherName =
+                                    GetString(reader, "MotherName"),
 
-                        if (connection.State != ConnectionState.Open)
-                            await connection.OpenAsync();
+                                Address =
+                                    GetString(reader, "Address"),
 
-                        using (var reader = await command.ExecuteReaderAsync())
-                        {
-                            if (await reader.ReadAsync())
-                            {
-                                data = new StudentGetDTOs
-                                {
-                                    Id = Convert.ToInt32(reader["Id"]),
+                                Pincode =
+                                    GetString(reader, "PinCode"),
 
-                                    EnrollmentNo = reader["EnrollmentNo"]?.ToString(),
-                                    Rollno = reader["Rollno"]?.ToString(),
-                                    Name = reader["Name"]?.ToString(),
-                                    StudentNameHindi = reader["StudentNameHindi"]?.ToString(),
-                                    FatherNameHindi = reader["FatherNameHindi"]?.ToString(),
-                                    CourseName = reader["CourseName"]?.ToString(),
-                                    CourseNameHindi = reader["CourseNameHindi"]?.ToString(),
-                                    DOB = Convert.ToDateTime(reader["DOB"]),
-                                    DOB1 = reader["DOB1"]?.ToString(),
-                                    FatherName = reader["FatherName"]?.ToString(),
-                                    MotherName = reader["MotherName"]?.ToString(),
-                                    Address = reader["Address"]?.ToString(),
-                                    Pincode = reader["PinCode"]?.ToString(),
-                                    MobileNo = reader["MobileNo"]?.ToString(),
-                                    Email = reader["Email"]?.ToString(),
-                                    SelfImage = reader["SelfImage"]?.ToString(),
-                                    IssueDate = reader["IssueDate"]?.ToString(),
-                                    IssueYear = reader["IssueYear"]?.ToString(),
-                                    AdmissionDate1 = reader["AdmissionDate"]?.ToString(),
-                                    SrnoDiploma = reader["SrnoDiploma"]?.ToString(),
-                                    DepartmentName = reader["DepartmentName"]?.ToString(),
-                                    Session = reader["Session"]?.ToString(),
-                                    StudentYear = reader["StudentYear"]?.ToString(),
-                                    CentreName = reader["CentreName"]?.ToString(),
-                                    MaxMarks = Convert.ToInt32(reader["MaxMarks"]),
-                                    TheoryMarks = Convert.ToInt32(reader["TheoryMarks"]),
-                                    PracticalMarks = Convert.ToInt32(reader["PracticalMarks"]),
-                                    AssignmentMarks = Convert.ToInt32(reader["AssignmentMarks"]),
-                                    TotalMarks = Convert.ToInt32(reader["TotalMarks"]),
-                                    Grade = reader["Grade"]?.ToString(),
-                                    Result = reader["Result"]?.ToString(),
+                                MobileNo =
+                                    GetString(reader, "MobileNo"),
 
-                                };
+                                Email =
+                                    GetString(reader, "Email"),
 
-                            }
-                        }
-                    }
-                }
+                                SelfImage =
+                                    GetString(reader, "SelfImage"),
 
+                                IssueDate =
+                                    GetString(reader, "IssueDate"),
 
-                return data;
+                                StartDate =
+                                    GetString(reader, "StartDate"),
 
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Error while fetching Student Print Data by id.", ex);
-            }
-        }
+                                EndDate =
+                                    GetString(reader, "EndDate"),
 
+                                IssueYear =
+                                    GetString(reader, "IssueYear"),
 
+                                AdmissionDate1 =
+                                    GetString(reader, "AdmissionDate"),
 
-        public async Task<List<GetStudentSubjectMarksGetDTOs>> PrintStudentSubjectMarks(string id)
-        {
-            try
-            {
-                var connectionString = _context.Database.GetConnectionString();
+                                SrnoDiploma =
+                                    GetString(reader, "SrnoDiploma"),
 
-                if (string.IsNullOrWhiteSpace(connectionString))
-                {
-                    throw new Exception("Connection string is NULL or empty.");
-                }
+                                MigrationSrno =
+                                    GetString(reader, "MigrationSrno"),
 
-                var data = new List<GetStudentSubjectMarksGetDTOs>();
+                                DepartmentName =
+                                    GetString(reader, "DepartmentName"),
 
-                using (var connection = new SqlConnection(connectionString))
-                {
-                    using (var command = new SqlCommand("PrintStudentSubjectMarks", connection))
-                    {
-                        command.CommandType = CommandType.StoredProcedure;
+                                CertificateName =
+                                    GetString(reader, "CertificateName"),
 
-                        command.Parameters.AddWithValue("@Rollno", id);
-
-                        await connection.OpenAsync();
-
-                        using (var reader = await command.ExecuteReaderAsync())
-                        {
-                            while (await reader.ReadAsync())
-                            {
-                                data.Add(new GetStudentSubjectMarksGetDTOs
-                                {
-                                    Code = reader["Code"].ToString(),
-
-                                    Name = reader["Name"].ToString(),
-
-                                    Grade = reader["Grade"].ToString(),
-
-                                    TheoryMarks =  reader["TheoryMarks"].ToString(),
-
-                                    PracticalMarks =  reader["PracticalMarks"].ToString(),
-
-                                    AssignmentMarks = reader["AssignmentMarks"].ToString(),
-
-                                    MaxMarks = reader["MaxMarks"].ToString(),
-
-                                    TotalMarks =  reader["TotalMarks"].ToString()
-                                });
-                            }
+                                CentreName =
+                                    GetString(reader, "CentreName")
+                            };
                         }
                     }
                 }
@@ -227,49 +130,133 @@ namespace Application.Repository
             catch (Exception ex)
             {
                 throw new Exception(
-                    "Error while fetching Student Print Data by id.",
-                    ex
-                );
+                    "Error while fetching Student Diploma Print Data.",
+                    ex);
             }
         }
-    
-        public async Task<List<GetStudentSubjectMarksGetDTOs>> PrintStudentSubjectAdmitCard(string id)
+
+
+        // ---------------------------------------------
+        // Marksheet Print Data
+        // ---------------------------------------------
+
+        public async Task<StudentGetDTOs?> GetMarksheetPrintData(string id)
         {
             try
             {
-                var connectionString = _context.Database.GetConnectionString();
+                StudentGetDTOs? data = null;
 
-                if (string.IsNullOrWhiteSpace(connectionString))
+                using (var connection = new SqlConnection(_connectionString))
+                using (var command = new SqlCommand("GetMarksheetPrintData", connection))
                 {
-                    throw new Exception("Connection string is NULL or empty.");
-                }
+                    command.CommandType = CommandType.StoredProcedure;
 
-                var data = new List<GetStudentSubjectMarksGetDTOs>();
+                    command.Parameters.Add(
+                        new SqlParameter("@Id", id));
 
-                using (var connection = new SqlConnection(connectionString))
-                {
-                    using (var command = new SqlCommand("PrintStudentSubjectAdmitCard", connection))
+                    await connection.OpenAsync();
+
+                    using (var reader = await command.ExecuteReaderAsync())
                     {
-                        command.CommandType = CommandType.StoredProcedure;
-
-                        command.Parameters.AddWithValue("@Rollno", id);
-
-                        await connection.OpenAsync();
-
-                        using (var reader = await command.ExecuteReaderAsync())
+                        if (await reader.ReadAsync())
                         {
-                            while (await reader.ReadAsync())
+                            data = new StudentGetDTOs
                             {
-                                data.Add(new GetStudentSubjectMarksGetDTOs
-                                {
-                                    Code = reader["Code"].ToString(),
+                                Id = GetInt(reader, "Id"),
 
-                                    Name = reader["Name"].ToString(),
+                                EnrollmentNo =
+                                    GetString(reader, "EnrollmentNo"),
 
-                                    Grade = reader["ExaminationDate"].ToString(),
-                                     
-                                });
-                            }
+                                Rollno =
+                                    GetString(reader, "Rollno"),
+
+                                Name =
+                                    GetString(reader, "Name"),
+
+                                StudentNameHindi =
+                                    GetString(reader, "StudentNameHindi"),
+
+                                FatherNameHindi =
+                                    GetString(reader, "FatherNameHindi"),
+
+                                CourseName =
+                                    GetString(reader, "CourseName"),
+
+                                CourseNameHindi =
+                                    GetString(reader, "CourseNameHindi"),
+
+                                DOB =
+                                    GetDateTime(reader, "DOB"),
+
+                                DOB1 =
+                                    GetString(reader, "DOB1"),
+
+                                FatherName =
+                                    GetString(reader, "FatherName"),
+
+                                MotherName =
+                                    GetString(reader, "MotherName"),
+
+                                Address =
+                                    GetString(reader, "Address"),
+
+                                Pincode =
+                                    GetString(reader, "PinCode"),
+
+                                MobileNo =
+                                    GetString(reader, "MobileNo"),
+
+                                Email =
+                                    GetString(reader, "Email"),
+
+                                SelfImage =
+                                    GetString(reader, "SelfImage"),
+
+                                IssueDate =
+                                    GetString(reader, "IssueDate"),
+
+                                IssueYear =
+                                    GetString(reader, "IssueYear"),
+
+                                AdmissionDate1 =
+                                    GetString(reader, "AdmissionDate"),
+
+                                SrnoDiploma =
+                                    GetString(reader, "SrnoDiploma"),
+
+                                DepartmentName =
+                                    GetString(reader, "DepartmentName"),
+
+                                Session =
+                                    GetString(reader, "Session"),
+
+                                StudentYear =
+                                    GetString(reader, "StudentYear"),
+
+                                CentreName =
+                                    GetString(reader, "CentreName"),
+
+                                MaxMarks =
+                                    GetInt(reader, "MaxMarks"),
+
+                                TheoryMarks =
+                                    GetInt(reader, "TheoryMarks"),
+
+                                PracticalMarks =
+                                    GetInt(reader, "PracticalMarks"),
+
+                                AssignmentMarks =
+                                    GetInt(reader, "AssignmentMarks"),
+
+                                TotalMarks =
+                                    GetInt(reader, "TotalMarks"),
+
+                                Grade =
+                                    GetString(reader, "Grade"),
+
+                                Result =
+                                    GetString(reader, "Result")
+                            };
                         }
                     }
                 }
@@ -279,12 +266,164 @@ namespace Application.Repository
             catch (Exception ex)
             {
                 throw new Exception(
-                    "Error while fetching Student Print Data by id.",
-                    ex
-                );
+                    "Error while fetching Student Marksheet Print Data.",
+                    ex);
             }
         }
-    
-    
+
+
+        // ---------------------------------------------
+        // Student Subject Marks
+        // ---------------------------------------------
+
+        public async Task<List<GetStudentSubjectMarksGetDTOs>> PrintStudentSubjectMarks(
+            string id)
+        {
+            try
+            {
+                var data = new List<GetStudentSubjectMarksGetDTOs>();
+
+                using (var connection = new SqlConnection(_connectionString))
+                using (var command = new SqlCommand(
+                    "PrintStudentSubjectMarks",
+                    connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    command.Parameters.Add(
+                        new SqlParameter("@Rollno", id));
+
+                    await connection.OpenAsync();
+
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            data.Add(new GetStudentSubjectMarksGetDTOs
+                            {
+                                Code =
+                                    GetString(reader, "Code"),
+
+                                Name =
+                                    GetString(reader, "Name"),
+
+                                Grade =
+                                    GetString(reader, "Grade"),
+
+                                TheoryMarks =
+                                    GetString(reader, "TheoryMarks"),
+
+                                PracticalMarks =
+                                    GetString(reader, "PracticalMarks"),
+
+                                AssignmentMarks =
+                                    GetString(reader, "AssignmentMarks"),
+
+                                MaxMarks =
+                                    GetString(reader, "MaxMarks"),
+
+                                TotalMarks =
+                                    GetString(reader, "TotalMarks")
+                            });
+                        }
+                    }
+                }
+
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(
+                    "Error while fetching Student Subject Marks.",
+                    ex);
+            }
+        }
+
+
+        // ---------------------------------------------
+        // Student Subject Admit Card
+        // ---------------------------------------------
+
+        public async Task<List<GetStudentSubjectMarksGetDTOs>> PrintStudentSubjectAdmitCard(
+            string id)
+        {
+            try
+            {
+                var data = new List<GetStudentSubjectMarksGetDTOs>();
+
+                using (var connection = new SqlConnection(_connectionString))
+                using (var command = new SqlCommand(
+                    "PrintStudentSubjectAdmitCard",
+                    connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    command.Parameters.Add(
+                        new SqlParameter("@Rollno", id));
+
+                    await connection.OpenAsync();
+
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            data.Add(new GetStudentSubjectMarksGetDTOs
+                            {
+                                Code =
+                                    GetString(reader, "Code"),
+
+                                Name =
+                                    GetString(reader, "Name"),
+
+                                Grade =
+                                    GetString(reader, "ExaminationDate")
+                            });
+                        }
+                    }
+                }
+
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(
+                    "Error while fetching Student Admit Card Data.",
+                    ex);
+            }
+        }
+
+
+        // ---------------------------------------------
+        // Helper Methods
+        // ---------------------------------------------
+
+        private static string? GetString(
+            SqlDataReader reader,
+            string columnName)
+        {
+            return reader[columnName] == DBNull.Value
+                ? null
+                : reader[columnName]?.ToString();
+        }
+
+
+        private static int GetInt(
+            SqlDataReader reader,
+            string columnName)
+        {
+            return reader[columnName] == DBNull.Value
+                ? 0
+                : Convert.ToInt32(reader[columnName]);
+        }
+
+
+        private static DateTime? GetDateTime(
+            SqlDataReader reader,
+            string columnName)
+        {
+            return reader[columnName] == DBNull.Value
+                ? null
+                : Convert.ToDateTime(reader[columnName]);
+        }
     }
 }

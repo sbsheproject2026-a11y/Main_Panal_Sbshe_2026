@@ -20,12 +20,11 @@ namespace SBSHEWEBAPI
 
 
         [HttpPost("login")]
-        
         public async Task<IActionResult> Create(LoginDTOs model)
         {
             var result = await _unitOfWork.Login.Login(model);
 
-            // Agar JWT Token mila
+            // JWT Token mila = Login successful
             if (!string.IsNullOrWhiteSpace(result) && result.StartsWith("eyJ"))
             {
                 return Ok(new
@@ -35,8 +34,8 @@ namespace SBSHEWEBAPI
                 });
             }
 
-            // Baaki sab cases
-            return Ok(new
+            // Invalid login / unauthorized
+            return Unauthorized(new
             {
                 success = false,
                 message = result

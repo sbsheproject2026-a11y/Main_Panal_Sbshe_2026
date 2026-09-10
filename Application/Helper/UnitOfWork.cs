@@ -55,10 +55,9 @@ namespace Application.Helper
 
 
         }
-        public void save()
+        public async Task SaveAsync()
         {
-            _context.SaveChanges();
-
+            await _context.SaveChangesAsync();
         }
     }
 }

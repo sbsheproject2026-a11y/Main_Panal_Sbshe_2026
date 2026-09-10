@@ -1,73 +1,82 @@
 ﻿using Application.DTOs;
-using Application.DTOs.MasterTypeDTOs;
 using Domain;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
-
-
-
 
 namespace Application.Repository
 {
     public class CourseRepository : ICourseRepository
     {
         private readonly ApplicationDbContext _context;
+        private readonly string _connectionString;
 
         public CourseRepository(ApplicationDbContext context)
         {
             _context = context;
+
+            _connectionString = _context.Database.GetConnectionString()
+                ?? throw new InvalidOperationException(
+                    "Database connection string not found.");
         }
 
-        //---------------------------------------Frenchise Start------------------------------
+        // --------------------------------------- Course Start ---------------------------------------
 
-        public async Task<List<CourseGetDTOs>> GetAll(int referenceId, int pageNo, int pageSize, string? search)
+        public async Task<List<CourseGetDTOs>> GetAll(
+            int referenceId,
+            int pageNo,
+            int pageSize,
+            string? search)
         {
             try
             {
                 var data = new List<CourseGetDTOs>();
 
-                using (var connection = _context.Database.GetDbConnection())
+                using var connection = new SqlConnection(_connectionString);
+                using var command = new SqlCommand("GetCourse", connection);
+
+                command.CommandType = CommandType.StoredProcedure;
+
+                command.Parameters.Add(
+                    new SqlParameter("@ReferenceId", referenceId));
+
+                command.Parameters.Add(
+                    new SqlParameter("@PageNo", pageNo));
+
+                command.Parameters.Add(
+                    new SqlParameter("@PageSize", pageSize));
+
+                command.Parameters.Add(
+                    new SqlParameter(
+                        "@Search",
+                        search ?? (object)DBNull.Value));
+
+                await connection.OpenAsync();
+
+                using var reader = await command.ExecuteReaderAsync();
+
+                while (await reader.ReadAsync())
                 {
-                    using (var command = connection.CreateCommand())
+                    data.Add(new CourseGetDTOs
                     {
-                        command.CommandText = "GetCourse";
-                        command.CommandType = CommandType.StoredProcedure;
-
-                        command.Parameters.Add(new SqlParameter("@ReferenceId", referenceId));
-                        command.Parameters.Add(new SqlParameter("@PageNo", pageNo));
-                        command.Parameters.Add(new SqlParameter("@PageSize", pageSize));
-                        command.Parameters.Add(new SqlParameter("@Search", search ?? (object)DBNull.Value));
-
-                        if (connection.State != ConnectionState.Open)
-                            await connection.OpenAsync();
-
-                        using (var reader = await command.ExecuteReaderAsync())
-                        {
-                            while (await reader.ReadAsync())
-                            {
-                                data.Add(new CourseGetDTOs
-                                {
-                                    Id = Convert.ToInt32(reader["Id"]),
-                                    IsActive = Convert.ToInt32(reader["IsActive"]),
-                                    Code = reader["Code"]?.ToString(),
-                                    Name = reader["Name"]?.ToString(),
-                                    NameHindi = reader["CourseNameHindi"]?.ToString(),
-                                    DurationName = reader["Duration"]?.ToString(),
-                                    CategoryName = reader["Category"]?.ToString(),
-                                    DepartmentName = reader["Department"]?.ToString(),
-                                   
-                                });
-                            }
-                        }
-                    }
+                        Id = Convert.ToInt32(reader["Id"]),
+                        IsActive = Convert.ToInt32(reader["IsActive"]),
+                        Code = reader["Code"]?.ToString(),
+                        Name = reader["Name"]?.ToString(),
+                        NameHindi = reader["CourseNameHindi"]?.ToString(),
+                        DurationName = reader["Duration"]?.ToString(),
+                        CategoryName = reader["Category"]?.ToString(),
+                        DepartmentName = reader["Department"]?.ToString()
+                    });
                 }
 
                 return data;
             }
             catch (Exception ex)
             {
-                throw new Exception("Error while fetching Frenchise data.", ex);
+                throw new Exception(
+                    "Error while fetching Course data.",
+                    ex);
             }
         }
 
@@ -76,32 +85,57 @@ namespace Application.Repository
         {
             try
             {
-                using (var command = _context.Database.GetDbConnection().CreateCommand())
-                {
-                    command.CommandText = "insCourse";
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                using var connection = new SqlConnection(_connectionString);
+                using var command = new SqlCommand(
+                    "insCourse",
+                    connection);
 
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Code", model.Code));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@ShortName", model.ShortName));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Name", model.Name));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@NameHindi", model.NameHindi));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Duration", model.Duration));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@DurationTypeId", model.DurationTypeId));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@ParentId", model.ParentId ?? null));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@IsActive", model.IsActive));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@CategoryId", model.CategoryId));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@DepartmentId", model.DepartmentId));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@TotalClass", model.TotalClass));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@ClassNo", model.ClassNo));
+                command.CommandType = CommandType.StoredProcedure;
 
+                command.Parameters.Add(
+                    new SqlParameter("@Code", model.Code));
 
-                    if (command.Connection.State != System.Data.ConnectionState.Open)
-                        await command.Connection.OpenAsync();
+                command.Parameters.Add(
+                    new SqlParameter("@ShortName", model.ShortName));
 
-                    var result = await command.ExecuteScalarAsync();
+                command.Parameters.Add(
+                    new SqlParameter("@Name", model.Name));
 
-                    return result?.ToString() ?? "Course created successfully";
-                }
+                command.Parameters.Add(
+                    new SqlParameter("@NameHindi", model.NameHindi));
+
+                command.Parameters.Add(
+                    new SqlParameter("@Duration", model.Duration));
+
+                command.Parameters.Add(
+                    new SqlParameter("@DurationTypeId", model.DurationTypeId));
+
+                command.Parameters.Add(
+                    new SqlParameter(
+                        "@ParentId",
+                        model.ParentId ?? (object)DBNull.Value));
+
+                command.Parameters.Add(
+                    new SqlParameter("@IsActive", model.IsActive));
+
+                command.Parameters.Add(
+                    new SqlParameter("@CategoryId", model.CategoryId));
+
+                command.Parameters.Add(
+                    new SqlParameter("@DepartmentId", model.DepartmentId));
+
+                command.Parameters.Add(
+                    new SqlParameter("@TotalClass", model.TotalClass));
+
+                command.Parameters.Add(
+                    new SqlParameter("@ClassNo", model.ClassNo));
+
+                await connection.OpenAsync();
+
+                var result = await command.ExecuteScalarAsync();
+
+                return result?.ToString()
+                    ?? "Course created successfully";
             }
             catch (Exception ex)
             {
@@ -109,54 +143,62 @@ namespace Application.Repository
             }
         }
 
-        public async Task<CourseGetDTOs> GetById(int id)
+
+        public async Task<CourseGetDTOs?> GetById(int id)
         {
             try
             {
-                CourseGetDTOs data = null;
+                CourseGetDTOs? data = null;
 
-                using (var connection = _context.Database.GetDbConnection())
+                using var connection = new SqlConnection(_connectionString);
+                using var command = new SqlCommand(
+                    "getEditCourse",
+                    connection);
+
+                command.CommandType = CommandType.StoredProcedure;
+
+                command.Parameters.Add(
+                    new SqlParameter("@Id", id));
+
+                await connection.OpenAsync();
+
+                using var reader = await command.ExecuteReaderAsync();
+
+                if (await reader.ReadAsync())
                 {
-                    using (var command = connection.CreateCommand())
+                    data = new CourseGetDTOs
                     {
-                        command.CommandText = "getEditCourse";
-                        command.CommandType = CommandType.StoredProcedure;
-
-                        command.Parameters.Add(new SqlParameter("@Id", id));
-
-                        if (connection.State != ConnectionState.Open)
-                            await connection.OpenAsync();
-
-                        using (var reader = await command.ExecuteReaderAsync())
-                        {
-                            if (await reader.ReadAsync())
-                            {
-                                data = new CourseGetDTOs
-                                {
-                                    Id = Convert.ToInt32(reader["Id"]),
-                                    IsActive = Convert.ToInt32(reader["isActive"]),
-                                    Duration = Convert.ToInt32(reader["Duration"]),
-                                    DurationTypeId = Convert.ToInt32(reader["DurationTypeId"]),
-                                    CategoryId = Convert.ToInt32(reader["CategoryId"]),
-                                    DepartmentId = Convert.ToInt32(reader["DepartmentId"]),
-                                    TotalClass = Convert.ToInt32(reader["TotalClass"]),
-                                    ClassNo = Convert.ToInt32(reader["ClassNo"]),
-                                    ParentId = Convert.ToInt32(reader["ParentId"]),
-                                    Code = reader["Code"]?.ToString(),
-                                    Name = reader["Name"]?.ToString(),
-                                    NameHindi = reader["CourseNameHindi"]?.ToString(),
-                                     
-                                };
-                            }
-                        }
-                    }
+                        Id = Convert.ToInt32(reader["Id"]),
+                        IsActive = Convert.ToInt32(reader["IsActive"]),
+                        Duration = Convert.ToInt32(reader["Duration"]),
+                        DurationTypeId =
+                            Convert.ToInt32(reader["DurationTypeId"]),
+                        CategoryId =
+                            Convert.ToInt32(reader["CategoryId"]),
+                        DepartmentId =
+                            Convert.ToInt32(reader["DepartmentId"]),
+                        TotalClass =
+                            Convert.ToInt32(reader["TotalClass"]),
+                        ClassNo =
+                            Convert.ToInt32(reader["ClassNo"]),
+                        ParentId =
+                            reader["ParentId"] == DBNull.Value
+                                ? null
+                                : Convert.ToInt32(reader["ParentId"]),
+                        Code = reader["Code"]?.ToString(),
+                        Name = reader["Name"]?.ToString(),
+                        NameHindi =
+                            reader["CourseNameHindi"]?.ToString()
+                    };
                 }
 
                 return data;
             }
             catch (Exception ex)
             {
-                throw new Exception("Error while fetching Frenchise by id.", ex);
+                throw new Exception(
+                    "Error while fetching Course by id.",
+                    ex);
             }
         }
 
@@ -165,33 +207,60 @@ namespace Application.Repository
         {
             try
             {
-                using (var command = _context.Database.GetDbConnection().CreateCommand())
-                {
-                    command.CommandText = "UpdateCourse";
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                using var connection = new SqlConnection(_connectionString);
+                using var command = new SqlCommand(
+                    "UpdateCourse",
+                    connection);
 
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Id", model.Id));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Code", model.Code));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@ShortName", model.ShortName));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Name", model.Name));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@NameHindi", model.NameHindi));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Duration", model.Duration));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@DurationTypeId", model.DurationTypeId));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@ParentId", model.ParentId ?? null));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@IsActive", model.IsActive));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@CategoryId", model.CategoryId));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@DepartmentId", model.DepartmentId));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@TotalClass", model.TotalClass));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@ClassNo", model.ClassNo));
+                command.CommandType = CommandType.StoredProcedure;
 
+                command.Parameters.Add(
+                    new SqlParameter("@Id", model.Id));
 
-                    if (command.Connection.State != System.Data.ConnectionState.Open)
-                        await command.Connection.OpenAsync();
+                command.Parameters.Add(
+                    new SqlParameter("@Code", model.Code));
 
-                    var result = await command.ExecuteScalarAsync();
+                command.Parameters.Add(
+                    new SqlParameter("@ShortName", model.ShortName));
 
-                    return result?.ToString() ?? "Frenchise Update successfully";
-                }
+                command.Parameters.Add(
+                    new SqlParameter("@Name", model.Name));
+
+                command.Parameters.Add(
+                    new SqlParameter("@NameHindi", model.NameHindi));
+
+                command.Parameters.Add(
+                    new SqlParameter("@Duration", model.Duration));
+
+                command.Parameters.Add(
+                    new SqlParameter("@DurationTypeId", model.DurationTypeId));
+
+                command.Parameters.Add(
+                    new SqlParameter(
+                        "@ParentId",
+                        model.ParentId ?? (object)DBNull.Value));
+
+                command.Parameters.Add(
+                    new SqlParameter("@IsActive", model.IsActive));
+
+                command.Parameters.Add(
+                    new SqlParameter("@CategoryId", model.CategoryId));
+
+                command.Parameters.Add(
+                    new SqlParameter("@DepartmentId", model.DepartmentId));
+
+                command.Parameters.Add(
+                    new SqlParameter("@TotalClass", model.TotalClass));
+
+                command.Parameters.Add(
+                    new SqlParameter("@ClassNo", model.ClassNo));
+
+                await connection.OpenAsync();
+
+                var result = await command.ExecuteScalarAsync();
+
+                return result?.ToString()
+                    ?? "Course updated successfully";
             }
             catch (Exception ex)
             {
@@ -200,26 +269,29 @@ namespace Application.Repository
         }
 
 
-
-        public async Task<string> Delete(int Id)
+        public async Task<string> Delete(int id)
         {
             try
             {
-                using (var command = _context.Database.GetDbConnection().CreateCommand())
-                {
-                    command.CommandText = "GetCourseDelete";
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                using var connection = new SqlConnection(_connectionString);
+                using var command = new SqlCommand(
+                    "GetCourseDelete",
+                    connection);
 
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Id", Id));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Code", 0));
+                command.CommandType = CommandType.StoredProcedure;
 
-                    if (command.Connection.State != System.Data.ConnectionState.Open)
-                        await command.Connection.OpenAsync();
+                command.Parameters.Add(
+                    new SqlParameter("@Id", id));
 
-                    var result = await command.ExecuteScalarAsync();
+                command.Parameters.Add(
+                    new SqlParameter("@Code", 0));
 
-                    return result?.ToString() ?? "Frenchise Delete successfully";
-                }
+                await connection.OpenAsync();
+
+                var result = await command.ExecuteScalarAsync();
+
+                return result?.ToString()
+                    ?? "Course deleted successfully";
             }
             catch (Exception ex)
             {
@@ -227,9 +299,6 @@ namespace Application.Repository
             }
         }
 
-        //---------------------------------------Frenchise End------------------------------
-
- 
-
+        // --------------------------------------- Course End ---------------------------------------
     }
 }

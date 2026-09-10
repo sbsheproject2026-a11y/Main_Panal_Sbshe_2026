@@ -7,65 +7,67 @@ using Microsoft.EntityFrameworkCore;
 using Model;
 using System.Data;
 
-
-
-
 namespace Application.Repository
 {
     public class EmployeeRepository : IEmployeeRepository
     {
         private readonly ApplicationDbContext _context;
+        private readonly string _connectionString;
 
         public EmployeeRepository(ApplicationDbContext context)
         {
             _context = context;
+            _connectionString = _context.Database.GetConnectionString()
+                ?? throw new InvalidOperationException("Database connection string not found.");
         }
 
-        //---------------------------------------Frenchise Start------------------------------
+        //--------------------------------------- Employee Start ------------------------------
 
-        public async Task<List<EmployeeGetDTOs>> GetAll(int referenceId, int pageNo, int pageSize, string? search)
+        public async Task<List<EmployeeGetDTOs>> GetAll(
+            int referenceId,
+            int pageNo,
+            int pageSize,
+            string? search)
         {
             try
             {
                 var data = new List<EmployeeGetDTOs>();
 
-                using (var connection = _context.Database.GetDbConnection())
+                using (var connection = new SqlConnection(_connectionString))
+                using (var command = new SqlCommand("GetEmployee", connection))
                 {
-                    using (var command = connection.CreateCommand())
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    command.Parameters.Add(new SqlParameter("@ReferenceId", referenceId));
+                    command.Parameters.Add(new SqlParameter("@PageNo", pageNo));
+                    command.Parameters.Add(new SqlParameter("@PageSize", pageSize));
+                    command.Parameters.Add(new SqlParameter(
+                        "@Search",
+                        search ?? (object)DBNull.Value));
+
+                    await connection.OpenAsync();
+
+                    using (var reader = await command.ExecuteReaderAsync())
                     {
-                        command.CommandText = "GetEmployee";
-                        command.CommandType = CommandType.StoredProcedure;
-
-                        command.Parameters.Add(new SqlParameter("@ReferenceId", referenceId));
-                        command.Parameters.Add(new SqlParameter("@PageNo", pageNo));
-                        command.Parameters.Add(new SqlParameter("@PageSize", pageSize));
-                        command.Parameters.Add(new SqlParameter("@Search", search ?? (object)DBNull.Value));
-
-                        if (connection.State != ConnectionState.Open)
-                            await connection.OpenAsync();
-
-                        using (var reader = await command.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
                         {
-                            while (await reader.ReadAsync())
+                            data.Add(new EmployeeGetDTOs
                             {
-                                data.Add(new EmployeeGetDTOs
-                                {
-                                    Id = Convert.ToInt32(reader["Id"]),
-                                    ReferenceId = Convert.ToInt32(reader["ReferenceId"]),
-                                    Code = reader["Code"]?.ToString(),
-                                    Name = reader["Name"]?.ToString(),
-                                    FatherName = reader["FatherName"]?.ToString(),
-                                    Address = reader["Address"]?.ToString(),
-                                    Pincode = reader["PinCode"]?.ToString(),
-                                    MobileNo = reader["MobileNo"]?.ToString(),
-                                    Email = reader["Email"]?.ToString(),
-                                    UserName = reader["UserName"]?.ToString(),
-                                    Password = reader["Password"]?.ToString(),
-                                    CityName = reader["CityName"]?.ToString(),
-                                    DistrictName = reader["DistrictName"]?.ToString(),
-                                    StateName = reader["StateName"]?.ToString()
-                                });
-                            }
+                                Id = Convert.ToInt32(reader["Id"]),
+                                ReferenceId = Convert.ToInt32(reader["ReferenceId"]),
+                                Code = reader["Code"]?.ToString(),
+                                Name = reader["Name"]?.ToString(),
+                                FatherName = reader["FatherName"]?.ToString(),
+                                Address = reader["Address"]?.ToString(),
+                                Pincode = reader["PinCode"]?.ToString(),
+                                MobileNo = reader["MobileNo"]?.ToString(),
+                                Email = reader["Email"]?.ToString(),
+                                UserName = reader["UserName"]?.ToString(),
+                                Password = reader["Password"]?.ToString(),
+                                CityName = reader["CityName"]?.ToString(),
+                                DistrictName = reader["DistrictName"]?.ToString(),
+                                StateName = reader["StateName"]?.ToString()
+                            });
                         }
                     }
                 }
@@ -74,7 +76,7 @@ namespace Application.Repository
             }
             catch (Exception ex)
             {
-                throw new Exception("Error while fetching Frenchise data.", ex);
+                throw new Exception("Error while fetching Employee data.", ex);
             }
         }
 
@@ -83,45 +85,45 @@ namespace Application.Repository
         {
             try
             {
-                using (var command = _context.Database.GetDbConnection().CreateCommand())
+                using (var connection = new SqlConnection(_connectionString))
+                using (var command = new SqlCommand("InsEmployee", connection))
                 {
-                    command.CommandText = "InsEmployee";
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.CommandType = CommandType.StoredProcedure;
 
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Code", model.Code));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Name", model.Name));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@FatherName", model.FatherName));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@LocationId", model.LocationId));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Address", model.Address));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Pincode", model.Pincode));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@ContactTypeId", model.ContactTypeId));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@AddressTypeId", model.AddressTypeId));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@MobileNo", model.MobileNo));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Email", model.Email));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@DesignationId", model.DesignationId));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@RoleId", model.RoleId));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@UserName", model.UserName));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Password", model.Password));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@ReferenceId", model.ReferenceId));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@EntityTypeId", model.EntityTypeId));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@WhatsAppContactTypeId", model.WhatsAppContactTypeId));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@FatherEntityTypeId", model.FatherEntityTypeId));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@WhatsAppNo", model.WhatsAppNo));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@PasswordHash", model.PasswordHash));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@GenderId", model.GenderId));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@IdNumber", model.IdNumber));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@SelfImage", model.SelfImage));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@IsActive", model.IsActive));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@EmployeeTypeId", model.EmployeeTypeId));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@DepartmentId", model.DepartmentId));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@DateofJoining", model.DateofJoining));
+                    command.Parameters.Add(new SqlParameter("@Code", model.Code));
+                    command.Parameters.Add(new SqlParameter("@Name", model.Name));
+                    command.Parameters.Add(new SqlParameter("@FatherName", model.FatherName));
+                    command.Parameters.Add(new SqlParameter("@LocationId", model.LocationId));
+                    command.Parameters.Add(new SqlParameter("@Address", model.Address));
+                    command.Parameters.Add(new SqlParameter("@Pincode", model.Pincode));
+                    command.Parameters.Add(new SqlParameter("@ContactTypeId", model.ContactTypeId));
+                    command.Parameters.Add(new SqlParameter("@AddressTypeId", model.AddressTypeId));
+                    command.Parameters.Add(new SqlParameter("@MobileNo", model.MobileNo));
+                    command.Parameters.Add(new SqlParameter("@Email", model.Email));
+                    command.Parameters.Add(new SqlParameter("@DesignationId", model.DesignationId));
+                    command.Parameters.Add(new SqlParameter("@RoleId", model.RoleId));
+                    command.Parameters.Add(new SqlParameter("@UserName", model.UserName));
+                    command.Parameters.Add(new SqlParameter("@Password", model.Password));
+                    command.Parameters.Add(new SqlParameter("@ReferenceId", model.ReferenceId));
+                    command.Parameters.Add(new SqlParameter("@EntityTypeId", model.EntityTypeId));
+                    command.Parameters.Add(new SqlParameter("@WhatsAppContactTypeId", model.WhatsAppContactTypeId));
+                    command.Parameters.Add(new SqlParameter("@FatherEntityTypeId", model.FatherEntityTypeId));
+                    command.Parameters.Add(new SqlParameter("@WhatsAppNo", model.WhatsAppNo));
+                    command.Parameters.Add(new SqlParameter("@PasswordHash", model.PasswordHash));
+                    command.Parameters.Add(new SqlParameter("@GenderId", model.GenderId));
+                    command.Parameters.Add(new SqlParameter("@IdNumber", model.IdNumber));
+                    command.Parameters.Add(new SqlParameter("@SelfImage", model.SelfImage));
+                    command.Parameters.Add(new SqlParameter("@IsActive", model.IsActive));
+                    command.Parameters.Add(new SqlParameter("@EmployeeTypeId", model.EmployeeTypeId));
+                    command.Parameters.Add(new SqlParameter("@DepartmentId", model.DepartmentId));
+                    command.Parameters.Add(new SqlParameter("@DateofJoining", model.DateofJoining));
 
-                    if (command.Connection.State != System.Data.ConnectionState.Open)
-                        await command.Connection.OpenAsync();
+                    await connection.OpenAsync();
 
                     var result = await command.ExecuteScalarAsync();
 
-                    return result?.ToString() ?? "Frenchise created successfully";
+                    return result?.ToString()
+                        ?? "Employee created successfully";
                 }
             }
             catch (Exception ex)
@@ -130,71 +132,70 @@ namespace Application.Repository
             }
         }
 
+
         public async Task<EmployeeGetDTOs> GetById(int id)
         {
             try
             {
                 EmployeeGetDTOs data = null;
 
-                using (var connection = _context.Database.GetDbConnection())
+                using (var connection = new SqlConnection(_connectionString))
+                using (var command = new SqlCommand("getEditEmployee", connection))
                 {
-                    using (var command = connection.CreateCommand())
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    command.Parameters.Add(new SqlParameter("@Id", id));
+
+                    await connection.OpenAsync();
+
+                    using (var reader = await command.ExecuteReaderAsync())
                     {
-                        command.CommandText = "getEditEmployee";
-                        command.CommandType = CommandType.StoredProcedure;
-
-                        command.Parameters.Add(new SqlParameter("@Id", id));
-
-                        if (connection.State != ConnectionState.Open)
-                            await connection.OpenAsync();
-
-                        using (var reader = await command.ExecuteReaderAsync())
+                        if (await reader.ReadAsync())
                         {
-                            if (await reader.ReadAsync())
+                            data = new EmployeeGetDTOs
                             {
-                                data = new EmployeeGetDTOs
-                                {
-                                    Id = Convert.ToInt32(reader["Id"]),
-                                    LocationId = Convert.ToInt32(reader["LocationId"]),
-                                    DistrictId = Convert.ToInt32(reader["DistrictId"]),
-                                    StateId = Convert.ToInt32(reader["StateId"]),
-                                    DesignationId = Convert.ToInt32(reader["DesignationId"]),
-                                    DepartmentId = Convert.ToInt32(reader["DepartmentId"]),
-                                    GenderId = Convert.ToInt32(reader["GenderId"]),
-                                    EmployeeTypeId = Convert.ToInt32(reader["EmployeeTypeId"]),
-                                    Code = reader["Code"]?.ToString(),
-                                    Name = reader["Name"]?.ToString(),
-                                    FatherName = reader["FatherName"]?.ToString(),
-                                    Address = reader["Address"]?.ToString(),
-                                    Pincode = reader["PinCode"]?.ToString(),
-                                    MobileNo = reader["MobileNo"]?.ToString(),
-                                    WhatsAppNo = reader["WhatsAppNo"]?.ToString(),
-                                    Email = reader["Email"]?.ToString(),
-                                    SelfImage = reader["SelfImage"]?.ToString(),
-                                    SelfImageShow = "http://localhost:5188/Uploads/" + reader["SelfImage"]?.ToString(),
-                                    IdNumber = reader["IdNumber"]?.ToString(),
-                                    DateofJoining = Convert.ToDateTime(reader["DateofJoining"]),
+                                Id = Convert.ToInt32(reader["Id"]),
+                                LocationId = Convert.ToInt32(reader["LocationId"]),
+                                DistrictId = Convert.ToInt32(reader["DistrictId"]),
+                                StateId = Convert.ToInt32(reader["StateId"]),
+                                DesignationId = Convert.ToInt32(reader["DesignationId"]),
+                                DepartmentId = Convert.ToInt32(reader["DepartmentId"]),
+                                GenderId = Convert.ToInt32(reader["GenderId"]),
+                                EmployeeTypeId = Convert.ToInt32(reader["EmployeeTypeId"]),
 
+                                Code = reader["Code"]?.ToString(),
+                                Name = reader["Name"]?.ToString(),
+                                FatherName = reader["FatherName"]?.ToString(),
+                                Address = reader["Address"]?.ToString(),
+                                Pincode = reader["PinCode"]?.ToString(),
+                                MobileNo = reader["MobileNo"]?.ToString(),
+                                WhatsAppNo = reader["WhatsAppNo"]?.ToString(),
+                                Email = reader["Email"]?.ToString(),
 
+                                SelfImage = reader["SelfImage"]?.ToString(),
+                                SelfImageShow =
+                                    "http://localhost:5188/Uploads/" +
+                                    reader["SelfImage"]?.ToString(),
 
-                                };
-                                if (data != null)
-                                {
-                                    data.DateofJoining1 = data.DateofJoining?.ToString("yyyy-MM-dd");
+                                IdNumber = reader["IdNumber"]?.ToString(),
 
-                                }
-                            }
+                                DateofJoining =
+                                    Convert.ToDateTime(reader["DateofJoining"])
+                            };
+
+                            data.DateofJoining1 =
+                                data.DateofJoining?.ToString("yyyy-MM-dd");
                         }
                     }
                 }
 
-
                 return data;
-
             }
             catch (Exception ex)
             {
-                throw new Exception("Error while fetching Employee by id.", ex);
+                throw new Exception(
+                    "Error while fetching Employee by id.",
+                    ex);
             }
         }
 
@@ -203,36 +204,36 @@ namespace Application.Repository
         {
             try
             {
-                using (var command = _context.Database.GetDbConnection().CreateCommand())
+                using (var connection = new SqlConnection(_connectionString))
+                using (var command = new SqlCommand("UpdateEmployee", connection))
                 {
-                    command.CommandText = "UpdateEmployee";
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.CommandType = CommandType.StoredProcedure;
 
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Id", model.Id));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Code", model.Code));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Name", model.Name));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@FatherName", model.FatherName));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@LocationId", model.LocationId));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Address", model.Address));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Pincode", model.Pincode));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@MobileNo", model.MobileNo));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Email", model.Email));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@DesignationId", model.DesignationId));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@WhatsAppNo", model.WhatsAppNo));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@GenderId", model.GenderId));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@IdNumber", model.IdNumber));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@SelfImage", model.SelfImage));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@IsActive", model.IsActive));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@EmployeeTypeId", model.EmployeeTypeId));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@DepartmentId", model.DepartmentId));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@DateofJoining", model.DateofJoining));
+                    command.Parameters.Add(new SqlParameter("@Id", model.Id));
+                    command.Parameters.Add(new SqlParameter("@Code", model.Code));
+                    command.Parameters.Add(new SqlParameter("@Name", model.Name));
+                    command.Parameters.Add(new SqlParameter("@FatherName", model.FatherName));
+                    command.Parameters.Add(new SqlParameter("@LocationId", model.LocationId));
+                    command.Parameters.Add(new SqlParameter("@Address", model.Address));
+                    command.Parameters.Add(new SqlParameter("@Pincode", model.Pincode));
+                    command.Parameters.Add(new SqlParameter("@MobileNo", model.MobileNo));
+                    command.Parameters.Add(new SqlParameter("@Email", model.Email));
+                    command.Parameters.Add(new SqlParameter("@DesignationId", model.DesignationId));
+                    command.Parameters.Add(new SqlParameter("@WhatsAppNo", model.WhatsAppNo));
+                    command.Parameters.Add(new SqlParameter("@GenderId", model.GenderId));
+                    command.Parameters.Add(new SqlParameter("@IdNumber", model.IdNumber));
+                    command.Parameters.Add(new SqlParameter("@SelfImage", model.SelfImage));
+                    command.Parameters.Add(new SqlParameter("@IsActive", model.IsActive));
+                    command.Parameters.Add(new SqlParameter("@EmployeeTypeId", model.EmployeeTypeId));
+                    command.Parameters.Add(new SqlParameter("@DepartmentId", model.DepartmentId));
+                    command.Parameters.Add(new SqlParameter("@DateofJoining", model.DateofJoining));
 
-                    if (command.Connection.State != System.Data.ConnectionState.Open)
-                        await command.Connection.OpenAsync();
+                    await connection.OpenAsync();
 
                     var result = await command.ExecuteScalarAsync();
 
-                    return result?.ToString() ?? "Employee Update successfully";
+                    return result?.ToString()
+                        ?? "Employee updated successfully";
                 }
             }
             catch (Exception ex)
@@ -242,25 +243,24 @@ namespace Application.Repository
         }
 
 
-
-        public async Task<string> Delete(int Id)
+        public async Task<string> Delete(int id)
         {
             try
             {
-                using (var command = _context.Database.GetDbConnection().CreateCommand())
+                using (var connection = new SqlConnection(_connectionString))
+                using (var command = new SqlCommand("GetDelete", connection))
                 {
-                    command.CommandText = "GetDelete";
-                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    command.CommandType = CommandType.StoredProcedure;
 
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Id", Id));
-                    command.Parameters.Add(new Microsoft.Data.SqlClient.SqlParameter("@Code", 1));
+                    command.Parameters.Add(new SqlParameter("@Id", id));
+                    command.Parameters.Add(new SqlParameter("@Code", 1));
 
-                    if (command.Connection.State != System.Data.ConnectionState.Open)
-                        await command.Connection.OpenAsync();
+                    await connection.OpenAsync();
 
                     var result = await command.ExecuteScalarAsync();
 
-                    return result?.ToString() ?? "Employee Delete successfully";
+                    return result?.ToString()
+                        ?? "Employee deleted successfully";
                 }
             }
             catch (Exception ex)
@@ -269,7 +269,8 @@ namespace Application.Repository
             }
         }
 
-        //---------------------------------------Frenchise End------------------------------
+        //--------------------------------------- Employee End ------------------------------
+
 
         public async Task<string> AssignFrenchise(EmployeeFrenchiseAssignDTOs model)
         {
@@ -298,41 +299,40 @@ namespace Application.Repository
         }
 
 
-        public async Task<List<EmployeeGetDTOs>> GetAssignFrenchise(int referenceId, int pageNo, int pageSize, string? search)
+        public async Task<List<EmployeeGetDTOs>> GetAssignFrenchise(
+            int referenceId,
+            int pageNo,
+            int pageSize,
+            string? search)
         {
             try
             {
                 var data = new List<EmployeeGetDTOs>();
 
-                using (var connection = _context.Database.GetDbConnection())
+                using (var connection = new SqlConnection(_connectionString))
+                using (var command = new SqlCommand("GetAssignFrenchise", connection))
                 {
-                    using (var command = connection.CreateCommand())
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    command.Parameters.Add(new SqlParameter("@ReferenceId", referenceId));
+                    command.Parameters.Add(new SqlParameter("@PageNo", pageNo));
+                    command.Parameters.Add(new SqlParameter("@PageSize", pageSize));
+                    command.Parameters.Add(new SqlParameter(
+                        "@Search",
+                        search ?? (object)DBNull.Value));
+
+                    await connection.OpenAsync();
+
+                    using (var reader = await command.ExecuteReaderAsync())
                     {
-                        command.CommandText = "GetAssignFrenchise";
-                        command.CommandType = CommandType.StoredProcedure;
-
-                        command.Parameters.Add(new SqlParameter("@ReferenceId", referenceId));
-                        command.Parameters.Add(new SqlParameter("@PageNo", pageNo));
-                        command.Parameters.Add(new SqlParameter("@PageSize", pageSize));
-                        command.Parameters.Add(new SqlParameter("@Search", search ?? (object)DBNull.Value));
-
-                        if (connection.State != ConnectionState.Open)
-                            await connection.OpenAsync();
-
-                        using (var reader = await command.ExecuteReaderAsync())
+                        while (await reader.ReadAsync())
                         {
-                            while (await reader.ReadAsync())
+                            data.Add(new EmployeeGetDTOs
                             {
-                                data.Add(new EmployeeGetDTOs
-                                {
-                                    Id = Convert.ToInt32(reader["Id"]),
-                                    
-                                   
-                                    Name = reader["EmployeeName"]?.ToString(),
-                                    FatherName = reader["FrenchiseName"]?.ToString(),
-                                    
-                                });
-                            }
+                                Id = Convert.ToInt32(reader["Id"]),
+                                Name = reader["EmployeeName"]?.ToString(),
+                                FatherName = reader["FrenchiseName"]?.ToString()
+                            });
                         }
                     }
                 }
@@ -341,17 +341,19 @@ namespace Application.Repository
             }
             catch (Exception ex)
             {
-                throw new Exception("Error while fetching Frenchise data.", ex);
+                throw new Exception(
+                    "Error while fetching assigned Frenchise data.",
+                    ex);
             }
         }
 
 
-        public async Task<string> DeleteAssignFrenchise(int Id)
+        public async Task<string> DeleteAssignFrenchise(int id)
         {
             try
             {
                 var data = await _context.EmployeeFrenchiseAssign
-                    .FirstOrDefaultAsync(x => x.Id == Id);
+                    .FirstOrDefaultAsync(x => x.Id == id);
 
                 if (data == null)
                 {
@@ -366,9 +368,12 @@ namespace Application.Repository
             }
             catch (Exception ex)
             {
-                throw new Exception("Error while deleting Employee Frenchise Assign", ex);
+                throw new Exception(
+                    "Error while deleting Employee Frenchise Assign",
+                    ex);
             }
         }
+
 
         public async Task<string> PasswordUpdate(UpdatePasswordDTOs model)
         {
@@ -382,11 +387,8 @@ namespace Application.Repository
                     return "Login Data not found";
                 }
 
-
                 data.Password = model.Password;
                 data.HashPassword = model.HashPassword;
-
-
 
                 await _context.SaveChangesAsync();
 
@@ -394,10 +396,10 @@ namespace Application.Repository
             }
             catch (Exception ex)
             {
-                throw new Exception("Error while updating Location", ex);
+                throw new Exception(
+                    "Error while updating Password",
+                    ex);
             }
         }
-
-
     }
 }
