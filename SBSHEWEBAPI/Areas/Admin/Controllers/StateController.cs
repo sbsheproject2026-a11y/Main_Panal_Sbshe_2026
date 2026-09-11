@@ -32,7 +32,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
         {
             try
             {
-                var data = await _unitOfWork.Location.GetAll(1);
+                var data = await _unitOfWork.Location.GetAll(2);
 
                 return Ok(new
                 {

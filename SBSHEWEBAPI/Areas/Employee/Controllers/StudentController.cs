@@ -184,6 +184,83 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
 
 
 
+
+        [HttpPost("create-academicdetails")]
+        public async Task<IActionResult> Createacademicdetails([FromForm] AcademicDetailDTO model)
+        {
+            try
+            {
+                if (model == null)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Invalid request"
+                    });
+                }
+
+                if (!model.EntityId.HasValue || model.EntityId.Value <= 0)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Student Id is required"
+                    });
+                }
+
+                string folderPath = Path.Combine(
+                    _environment.WebRootPath,
+                    "Uploads"
+                );
+
+                Directory.CreateDirectory(folderPath);
+
+                async Task<string> UploadFile(IFormFile file)
+                {
+                    string fileName = $"{Guid.NewGuid():N}"[..8] + "_" + Path.GetFileName(file.FileName);
+
+                    string filePath = Path.Combine(folderPath, fileName);
+
+                    using var stream = new FileStream(filePath, FileMode.Create);
+
+                    await file.CopyToAsync(stream);
+
+                    return fileName;
+                }
+
+                if (model.File != null &&
+                    model.File.Length > 0)
+                {
+                    model.FileName =
+                        await UploadFile(model.File);
+                }
+
+                await _unitOfWork.Student.CreateAcademicDetail(
+                    model.EntityId.Value,
+                    model
+                );
+
+                return Ok(new
+                {
+                    success = true,
+                    message = "Academic details created successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = "Something went wrong",
+                    error = ex.Message
+                });
+            }
+        }
+
+
+
+
+
         [HttpGet("student-getbyid/{id}")]
         public async Task<IActionResult> GetById(int id)
         {

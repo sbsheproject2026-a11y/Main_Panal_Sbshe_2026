@@ -165,7 +165,7 @@ namespace Application.Repository
         {
             try
             {
-                var data = await _context.Location.Where(x => x.TypeId == 1 && x.IsActive == 1)
+                var data = await _context.Location.Where(x => x.TypeId == 2 && x.IsActive == 1)
 
                     .Select(x => new DropDownDTOs
                     {
@@ -188,7 +188,7 @@ namespace Application.Repository
         {
             try
             {
-                var data = await _context.Location.Where(x => x.TypeId == 2 && x.ParentId == Id)
+                var data = await _context.Location.Where(x => x.TypeId == 3 && x.ParentId == Id)
 
                     .Select(x => new DropDownDTOs
                     {
@@ -211,7 +211,7 @@ namespace Application.Repository
         {
             try
             {
-                var data = await _context.Location.Where(x => x.TypeId == 3 && x.ParentId == Id)
+                var data = await _context.Location.Where(x => x.TypeId == 4 && x.ParentId == Id)
 
                     .Select(x => new DropDownDTOs
                     {

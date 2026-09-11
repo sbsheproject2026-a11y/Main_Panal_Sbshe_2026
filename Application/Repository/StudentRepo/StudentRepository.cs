@@ -832,9 +832,7 @@ namespace Application.Repository
                                 RollNo = reader["RollNo"]?.ToString(),
                                 BoardUniversity = reader["BoardUniversity"]?.ToString(),
                                 PercentageCgpa = reader["PercentageCgpa"]?.ToString(),
-                                FileName =
-                                    "http://localhost:5188/uploads/" +
-                                    reader["FileName"]?.ToString()
+                                FileName =   reader["FileName"]?.ToString()
                             });
                         }
                     }
