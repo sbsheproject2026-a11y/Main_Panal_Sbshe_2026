@@ -21,7 +21,7 @@ namespace Application.Repository
         {
             try
             {
-                var data = await _context.Enquiries.Where(x => x.TypeId == id && x.IsActive == 1)
+                var data = await _context.Enquiries.Where(x => x.TypeId == id && x.IsActive == 1).OrderByDescending(x => x.Id)
                     .Select(x => new EnquiriesGetDTOs
                     {
                         Id = x.Id,

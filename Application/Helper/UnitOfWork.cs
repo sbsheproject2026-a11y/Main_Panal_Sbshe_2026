@@ -30,6 +30,7 @@ namespace Application.Helper
         public IWebsiteContentRepository WebsiteContent { get; private set; }
         public IEnquiriesRepository Enquiries { get; private set; }
         public IAccRepository AccRegistration { get; private set; }
+        public IWalletRepository Wallet { get; private set; }
 
 
 
@@ -52,6 +53,7 @@ namespace Application.Helper
             WebsiteContent = new WebsiteContentRepository(_context);
             Enquiries = new EnquiriesRepository(_context);
             AccRegistration = new AccRepository(_context);
+            Wallet = new WalletRepository(_context);
 
 
         }

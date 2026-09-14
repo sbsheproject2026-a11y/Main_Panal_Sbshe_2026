@@ -22,7 +22,7 @@ namespace Application.Repository
         {
             try
             {
-                var data = await _context.MasterSession.Where(x => x.Status == 1 )
+                var data = await _context.MasterSession.Where(x => x.Status == 1).OrderByDescending(x => x.Id)
                     .Select(x => new MasterSessionGetDTOs
                     {
                         Id = x.Id,

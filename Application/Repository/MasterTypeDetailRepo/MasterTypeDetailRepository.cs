@@ -22,13 +22,14 @@ namespace Application.Repository
         {
             try
             {
-                var data = await _context.MasterTypeDetail.Where(x => x.IsDelete == 0 )
+                var data = await _context.MasterTypeDetail.Where(x => x.IsDelete == 0).OrderByDescending(x => x.Id)
                     .Select(x => new MasterTypeDetailGetDTOs
                     {
                         Id = x.Id,
                         Name = x.Name,
                         Code = x.Code,
-                        MasterTypeId=x.MasterTypeId
+                        MasterTypeId=x.MasterTypeId,
+                        IsActive = x.IsActive
 
                     })
                     .ToListAsync();

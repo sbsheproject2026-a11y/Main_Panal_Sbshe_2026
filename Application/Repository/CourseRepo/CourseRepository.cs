@@ -2,6 +2,7 @@
 using Domain;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Model;
 using System.Data;
 
 namespace Application.Repository
@@ -37,19 +38,13 @@ namespace Application.Repository
 
                 command.CommandType = CommandType.StoredProcedure;
 
-                command.Parameters.Add(
-                    new SqlParameter("@ReferenceId", referenceId));
+                command.Parameters.Add(new SqlParameter("@ReferenceId", referenceId));
 
-                command.Parameters.Add(
-                    new SqlParameter("@PageNo", pageNo));
+                command.Parameters.Add(new SqlParameter("@PageNo", pageNo));
 
-                command.Parameters.Add(
-                    new SqlParameter("@PageSize", pageSize));
+                command.Parameters.Add(new SqlParameter("@PageSize", pageSize));
 
-                command.Parameters.Add(
-                    new SqlParameter(
-                        "@Search",
-                        search ?? (object)DBNull.Value));
+                command.Parameters.Add(new SqlParameter("@Search", search ?? (object)DBNull.Value));
 
                 await connection.OpenAsync();
 
@@ -86,56 +81,28 @@ namespace Application.Repository
             try
             {
                 using var connection = new SqlConnection(_connectionString);
-                using var command = new SqlCommand(
-                    "insCourse",
-                    connection);
+                using var command = new SqlCommand("insCourse", connection);
 
                 command.CommandType = CommandType.StoredProcedure;
 
-                command.Parameters.Add(
-                    new SqlParameter("@Code", model.Code));
-
-                command.Parameters.Add(
-                    new SqlParameter("@ShortName", model.ShortName));
-
-                command.Parameters.Add(
-                    new SqlParameter("@Name", model.Name));
-
-                command.Parameters.Add(
-                    new SqlParameter("@NameHindi", model.NameHindi));
-
-                command.Parameters.Add(
-                    new SqlParameter("@Duration", model.Duration));
-
-                command.Parameters.Add(
-                    new SqlParameter("@DurationTypeId", model.DurationTypeId));
-
-                command.Parameters.Add(
-                    new SqlParameter(
-                        "@ParentId",
-                        model.ParentId ?? (object)DBNull.Value));
-
-                command.Parameters.Add(
-                    new SqlParameter("@IsActive", model.IsActive));
-
-                command.Parameters.Add(
-                    new SqlParameter("@CategoryId", model.CategoryId));
-
-                command.Parameters.Add(
-                    new SqlParameter("@DepartmentId", model.DepartmentId));
-
-                command.Parameters.Add(
-                    new SqlParameter("@TotalClass", model.TotalClass));
-
-                command.Parameters.Add(
-                    new SqlParameter("@ClassNo", model.ClassNo));
+                command.Parameters.Add(new SqlParameter("@Code", model.Code));
+                command.Parameters.Add(new SqlParameter("@ShortName", model.ShortName));
+                command.Parameters.Add(new SqlParameter("@Name", model.Name));
+                command.Parameters.Add(new SqlParameter("@NameHindi", model.NameHindi));
+                command.Parameters.Add(new SqlParameter("@Duration", model.Duration));
+                command.Parameters.Add(new SqlParameter("@DurationTypeId", model.DurationTypeId));
+                command.Parameters.Add(new SqlParameter("@ParentId", model.ParentId ?? (object)DBNull.Value));
+                command.Parameters.Add(new SqlParameter("@IsActive", model.IsActive));
+                command.Parameters.Add(new SqlParameter("@CategoryId", model.CategoryId));
+                command.Parameters.Add(new SqlParameter("@DepartmentId", model.DepartmentId));
+                command.Parameters.Add(new SqlParameter("@TotalClass", model.TotalClass));
+                command.Parameters.Add(new SqlParameter("@ClassNo", model.ClassNo));
 
                 await connection.OpenAsync();
 
                 var result = await command.ExecuteScalarAsync();
 
-                return result?.ToString()
-                    ?? "Course created successfully";
+                return result?.ToString() ?? "Course created successfully";
             }
             catch (Exception ex)
             {
@@ -208,52 +175,35 @@ namespace Application.Repository
             try
             {
                 using var connection = new SqlConnection(_connectionString);
-                using var command = new SqlCommand(
-                    "UpdateCourse",
-                    connection);
+                using var command = new SqlCommand("UpdateCourse", connection);
 
                 command.CommandType = CommandType.StoredProcedure;
 
-                command.Parameters.Add(
-                    new SqlParameter("@Id", model.Id));
+                command.Parameters.Add(new SqlParameter("@Id", model.Id));
 
-                command.Parameters.Add(
-                    new SqlParameter("@Code", model.Code));
+                command.Parameters.Add(new SqlParameter("@Code", model.Code));
 
-                command.Parameters.Add(
-                    new SqlParameter("@ShortName", model.ShortName));
+                command.Parameters.Add(new SqlParameter("@ShortName", model.ShortName));
 
-                command.Parameters.Add(
-                    new SqlParameter("@Name", model.Name));
+                command.Parameters.Add(new SqlParameter("@Name", model.Name));
 
-                command.Parameters.Add(
-                    new SqlParameter("@NameHindi", model.NameHindi));
+                command.Parameters.Add(new SqlParameter("@NameHindi", model.NameHindi));
 
-                command.Parameters.Add(
-                    new SqlParameter("@Duration", model.Duration));
+                command.Parameters.Add(new SqlParameter("@Duration", model.Duration));
 
-                command.Parameters.Add(
-                    new SqlParameter("@DurationTypeId", model.DurationTypeId));
+                command.Parameters.Add(new SqlParameter("@DurationTypeId", model.DurationTypeId));
 
-                command.Parameters.Add(
-                    new SqlParameter(
-                        "@ParentId",
-                        model.ParentId ?? (object)DBNull.Value));
+                command.Parameters.Add(new SqlParameter("@ParentId", model.ParentId ?? (object)DBNull.Value));
 
-                command.Parameters.Add(
-                    new SqlParameter("@IsActive", model.IsActive));
+                command.Parameters.Add(new SqlParameter("@IsActive", model.IsActive));
 
-                command.Parameters.Add(
-                    new SqlParameter("@CategoryId", model.CategoryId));
+                command.Parameters.Add(new SqlParameter("@CategoryId", model.CategoryId));
 
-                command.Parameters.Add(
-                    new SqlParameter("@DepartmentId", model.DepartmentId));
+                command.Parameters.Add(new SqlParameter("@DepartmentId", model.DepartmentId));
 
-                command.Parameters.Add(
-                    new SqlParameter("@TotalClass", model.TotalClass));
+                command.Parameters.Add(new SqlParameter("@TotalClass", model.TotalClass));
 
-                command.Parameters.Add(
-                    new SqlParameter("@ClassNo", model.ClassNo));
+                command.Parameters.Add(new SqlParameter("@ClassNo", model.ClassNo));
 
                 await connection.OpenAsync();
 
@@ -298,6 +248,48 @@ namespace Application.Repository
                 return "Something went wrong: " + ex.Message;
             }
         }
+
+
+        public async Task<string> CreateCourseAmount(List<ProductAmountDtos> model)
+        {
+            try
+            {
+                if (model == null || model.Count == 0)
+                {
+                    return "At least one Amount is required";
+                }
+
+                foreach (var item in model)
+                {
+                    if (!item.Amount.HasValue)
+                    {
+                        return "Amount is required";
+                    }
+                     
+                    var data = new ProductAmount
+                    {
+                        ProductId = item.ProductId,
+                        Name = item.Name,
+                        Amount = item.Amount,
+                        AmountTypeId = item.AmountTypeId,
+                        IsActive = item.IsActive ?? 1,
+                        Date = DateTime.UtcNow
+                    };
+
+                    await _context.ProductAmount.AddAsync(data);
+                }
+
+                await _context.SaveChangesAsync();
+
+                return "Course amounts created successfully";
+            }
+            catch (Exception ex)
+            {
+                return "Something went wrong: " + ex.Message;
+            }
+        }
+
+
 
         // --------------------------------------- Course End ---------------------------------------
     }

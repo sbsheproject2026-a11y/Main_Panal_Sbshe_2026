@@ -21,7 +21,7 @@ namespace Application.Repository
         {
             try
             {
-                var data = await _context.Lecture.Where(x => x.IsActive == 1 && x.CourseId== id)
+                var data = await _context.Lecture.Where(x => x.IsActive == 1 && x.CourseId== id).OrderByDescending(x => x.Id)
                     .Select(x => new LectureGetDTOs
                     {
                         Id = x.Id,

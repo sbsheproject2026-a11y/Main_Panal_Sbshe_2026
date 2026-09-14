@@ -117,6 +117,28 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
                 });
             }
         }
+        [HttpGet("dropdown-getmastertypesdetail-parent")]
+        public async Task<IActionResult> GetMasterDetailTypeParent()
+        {
+            try
+            {
+                var data = await _unitOfWork.DropDown.GetMasterDetailTypeParent();
+
+                return Ok(new
+                {
+                    Success = true,
+                    Data = data
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = ex.Message
+                });
+            }
+        }
 
         [HttpGet("dropdown-getparentCourse")]
         public async Task<IActionResult> GetParentCourse()

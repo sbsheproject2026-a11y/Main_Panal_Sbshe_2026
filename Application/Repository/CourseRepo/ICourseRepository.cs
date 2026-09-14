@@ -12,7 +12,9 @@ namespace Application.Repository
         Task<CourseGetDTOs> GetById(int id);
         Task<string> Update(CoursePostDTOs model);
         Task<string> Delete(int Id);
-        
+        Task<string> CreateCourseAmount(List<ProductAmountDtos> model);
+
+
 
 
     }

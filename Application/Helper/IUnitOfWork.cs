@@ -25,6 +25,7 @@ namespace Application.Helper
         IWebsiteContentRepository WebsiteContent { get; }
         IEnquiriesRepository Enquiries { get; }
         IAccRepository AccRegistration { get; }
+        IWalletRepository Wallet { get; }
 
 
         Task SaveAsync();

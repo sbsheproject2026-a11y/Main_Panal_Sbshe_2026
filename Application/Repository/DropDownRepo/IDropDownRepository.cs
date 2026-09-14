@@ -14,6 +14,7 @@ namespace Application.Repository
         Task<List<EntityUserResult>> getCourseCategory(int Id);
         Task<List<EntityUserResult>> getCourseStudent(int Id);
         Task<List<DropDownDTOs>> GetMasterDetailType(int Id);
+        Task<List<DropDownDTOs>> GetMasterDetailTypeParent();
         Task<List<DropDownDTOs>> GetParentCourse();
         Task<List<DropDownDTOs>> GetCourseClass();
 

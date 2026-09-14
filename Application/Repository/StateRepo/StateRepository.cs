@@ -24,7 +24,7 @@ namespace Application.Repository
         {
             try
             {
-                var data = await _context.Location.Where(x => x.IsActive==1 && x.TypeId==typeid)
+                var data = await _context.Location.Where(x => x.IsActive==1 && x.TypeId==typeid).OrderByDescending(x => x.Id)
                     .Select(x => new LocationGetDTOs
                     {
                         Id = x.Id,

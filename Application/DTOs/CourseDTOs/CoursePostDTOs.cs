@@ -17,8 +17,18 @@
         public int? DepartmentId { get; set; }
         public int? TotalClass { get; set; }
         public int? ClassNo { get; set; }
+
+        public List<ProductAmountDtos>? ProductAmounts { get; set; } = new List<ProductAmountDtos>();
+
+    }
+    public class ProductAmountDtos
+    {
+        public int Id { get; set; }
+        public string? Name { get; set; }
          
-
-
+        public int? ProductId { get; set; }
+        public int? Amount { get; set; }
+        public int? AmountTypeId { get; set; }
+        public int? IsActive { get; set; }
     }
 }

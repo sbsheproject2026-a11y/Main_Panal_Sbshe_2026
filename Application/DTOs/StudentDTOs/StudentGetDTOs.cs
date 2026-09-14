@@ -66,6 +66,7 @@
         public string? Session { get; set; }
         public string? StudentYear { get; set; }
         public string? CentreName { get; set; }
+        public string? BranchAddress { get; set; }
         public int? CasteCategory { get; set; }
         public int? CourseId { get; set; }
         public int? ClassId { get; set; }

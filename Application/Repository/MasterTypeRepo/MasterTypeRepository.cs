@@ -21,12 +21,17 @@ namespace Application.Repository
         {
             try
             {
-                var data = await _context.MasterType.Where(x => x.IsDelete == 0 && x.IsActive==1)
-                    .Select(x => new MasterTypeGetDTOs
+                var data = await _context.MasterType
+      .Where(x => x.IsDelete == 0 && x.IsActive == 1)
+      .OrderByDescending(x => x.Id)
+    
+
+                   .Select(x => new MasterTypeGetDTOs
                     {
                         Id = x.Id,
                         Name = x.Name,
                         Code = x.Code,
+                       IsActive = x.IsActive
                         
                     })
                     .ToListAsync();
@@ -49,7 +54,7 @@ namespace Application.Repository
                     Code = model.Code,
                     Name = model.Name,
                     Date = DateTime.Now,
-                    ParentId = model.ParentId ?? 0,
+                    ParentId = model.ParentId ?? null,
                     IsActive = model.IsActive,
                     IsDelete = 0
                 };

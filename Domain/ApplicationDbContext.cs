@@ -17,6 +17,7 @@ namespace Domain
         public DbSet<MasterTypeDetail> MasterTypeDetail { get; set; }
         public DbSet<Location> Location { get; set; }
         public DbSet<MasterLogin> MasterLogin { get; set; }
+        public DbSet<ProductAmount> ProductAmount { get; set; }
         public DbSet<Entity> Entity { get; set; }
         public DbSet<BasicProfile> BasicProfile { get; set; }
         public DbSet<Product> Product { get; set; }

@@ -105,6 +105,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                 Message = result
             });
         }
+
         [HttpDelete("course-delete/{id}")]
         public async Task<IActionResult> Delete(int Id)
         {
@@ -126,8 +127,36 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
             });
         }
 
+
+
+        [HttpPost("CreateCourseAmount")]
+        public async Task<IActionResult> CreateCourseAmount([FromBody] List<ProductAmountDtos> model)
+        {
+            try
+            {
+                if (model == null || model.Count == 0)
+                {
+                    return BadRequest("At least one Amount is required");
+                }
+
+                var result = await _unitOfWork.Course.CreateCourseAmount(model);
+
+                if (result.Contains("Something went wrong"))
+                {
+                    return StatusCode(500, result);
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Something went wrong: " + ex.Message);
+            }
+        }
+
+
         //----------------------------Course Drop Down All--------------------
-     
+
     }
 }
 

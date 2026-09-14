@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Reporting.NETCore;
 using QRCoder;
 using System.Data;
- 
+
 
 namespace SBSHEWEBAPI.Areas.Admin.Controllers
 {
@@ -174,6 +174,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                 }
 
 
+
                 // =========================================================
                 // 3. GENERATE QR CODE -> BASE64
                 // =========================================================
@@ -281,8 +282,8 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                     // selfImageBase64 lagana hai.
                     // =====================================================
 
-                    selfImage =
-                        selfImageBase64,
+                    selfImage = selfImageBase64,
+
 
 
                     // =====================================================
@@ -435,7 +436,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
 
                     selfImageBase64 = "";
                 }
-                 
+
 
                 // =========================================================
                 // 3. API RESPONSE
@@ -445,17 +446,17 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                 {
                     name = data.Name ?? "",
                     fatherName = data.FatherName ?? "",
-                    
+
                     enrollmentNo = data.EnrollmentNo ?? "",
 
                     rollno = data.Rollno ?? "",
-                    
+
                     session = data.Session ?? "",
-                   
+
                     centreName = data.CentreName ?? "",
 
                     courseName = data.CourseName ?? "",
-                     
+
                     // =====================================================
                     // Subject Print
                     // =====================================================
@@ -472,10 +473,10 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                     // selfImageBase64 lagana hai.
                     // =====================================================
 
-                    selfImage = selfImageBase64 
+                    selfImage = selfImageBase64
 
 
-                     
+
                 });
             }
             catch (Exception ex)
@@ -588,6 +589,148 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                     selfImageBase64 = "";
                 }
 
+                // =========================================================
+                // 3. Stemp IMAGE -> BASE64
+                // =========================================================
+
+                string stempImageBase64 = "";
+
+                try
+                {
+                    string stampFileName = "stemp_1.png";
+
+                    string stampImagePath = Path.Combine(
+                        _appEnvironment.WebRootPath,
+                        "Uploads",
+                        stampFileName
+                    );
+
+                    Console.WriteLine(
+                        "Stamp Image Path: " +
+                        stampImagePath
+                    );
+
+                    if (System.IO.File.Exists(stampImagePath))
+                    {
+                        byte[] stampImageBytes =
+                            await System.IO.File.ReadAllBytesAsync(
+                                stampImagePath
+                            );
+
+                        string extension =
+                            Path.GetExtension(stampImagePath)
+                                .ToLowerInvariant();
+
+                        string mimeType = extension switch
+                        {
+                            ".jpg" => "image/jpeg",
+                            ".jpeg" => "image/jpeg",
+                            ".png" => "image/png",
+                            ".gif" => "image/gif",
+                            ".webp" => "image/webp",
+                            _ => "application/octet-stream"
+                        };
+
+                        stempImageBase64 =
+                            $"data:{mimeType};base64," +
+                            Convert.ToBase64String(
+                                stampImageBytes
+                            );
+
+                        Console.WriteLine(
+                            "Stamp Image Base64 generated."
+                        );
+                    }
+                    else
+                    {
+                        Console.WriteLine(
+                            "Stamp Image File NOT FOUND: " +
+                            stampImagePath
+                        );
+                    }
+                }
+                catch (Exception stampEx)
+                {
+                    Console.WriteLine(
+                        "Stamp Image Error: " +
+                        stampEx.Message
+                    );
+
+                    stempImageBase64 = "";
+                }
+                // =========================================================
+                // 3. Sigh. IMAGE -> BASE64
+                // =========================================================
+
+                string sighImageBase64 = "";
+
+                try
+                {
+                    string sighFileName = "singh.png";
+
+                    string sighImagePath = Path.Combine(
+                        _appEnvironment.WebRootPath,
+                        "Uploads",
+                        sighFileName
+                    );
+
+                    Console.WriteLine(
+                        "Stamp Image Path: " +
+                        sighImagePath
+                    );
+
+                    if (System.IO.File.Exists(sighImagePath))
+                    {
+                        byte[] sighImageBytes =
+                            await System.IO.File.ReadAllBytesAsync(
+                                sighImagePath
+                            );
+
+                        string extension =
+                            Path.GetExtension(sighImagePath)
+                                .ToLowerInvariant();
+
+                        string mimeType = extension switch
+                        {
+                            ".jpg" => "image/jpeg",
+                            ".jpeg" => "image/jpeg",
+                            ".png" => "image/png",
+                            ".gif" => "image/gif",
+                            ".webp" => "image/webp",
+                            _ => "application/octet-stream"
+                        };
+
+                        sighImageBase64 =
+                            $"data:{mimeType};base64," +
+                            Convert.ToBase64String(
+                                sighImageBytes
+                            );
+
+                        Console.WriteLine(
+                            "Stamp Image Base64 generated."
+                        );
+                    }
+                    else
+                    {
+                        Console.WriteLine(
+                            "Stamp Image File NOT FOUND: " +
+                            sighImagePath
+                        );
+                    }
+                }
+                catch (Exception stampEx)
+                {
+                    Console.WriteLine(
+                        "Stamp Image Error: " +
+                        stampEx.Message
+                    );
+
+                    sighImageBase64 = "";
+                }
+
+
+
+
                 string qrImage = "";
 
                 try
@@ -644,74 +787,53 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                     name = data.Name ?? "",
                     firstName = data.FirstName ?? "",
 
-                    studentNameHindi =  data.StudentNameHindi ?? "",
+                    studentNameHindi = data.StudentNameHindi ?? "",
 
-                    fatherName =   data.FatherName ?? "",
+                    fatherName = data.FatherName ?? "",
 
-                    fatherNameHindi =
-                        data.FatherNameHindi ?? "",
+                    fatherNameHindi = data.FatherNameHindi ?? "",
 
-                    motherName =
-                        data.MotherName ?? "",
+                    motherName = data.MotherName ?? "",
 
-                    courseNameHindi =
-                        data.CourseNameHindi ?? "",
+                    courseNameHindi = data.CourseNameHindi ?? "",
 
-                    enrollmentNo =
-                        data.EnrollmentNo ?? "",
+                    enrollmentNo = data.EnrollmentNo ?? "",
 
-                    rollnoa =  data.Rollno ?? "",
-                    rollno1 =  data.RollNo1 ?? "",
+                    rollnoa = data.Rollno ?? "",
+                    rollno1 = data.RollNo1 ?? "",
                     rollno = !string.IsNullOrWhiteSpace(data.RollNo1)
     ? $"{data.Rollno ?? ""} , {data.RollNo1}"
     : data.Rollno ?? "",
+                    srnoDiploma = data.SrnoDiploma ?? "",
 
+                    issueDate = data.IssueDate ?? "",
 
+                    startDate = data.StartDate ?? "",
 
+                    endDate = data.EndDate ?? "",
 
+                    dOB1 = data.DOB1 ?? "",
 
+                    address = data.Address ?? "",
 
-                    srnoDiploma =
-                        data.SrnoDiploma ?? "",
+                    issueYear = data.IssueYear ?? "",
 
-                    issueDate =
-                        data.IssueDate ?? "",
+                    courseName = data.CourseName ?? "",
 
-                    startDate =
-                        data.StartDate ?? "",
+                    departmentName = data.DepartmentName ?? "",
 
-                    endDate =
-                        data.EndDate ?? "",
+                    certificateName = data.CertificateName ?? "",
 
-                    dOB1 =
-                        data.DOB1 ?? "",
+                    migrationSrno = data.MigrationSrno ?? "",
 
-                    address =
-                        data.Address ?? "",
+                    centreName = data.CentreName ?? "",
+                    branchAddress = data.BranchAddress ?? "",
 
-                    issueYear =
-                        data.IssueYear ?? "",
+                    selfImage = selfImageBase64,
+                    stempImage = stempImageBase64,
+                    singhImage = sighImageBase64,
 
-                    courseName =
-                        data.CourseName ?? "",
-
-                    departmentName =
-                        data.DepartmentName ?? "",
-
-                    certificateName =
-                        data.CertificateName ?? "",
-
-                    migrationSrno =
-                        data.MigrationSrno ?? "",
-
-                    centreName =
-                        data.CentreName ?? "",
-
-                    selfImage =
-                        selfImageBase64,
-
-                    qrimage =
-                        qrImage
+                    qrimage = qrImage
                 });
             }
             catch (Exception ex)

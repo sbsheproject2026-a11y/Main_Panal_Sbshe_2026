@@ -114,6 +114,32 @@ namespace Application.Repository
                 throw new Exception("Error while fetching MasterType data.", ex);
             }
         }
+       
+        public async Task<List<DropDownDTOs>> GetMasterDetailTypeParent()
+        {
+            try
+            {
+                var data = await _context.MasterTypeDetail.Where(x => x.IsDelete == 0 && x.IsActive == 1 )
+
+                    .Select(x => new DropDownDTOs
+                    {
+                        Id = x.Id,
+                        Name = x.Name
+
+
+                    })
+                    .ToListAsync();
+
+                return data;
+            }
+            catch (Exception ex)
+            {
+
+                throw new Exception("Error while fetching MasterType data.", ex);
+            }
+        }
+       
+        
         public async Task<List<DropDownDTOs>> GetParentCourse()
         {
             try
