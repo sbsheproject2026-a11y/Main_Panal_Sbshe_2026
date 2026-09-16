@@ -8,7 +8,7 @@ namespace Application.Repository
 
         Task<List<LocationGetDTOs>> GetAll(int typeid);
 
-        Task<string> Create(LocationPostDTOs model);
+        Task<string> Create(WalletPostDTOs model);
        
         Task<string> Delete(int Id);
         

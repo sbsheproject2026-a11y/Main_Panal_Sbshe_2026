@@ -1,4 +1,5 @@
-﻿using Application.DTOs.MasterTypeDTOs;
+﻿using Application.DTOs;
+using Application.DTOs.MasterTypeDTOs;
 using Application.Helper;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,14 +8,14 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
     [Area("Admin")]
     [ApiController]
     [Route("api/[controller]")]
-    public class WalletController : ControllerBase
+    public class AdminWalletController : ControllerBase
     {
 
 
         private readonly IUnitOfWork _unitOfWork;
         private readonly IConfiguration _configuration;
 
-        public WalletController(IUnitOfWork unitOfWork, IConfiguration configuration)
+        public AdminWalletController(IUnitOfWork unitOfWork, IConfiguration configuration)
         {
             _unitOfWork = unitOfWork;
             _configuration = configuration;
@@ -44,7 +45,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
         }
 
         [HttpPost("wallet-create")]
-        public async Task<IActionResult> Create(LocationPostDTOs model)
+        public async Task<IActionResult> Create(WalletPostDTOs model)
         {
             try
             {
@@ -57,8 +58,8 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                         message = "Request data is required."
                     });
                 }
-
-                var result = await _unitOfWork.Location.Create(model);
+                model.PayMode = 108;
+                var result = await _unitOfWork.Wallet.Create(model);
 
                 return Ok(new
                 {

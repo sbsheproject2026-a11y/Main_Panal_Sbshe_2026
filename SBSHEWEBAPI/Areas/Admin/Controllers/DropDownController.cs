@@ -117,6 +117,7 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
                 });
             }
         }
+       
         [HttpGet("dropdown-getmastertypesdetail-parent")]
         public async Task<IActionResult> GetMasterDetailTypeParent()
         {

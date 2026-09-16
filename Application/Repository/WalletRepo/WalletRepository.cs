@@ -1,9 +1,10 @@
 ﻿
+using Application.DTOs;
 using Application.DTOs.MasterTypeDTOs;
 using Domain;
 using Microsoft.EntityFrameworkCore;
-using Model;
-
+using Microsoft.Data.SqlClient;
+using System.Data;
 
 
 namespace Application.Repository
@@ -11,10 +12,14 @@ namespace Application.Repository
     public class WalletRepository : IWalletRepository
     {
         private readonly ApplicationDbContext _context;
+        private readonly string _connectionString;
 
         public WalletRepository(ApplicationDbContext context)
         {
             _context = context;
+             _connectionString = _context.Database.GetConnectionString()
+                ?? throw new InvalidOperationException(
+                    "Database connection string not found.");
         }
 
         //---------------------------------------State Start------------------------------
@@ -43,25 +48,35 @@ namespace Application.Repository
             }
         }
 
-        public async Task<string> Create(LocationPostDTOs model)
+
+        public async Task<string> Create(WalletPostDTOs model)
         {
             try
             {
-                var data = new Location
-                {
-                    Code = model.Code,
-                    Name = model.Name,
-                    Date = DateTime.Now,
-                    ParentId = model.ParentId ?? null,
-                    IsActive = model.IsActive,
-                    TypeId = model.TypeId,
+                using var connection = new SqlConnection(_connectionString);
+                using var command = new SqlCommand("InsWalletRecharage", connection);
 
-                };
+                command.CommandType = CommandType.StoredProcedure;
 
-                await _context.Location.AddAsync(data);
-                await _context.SaveChangesAsync();
+                command.Parameters.Add(new SqlParameter("@EntityId", 112));
+                command.Parameters.Add(new SqlParameter("@TotalAmount", model.TotalAmount));
+                command.Parameters.Add(new SqlParameter("@Remark", model.Remark));
+                command.Parameters.Add(new SqlParameter("@EntryDate", model.EntryDate));
+                command.Parameters.Add(new SqlParameter("@FranchiseId", model.FranchiseId));
+                command.Parameters.Add(new SqlParameter("@ParentFranchiseId", 1));
+                command.Parameters.Add(new SqlParameter("@PayMode", model.PayMode));
+                command.Parameters.Add(new SqlParameter("@LedgerHeadId", model.LedgerHeadId));
+                command.Parameters.Add(new SqlParameter("@Status", model.Status));
+                command.Parameters.Add(new SqlParameter("@SlipUpload", model.SlipUpload));
+            
+                command.Parameters.Add(new SqlParameter("@VoucherType", 106));
+                 
 
-                return "created successfully";
+                await connection.OpenAsync();
+
+                var result = await command.ExecuteScalarAsync();
+
+                return result?.ToString() ?? "Wallet created successfully";
             }
             catch (Exception ex)
             {

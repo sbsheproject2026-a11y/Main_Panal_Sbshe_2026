@@ -1,5 +1,4 @@
 ﻿using Application.DTOs.MasterTypeDTOs;
-using Application.DTOs;
 using Domain;
 using Microsoft.EntityFrameworkCore;
 using Model;
@@ -7,7 +6,7 @@ using Model;
 
 
 
-namespace Application.Repository 
+namespace Application.Repository
 {
     public class MasterTypeDetailRepository : IMasterTypeDetailRepository
     {
@@ -22,23 +21,31 @@ namespace Application.Repository
         {
             try
             {
-                var data = await _context.MasterTypeDetail.Where(x => x.IsDelete == 0).OrderByDescending(x => x.Id)
-                    .Select(x => new MasterTypeDetailGetDTOs
-                    {
-                        Id = x.Id,
-                        Name = x.Name,
-                        Code = x.Code,
-                        MasterTypeId=x.MasterTypeId,
-                        IsActive = x.IsActive
 
-                    })
-                    .ToListAsync();
+                var data = await (from pa in _context.MasterTypeDetail
+                                  join p in _context.MasterType on pa.MasterTypeId equals p.Id into productGroup
+                                  from p in productGroup.DefaultIfEmpty()
+
+                                  where pa.IsDelete == 0
+
+                                  orderby pa.Id descending
+                                  select new MasterTypeDetailGetDTOs
+                                  {
+                                      Id = pa.Id,
+                                      Name = pa.Name,
+                                      Code = pa.Code,
+                                      MasterTypeId = pa.MasterTypeId,
+                                      IsActive = pa.IsActive
+
+                                  })
+                                  
+                                  .ToListAsync();
 
                 return data;
             }
             catch (Exception ex)
             {
-                 
+
                 throw new Exception("Error while fetching MasterTypeDetail data.", ex);
             }
         }
@@ -133,7 +140,7 @@ namespace Application.Repository
                 }
 
                 data.IsDelete = 1;
-                
+
 
                 await _context.SaveChangesAsync();
 
@@ -149,6 +156,6 @@ namespace Application.Repository
 
         //----------------------Master Type Drop Down----------------------------------------
 
-        
+
     }
 }

@@ -162,6 +162,8 @@ namespace Application.Repository
                 throw new Exception("Error while updating Lecture", ex);
             }
         }
+       
+        
         public async Task<string> Delete(int Id)
         {
             try

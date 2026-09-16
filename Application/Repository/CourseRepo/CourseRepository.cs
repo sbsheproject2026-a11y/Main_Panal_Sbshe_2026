@@ -55,6 +55,7 @@ namespace Application.Repository
                     data.Add(new CourseGetDTOs
                     {
                         Id = Convert.ToInt32(reader["Id"]),
+                        ParentId = Convert.ToInt32(reader["ParentId"]),
                         IsActive = Convert.ToInt32(reader["IsActive"]),
                         Code = reader["Code"]?.ToString(),
                         Name = reader["Name"]?.ToString(),
@@ -265,7 +266,7 @@ namespace Application.Repository
                     {
                         return "Amount is required";
                     }
-                     
+
                     var data = new ProductAmount
                     {
                         ProductId = item.ProductId,
@@ -289,7 +290,119 @@ namespace Application.Repository
             }
         }
 
+        //ProductAmount  Working Start//
+        public async Task<List<GetProductAmountDtos>> GetProductAmount(int id)
+        {
+            try
+            {
+                var data = await (from pa in _context.ProductAmount
+                                  join p in _context.MasterTypeDetail on pa.AmountTypeId equals p.Id into productGroup
+                                  from p in productGroup.DefaultIfEmpty()
 
+                                  where pa.IsActive == 1 && pa.ProductId == id
+
+                                  orderby pa.Id descending
+
+                                  select new GetProductAmountDtos
+                                  {
+                                      Id = pa.Id,
+                                      ProductId = pa.ProductId,
+                                      AmountTypeId = pa.AmountTypeId,
+                                      Name = pa.Name,
+                                      Amount = pa.Amount,
+                                      AmountType = p.Name,
+                                      IsActive = pa.IsActive
+                                  }
+                ).ToListAsync();
+
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error while fetching Product Amount data.", ex);
+            }
+        }
+
+        public async Task<GetProductAmountDtos> GetProductAmountById(int id)
+        {
+            try
+            {
+                var data = await _context.ProductAmount.Where(x => x.Id == id)
+                    .Select(x => new GetProductAmountDtos
+                    {
+                        Id = x.Id,
+                        Name = x.Name,
+                        ProductId = x.ProductId,
+                        Amount = x.Amount,
+                        AmountTypeId = x.AmountTypeId,
+
+                    })
+                    .FirstOrDefaultAsync();
+
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error while fetching Amount by id.", ex);
+            }
+        }
+
+        public async Task<string> UpdateProductAmount(ProductAmountDtos model)
+        {
+            try
+            {
+                var data = await _context.ProductAmount
+                    .FirstOrDefaultAsync(x => x.Id == model.Id);
+
+                if (data == null)
+                {
+                    return "Lecture not found";
+                }
+
+                data.Name = model.Name;
+
+                data.Amount = model.Amount;
+                data.AmountTypeId = model.AmountTypeId;
+               // data.IsActive = model.IsActive;
+
+
+
+                await _context.SaveChangesAsync();
+
+                return "ProductAmount updated successfully";
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error while updating ProductAmount", ex);
+            }
+        }
+
+        public async Task<string> DeleteProductAmount(int Id)
+        {
+            try
+            {
+                var data = await _context.ProductAmount
+                    .FirstOrDefaultAsync(x => x.Id == Id);
+
+                if (data == null)
+                {
+                    return "Product Amount not found";
+                }
+
+                data.IsActive = 0;
+
+
+                await _context.SaveChangesAsync();
+
+                return "Product Amount delete successfully";
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error while delete Product Amount", ex);
+            }
+        }
+
+        //ProductAmount  Working End//
 
         // --------------------------------------- Course End ---------------------------------------
     }

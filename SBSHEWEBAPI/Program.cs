@@ -18,7 +18,8 @@ builder.Services.AddCors(options =>
         policy
             .WithOrigins(
                 "http://localhost:5173",
-                "https://panal.employeesbshe.tech"
+                "https://shaheedbhagatsinghhealthandeducation.com",
+                "https://soft.shaheedbhagatsinghhealthandeducation.com"
             )
             .AllowAnyHeader()
             .AllowAnyMethod();

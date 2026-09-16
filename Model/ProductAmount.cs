@@ -11,7 +11,7 @@ namespace Model
         public DateTime? Date { get; set; }
 
         public int? ProductId { get; set; }
-        public int? Amount { get; set; }
+        public decimal? Amount { get; set; }
         public int? AmountTypeId { get; set; }
         public int? IsActive { get; set; }
 

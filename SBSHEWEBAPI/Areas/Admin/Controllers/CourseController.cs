@@ -32,6 +32,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                     Success = true,
                     PageNo = pageNo,
                     PageSize = pageSize,
+                    TotalRecords = data.Count,
                     Data = data
                 });
             }
@@ -129,6 +130,31 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
 
 
 
+
+        [HttpGet("course-productamount-get/{id}")]
+        public async Task<IActionResult> GetProductAmount(int id)
+        {
+            try
+            {
+                var data = await _unitOfWork.Course.GetProductAmount(id);
+
+                return Ok(new
+                {
+                    Success = true,
+                    Data = data
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = ex.Message
+                });
+            }
+        }
+
+
         [HttpPost("CreateCourseAmount")]
         public async Task<IActionResult> CreateCourseAmount([FromBody] List<ProductAmountDtos> model)
         {
@@ -138,6 +164,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                 {
                     return BadRequest("At least one Amount is required");
                 }
+                
 
                 var result = await _unitOfWork.Course.CreateCourseAmount(model);
 
@@ -152,6 +179,62 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
             {
                 return StatusCode(500, "Something went wrong: " + ex.Message);
             }
+        }
+
+
+        [HttpGet("course-paymentamount-getbyid/{id}")]
+        public async Task<IActionResult> GetProductAmountById(int id)
+        {
+            var data = await _unitOfWork.Course.GetProductAmountById(id);
+
+            if (data == null)
+            {
+                return NotFound("Lecture not found");
+            }
+
+            return Ok(data);
+        }
+
+        [HttpPut("course-paymentamount-update/{id}")]
+        public async Task<IActionResult> UpdateProductAmount(int id, [FromBody] ProductAmountDtos model)
+        {
+            model.Id = id;
+            if (model.Id <= 0)
+            {
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = "Id is required"
+                });
+            }
+
+            var result = await _unitOfWork.Course.UpdateProductAmount(model);
+
+            return Ok(new
+            {
+                Success = true,
+                Message = result
+            });
+        }
+        [HttpDelete("course-paymentamount-delete/{id}")]
+        public async Task<IActionResult> DeleteProductAmount(int Id)
+        {
+            if (Id <= 0)
+            {
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = "Id is required"
+                });
+            }
+
+            var result = await _unitOfWork.Course.DeleteProductAmount(Id);
+
+            return Ok(new
+            {
+                Success = true,
+                Message = result
+            });
         }
 
 
