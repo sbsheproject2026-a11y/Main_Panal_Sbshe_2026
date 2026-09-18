@@ -9,8 +9,11 @@ namespace Application.Repository
         Task<List<FrenchiseGetDTOs>> GetAll(int ReferenceId, int pageNo, int pageSize, string? search);
 
         Task<string> Create(FrenchisePostDTOs model);
+        Task<string> CreateInstituteDepartmentDetails(int entityId, FranchiseDepartmentDTOs model);
         Task<FrenchiseGetDTOs> GetById(int id);
         Task<string> Update(FrenchisePostDTOs model);
+        Task<string> UpdateDocument(FrenchisePostDTOs model);
+        Task<string> UpdatePassword(FranchiseUpdatePasswordDTOs model);
         Task<string> Delete(int Id);
         
          

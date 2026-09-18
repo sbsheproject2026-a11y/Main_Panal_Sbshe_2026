@@ -31,10 +31,16 @@ namespace SBSHEWEBAPI
 
                 var result = data.Select(x => new
                 {
+                    id = x.Id,
                     name = x.Name,
                     contactpersonname = x.FatherName,
                     address = x.Address,
                     cityName = x.CityName,
+                    districtName = x.DistrictName,
+                    stateName = x.StateName,
+                    mobileNo = x.MobileNo,
+                    email = x.Email,
+                    pincode = x.Pincode,
                      code = x.Code
                 }).ToList();
 

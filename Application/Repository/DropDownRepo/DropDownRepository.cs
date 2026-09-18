@@ -66,6 +66,15 @@ namespace Application.Repository
                 .FromSqlRaw("EXEC dbo.getEmployeeFranchiselist @Id = {0}", Id)
                 .ToListAsync();
         }
+        public async Task<List<EntityWalletResult>> getwalletbalance(int Id)
+        {
+            return await _context.EntityWalletResult
+                .FromSqlRaw(
+                    "EXEC dbo.walletbalance @Id = {0}, @franchiseId = {1}",
+                    112,Id
+                )
+                .ToListAsync();
+        }
 
         public async Task<List<DropDownDTOs>> GetMasterSession()
         {

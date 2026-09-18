@@ -21,6 +21,63 @@ namespace Application.Repository
         }
 
         // ---------------------------------------------
+        // Authority Letter Print Data
+        // ---------------------------------------------
+
+        public async Task<StudentGetDTOs?> GetAuthorityLetterPrintData(int id)
+        {
+            try
+            {
+                StudentGetDTOs? data = null;
+
+                using (var connection = new SqlConnection(_connectionString))
+                using (var command = new SqlCommand("GetAuthorityLetterPrintData", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    command.Parameters.Add( new SqlParameter("@Id", id));
+
+                    await connection.OpenAsync();
+
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        if (await reader.ReadAsync())
+                        {
+                            data = new StudentGetDTOs
+                            {
+                                Id = GetInt(reader, "Id"),
+                                EntityTypeId = GetInt(reader, "EntityTypeId"),
+                                SelfImage =  GetString(reader, "SelfImage"),
+                                Code = reader["Code"]?.ToString(),
+                                Name = reader["Name"]?.ToString(),
+                                FatherName = reader["FatherName"]?.ToString(),
+                                Address = reader["Address"]?.ToString(),
+                                Pincode = reader["PinCode"]?.ToString(),
+                                MobileNo = reader["MobileNo"]?.ToString(),
+                                Email = reader["Email"]?.ToString(),
+                                CityName = reader["CityName"]?.ToString(),
+                                DistrictName = reader["DistrictName"]?.ToString(),
+                                StateName = reader["StateName"]?.ToString(),
+                                StartDate = reader["StartDate"]?.ToString(),
+                                EndDate = reader["EndDate"]?.ToString(),
+                                CentreName = reader["CenterName"]?.ToString(),
+                                InstituteName = reader["InstituteName"]?.ToString(),
+                            };
+                        }
+                    }
+                }
+
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(
+                    "Error while fetching Student Diploma Print Data.",
+                    ex);
+            }
+        }
+
+        // ---------------------------------------------
         // Diploma Print Data
         // ---------------------------------------------
 

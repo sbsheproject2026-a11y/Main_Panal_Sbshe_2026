@@ -10,7 +10,7 @@ namespace Application.Repository
 
         Task<string> Create(AccRegistrationPostDTOs model);
         Task<FrenchiseGetDTOs> GetById(int id);
-        Task<string> Update(FrenchisePostDTOs model);
+        Task<string> Update(AccRegistrationPostDTOs model);
         Task<string> Delete(int Id);
         
          

@@ -12,6 +12,7 @@ namespace Application.DTOs
         public int? PayMode { get; set; }
         public int? LedgerHeadId { get; set; }
         public int? Status { get; set; }
+        public int? AccountId { get; set; }
         public string? SlipUpload { get; set; }
        
     }

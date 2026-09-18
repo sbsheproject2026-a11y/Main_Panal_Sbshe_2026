@@ -49,6 +49,56 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
                 });
             }
         }
+
+        [Authorize]
+        [HttpGet("dropdown-emp-wallet-balance")]
+        public async Task<IActionResult> getwalletbalance()
+        {
+            try
+            {
+                var claims = User.Claims.ToDictionary(x => x.Type, x => x.Value);
+                var userId = claims.GetValueOrDefault("UserId");
+                var data = await _unitOfWork.DropDown.getwalletbalance(Convert.ToInt32(userId));
+
+                return Ok(new
+                {
+                    Success = true,
+                    Data = data
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = ex.Message
+                });
+            }
+        }
+        [HttpGet("dropdown-emp-wallet-balance1")]
+        public async Task<IActionResult> getwalletbalance1(int userId)
+        {
+            try
+            {
+                
+                var data = await _unitOfWork.DropDown.getwalletbalance(userId);
+
+                return Ok(new
+                {
+                    Success = true,
+                    Data = data
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = ex.Message
+                });
+            }
+        }
+       
         [Authorize]
         [HttpGet("dropdown-emp-getEmployeeFranchiselist")]
         public async Task<IActionResult> getEmployeeFranchiselist()

@@ -23,6 +23,7 @@ namespace Domain
         public DbSet<Product> Product { get; set; }
         public DbSet<MasterSession> MasterSession { get; set; }
         public DbSet<StudentMarks> StudentMarks { get; set; }
+        public DbSet<EntityWalletResult> EntityWalletResult { get; set; }
         public DbSet<EntityUserResult> EntityUserResult { get; set; }
         public DbSet<EmployeeFrenchiseAssign> EmployeeFrenchiseAssign { get; set; }
         public DbSet<AcademicDetails> AcademicDetails { get; set; }

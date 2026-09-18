@@ -62,10 +62,24 @@ namespace Application.DTOs
         public string? Experience { get; set; }
 
 
-
+        public List<FranchiseDepartmentDTOs>? DepartmentIds { get; set; }
 
 
     }
+    public class FranchiseDepartmentDTOs
+    {
+        public int? DepartmentId { get; set; }
+     
+    }
+    public class FranchiseUpdatePasswordDTOs
+    {
+        public int? Id { get; set; }
+        public string? UserName { get; set; }
+        public string? Password { get; set; }
+        public string? PasswordHash { get; set; }
+
+    }
+
     public class AccRegistrationPostDTOs
     {
         public int? Id { get; set; }

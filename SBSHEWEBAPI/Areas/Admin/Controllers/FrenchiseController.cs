@@ -69,12 +69,14 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
 
                 model.PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password); // Hashed Password
 
-                var result = await _unitOfWork.Frenchise.Create(model);
-
+               // var result = await _unitOfWork.Frenchise.Create(model);
+                var result = (await _unitOfWork.Frenchise.Create(model)).Split(",");
+                var msg = result[0];
+                var entityId = result[1];
                 return Ok(new
                 {
                     success = true,
-                    message = result
+                    message = msg
                 });
             }
             catch (Exception ex)
@@ -158,6 +160,8 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                 Message = result
             });
         }
+       
+        
         [HttpDelete("frenchise-delete/{id}")]
         public async Task<IActionResult> Delete(int Id)
         {

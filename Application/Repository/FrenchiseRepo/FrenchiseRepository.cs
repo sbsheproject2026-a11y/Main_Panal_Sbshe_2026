@@ -2,7 +2,6 @@
 using Domain;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Model;
 using System.Data;
 
 namespace Application.Repository
@@ -134,6 +133,35 @@ namespace Application.Repository
                     var result = await command.ExecuteScalarAsync();
 
                     return result?.ToString() ?? "Frenchise created successfully";
+                }
+            }
+            catch (Exception ex)
+            {
+                return "Something went wrong: " + ex.Message;
+            }
+        }
+
+
+        public async Task<string> CreateInstituteDepartmentDetails(int entityId, FranchiseDepartmentDTOs model)
+        {
+            try
+            {
+                var connectionString = _context.Database.GetConnectionString();
+
+                using (var connection = new SqlConnection(connectionString))
+                using (var command = new SqlCommand("insInstituteDepartmentDetails", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    command.Parameters.Add(new SqlParameter("@EntityId", entityId));
+                    command.Parameters.Add(new SqlParameter("@DepartmentId", model.DepartmentId));
+
+
+                    await connection.OpenAsync();
+
+                    var result = await command.ExecuteScalarAsync();
+
+                    return result?.ToString() ?? "Institute Department Details created successfully";
                 }
             }
             catch (Exception ex)
@@ -279,6 +307,65 @@ namespace Application.Repository
                     var result = await command.ExecuteScalarAsync();
 
                     return result?.ToString() ?? "Frenchise Update successfully";
+                }
+            }
+            catch (Exception ex)
+            {
+                return "Something went wrong: " + ex.Message;
+            }
+        }
+        public async Task<string> UpdateDocument(FrenchisePostDTOs model)
+        {
+            try
+            {
+                var connectionString = _context.Database.GetConnectionString();
+
+                using (var connection = new SqlConnection(connectionString))
+                using (var command = new SqlCommand("UpdateFrenchiseDocument", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    command.Parameters.Add(new SqlParameter("@Id", model.Id));
+                    command.Parameters.Add(new SqlParameter("@SelfImage", model.PassportPhoto));
+                    command.Parameters.Add(new SqlParameter("@SignatureImage", model.AuthorizedSignature));
+                    command.Parameters.Add(new SqlParameter("@AadhaarCardimage", model.AadhaarCardimage));
+                    command.Parameters.Add(new SqlParameter("@Pancardimage", model.PanCardimage));
+                    command.Parameters.Add(new SqlParameter("@InstituteCertificateimage", model.InstituteCertificate));
+                    command.Parameters.Add(new SqlParameter("@BuildingPhoto1image", model.BuildingPhoto1));
+                    command.Parameters.Add(new SqlParameter("@BuildingPhoto2image", model.BuildingPhoto2));
+
+                    await connection.OpenAsync();
+
+                    var result = await command.ExecuteScalarAsync();
+
+                    return result?.ToString() ?? "Frenchise Document Update successfully";
+                }
+            }
+            catch (Exception ex)
+            {
+                return "Something went wrong: " + ex.Message;
+            }
+        }
+        public async Task<string> UpdatePassword(FranchiseUpdatePasswordDTOs model)
+        {
+            try
+            {
+                var connectionString = _context.Database.GetConnectionString();
+
+                using (var connection = new SqlConnection(connectionString))
+                using (var command = new SqlCommand("UpdatePassword", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    command.Parameters.Add(new SqlParameter("@Id", model.Id));
+                    command.Parameters.Add(new SqlParameter("@Password", model.Password));
+                    command.Parameters.Add(new SqlParameter("@PasswordHash", model.PasswordHash));
+
+                    await connection.OpenAsync();
+
+                    var result = await command.ExecuteScalarAsync();
+
+                    return result?.ToString() ?? "Frenchise Document Update successfully";
                 }
             }
             catch (Exception ex)

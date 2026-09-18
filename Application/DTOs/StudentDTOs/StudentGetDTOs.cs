@@ -29,10 +29,12 @@
         public string? Email { get; set; }
         public int? GenderId { get; set; }
         public int? IsActive { get; set; }
+        public int? EntityTypeId { get; set; }
         public string? UserName { get; set; }
         public string? Password { get; set; }
         public string? PasswordHash { get; set; }
         public string? IdNumber { get; set; }
+        public string? InstituteName { get; set; }
         public string? CityName { get; set; }
         public string? DistrictName { get; set; }
         public string? StateName { get; set; }

@@ -2,8 +2,8 @@
 using Application.DTOs;
 using Application.DTOs.MasterTypeDTOs;
 using Domain;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using System.Data;
 
 
@@ -17,9 +17,9 @@ namespace Application.Repository
         public WalletRepository(ApplicationDbContext context)
         {
             _context = context;
-             _connectionString = _context.Database.GetConnectionString()
-                ?? throw new InvalidOperationException(
-                    "Database connection string not found.");
+            _connectionString = _context.Database.GetConnectionString()
+               ?? throw new InvalidOperationException(
+                   "Database connection string not found.");
         }
 
         //---------------------------------------State Start------------------------------
@@ -68,9 +68,19 @@ namespace Application.Repository
                 command.Parameters.Add(new SqlParameter("@LedgerHeadId", model.LedgerHeadId));
                 command.Parameters.Add(new SqlParameter("@Status", model.Status));
                 command.Parameters.Add(new SqlParameter("@SlipUpload", model.SlipUpload));
-            
+                if (model.AccountId != null)
+                {
+
+                    command.Parameters.Add(new SqlParameter("@AccountId", model.AccountId));
+                }
+                else
+                {
+                    command.Parameters.Add(new SqlParameter("@AccountId", 117));
+
+                }
+
                 command.Parameters.Add(new SqlParameter("@VoucherType", 106));
-                 
+
 
                 await connection.OpenAsync();
 

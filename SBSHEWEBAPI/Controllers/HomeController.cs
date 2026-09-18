@@ -1,6 +1,7 @@
 ﻿using Application.DTOs;
 using Application.Helper;
 using Microsoft.AspNetCore.Mvc;
+using QRCoder;
 using System.Security.Cryptography;
 
 namespace SBSHEWEBAPI
@@ -16,12 +17,14 @@ namespace SBSHEWEBAPI
         private readonly IUnitOfWork _unitOfWork;
         private readonly IConfiguration _configuration;
         private readonly IWebHostEnvironment _environment;
+        private readonly Microsoft.AspNetCore.Hosting.IHostingEnvironment _appEnvironment;
 
-        public HomeController(IUnitOfWork unitOfWork, IConfiguration configuration, IWebHostEnvironment environment)
+        public HomeController(IUnitOfWork unitOfWork, IConfiguration configuration, IWebHostEnvironment environment, Microsoft.AspNetCore.Hosting.IHostingEnvironment appEnvironment)
         {
             _unitOfWork = unitOfWork;
             _configuration = configuration;
             _environment = environment;
+            _appEnvironment = appEnvironment;
         }
 
         [HttpPost("acc-create")]
@@ -42,19 +45,21 @@ namespace SBSHEWEBAPI
 
                 // Login credentials
                 model.UserName = model.Email;
-                model.Password = $"SBSHE@{num}";
+                model.Password = $"SBSHE@" + model.MobileNo;
 
                 // Store only hashed password in database
                 model.PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password);
 
                 // Create registration
-                var result = await _unitOfWork.AccRegistration.Create(model);
-
+                // var result = await _unitOfWork.AccRegistration.Create(model);
+                var result = (await _unitOfWork.AccRegistration.Create(model)).Split(",");
+                var msg = result[0];
+                var entityId = result[1];
                 // Default message
                 string printmsg1 = string.Empty;
 
                 // Only generate success message when registration is successful
-                if (result == "Successfully")
+                if (msg == "Successfully")
                 {
                     printmsg1 =
                         $"Dear {model.Name},\n" +
@@ -69,9 +74,9 @@ namespace SBSHEWEBAPI
 
                 return Ok(new
                 {
-                    success = result == "Successfully",
+                    success = msg == "Successfully",
                     data = model,
-                    message = result,
+                    message = msg,
                     printmsg = printmsg1
                 });
             }
@@ -198,7 +203,7 @@ namespace SBSHEWEBAPI
 
 
         [HttpPost("studycenter-create")]
-        public async Task<IActionResult> Create(FrenchisePostDTOs model)
+        public async Task<IActionResult> Create([FromForm] FrenchisePostDTOs model)
         {
             try
             {
@@ -250,17 +255,31 @@ namespace SBSHEWEBAPI
                 model.FatherEntityTypeId = 14;
                 model.UserName = model.Email;
                 model.ReferenceId = 1;
-                model.Password = $"SBSHE@{num}";
+                model.Password = $"SBSHE@" + model.MobileNo;
 
                 model.PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password); // Hashed Password
 
-                var result = await _unitOfWork.Frenchise.Create(model);
+                // var result = await _unitOfWork.Frenchise.Create(model);
+                var result = (await _unitOfWork.Frenchise.Create(model)).Split(",");
+                var msg = result[0];
+                var entityId = result[1];
 
+                if (msg == "Successfully")
+                {
+
+                    if (model.DepartmentIds != null && model.DepartmentIds.Count > 0)
+                    {
+                        foreach (var academic in model.DepartmentIds)
+                        {
+                            await _unitOfWork.Frenchise.CreateInstituteDepartmentDetails(Convert.ToInt32(entityId), academic);
+                        }
+                    }
+                }
                 // Default message
                 string printmsg1 = string.Empty;
 
                 // Only generate success message when registration is successful
-                if (result == "Successfully")
+                if (msg == "Successfully")
                 {
                     printmsg1 =
                     $"Dear {model.FatherName},\n" +
@@ -277,9 +296,9 @@ namespace SBSHEWEBAPI
                 }
                 return Ok(new
                 {
-                    success = result == "Successfully",
+                    success = msg == "Successfully",
                     data = model,
-                    message = result,
+                    message = msg,
                     printmsg = printmsg1
                 });
             }
@@ -293,6 +312,321 @@ namespace SBSHEWEBAPI
                 });
             }
         }
+
+
+
+        [HttpGet("authority-letter-print/{id}")]
+        public async Task<IActionResult> AuthorityLetterPrint(int id)
+        {
+            try
+            {
+                var data = await _unitOfWork.DocumentProfile.GetAuthorityLetterPrintData(id);
+
+                if (data == null)
+                {
+                    return NotFound(new
+                    {
+                        message = $"Authority Letter data not found for ID: {id}"
+                    });
+                }
+
+                string selfImageBase64 = "";
+
+                try
+                {
+                    if (!string.IsNullOrWhiteSpace(data.SelfImage))
+                    {
+                        string fileName =
+                            Path.GetFileName(data.SelfImage);
+
+                        string imagePath = Path.Combine(
+                            _appEnvironment.WebRootPath,
+                            "Uploads",
+                            fileName
+                        );
+
+                        Console.WriteLine(
+                            "Student Image Path: " +
+                            imagePath
+                        );
+
+                        if (System.IO.File.Exists(imagePath))
+                        {
+                            byte[] imageBytes =
+                                await System.IO.File.ReadAllBytesAsync(
+                                    imagePath
+                                );
+
+                            string extension =
+                                Path.GetExtension(imagePath)
+                                    .ToLowerInvariant();
+
+                            string mimeType = extension switch
+                            {
+                                ".jpg" => "image/jpeg",
+                                ".jpeg" => "image/jpeg",
+                                ".png" => "image/png",
+                                ".gif" => "image/gif",
+                                ".webp" => "image/webp",
+                                _ => "application/octet-stream"
+                            };
+
+                            selfImageBase64 =
+                                $"data:{mimeType};base64," +
+                                Convert.ToBase64String(
+                                    imageBytes
+                                );
+
+                            Console.WriteLine(
+                                "Student Image Base64 generated."
+                            );
+                        }
+                        else
+                        {
+                            Console.WriteLine(
+                                "Student Image File NOT FOUND: " +
+                                imagePath
+                            );
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine(
+                            "data.SelfImage is empty."
+                        );
+                    }
+                }
+                catch (Exception imageEx)
+                {
+                    Console.WriteLine(
+                        "Student Image Error: " +
+                        imageEx.Message
+                    );
+
+                    selfImageBase64 = "";
+                }
+
+                // =========================================================
+                // 3. Stemp IMAGE -> BASE64
+                // =========================================================
+
+                string stempImageBase64 = "";
+
+                try
+                {
+                    string stampFileName = "stemp_1.png";
+
+                    string stampImagePath = Path.Combine(
+                        _appEnvironment.WebRootPath,
+                        "Uploads",
+                        stampFileName
+                    );
+
+                    Console.WriteLine(
+                        "Stamp Image Path: " +
+                        stampImagePath
+                    );
+
+                    if (System.IO.File.Exists(stampImagePath))
+                    {
+                        byte[] stampImageBytes =
+                            await System.IO.File.ReadAllBytesAsync(
+                                stampImagePath
+                            );
+
+                        string extension =
+                            Path.GetExtension(stampImagePath)
+                                .ToLowerInvariant();
+
+                        string mimeType = extension switch
+                        {
+                            ".jpg" => "image/jpeg",
+                            ".jpeg" => "image/jpeg",
+                            ".png" => "image/png",
+                            ".gif" => "image/gif",
+                            ".webp" => "image/webp",
+                            _ => "application/octet-stream"
+                        };
+
+                        stempImageBase64 =
+                            $"data:{mimeType};base64," +
+                            Convert.ToBase64String(
+                                stampImageBytes
+                            );
+
+                        Console.WriteLine(
+                            "Stamp Image Base64 generated."
+                        );
+                    }
+                    else
+                    {
+                        Console.WriteLine(
+                            "Stamp Image File NOT FOUND: " +
+                            stampImagePath
+                        );
+                    }
+                }
+                catch (Exception stampEx)
+                {
+                    Console.WriteLine(
+                        "Stamp Image Error: " +
+                        stampEx.Message
+                    );
+
+                    stempImageBase64 = "";
+                }
+                // =========================================================
+                // 3. Sigh. IMAGE -> BASE64
+                // =========================================================
+
+                string sighImageBase64 = "";
+
+                try
+                {
+                    string sighFileName = "singh.png";
+
+                    string sighImagePath = Path.Combine(
+                        _appEnvironment.WebRootPath,
+                        "Uploads",
+                        sighFileName
+                    );
+
+                    Console.WriteLine(
+                        "Stamp Image Path: " +
+                        sighImagePath
+                    );
+
+                    if (System.IO.File.Exists(sighImagePath))
+                    {
+                        byte[] sighImageBytes =
+                            await System.IO.File.ReadAllBytesAsync(
+                                sighImagePath
+                            );
+
+                        string extension =
+                            Path.GetExtension(sighImagePath)
+                                .ToLowerInvariant();
+
+                        string mimeType = extension switch
+                        {
+                            ".jpg" => "image/jpeg",
+                            ".jpeg" => "image/jpeg",
+                            ".png" => "image/png",
+                            ".gif" => "image/gif",
+                            ".webp" => "image/webp",
+                            _ => "application/octet-stream"
+                        };
+
+                        sighImageBase64 =
+                            $"data:{mimeType};base64," +
+                            Convert.ToBase64String(
+                                sighImageBytes
+                            );
+
+                        Console.WriteLine(
+                            "Stamp Image Base64 generated."
+                        );
+                    }
+                    else
+                    {
+                        Console.WriteLine(
+                            "Stamp Image File NOT FOUND: " +
+                            sighImagePath
+                        );
+                    }
+                }
+                catch (Exception stampEx)
+                {
+                    Console.WriteLine(
+                        "Stamp Image Error: " +
+                        stampEx.Message
+                    );
+
+                    sighImageBase64 = "";
+                }
+
+
+
+
+                string qrImage = "";
+
+                try
+                {
+                    string qrText = "Name-" + (data.Name ?? "") + ",FatherName-" + (data.FatherName ?? "") + ",EnrollmentNo-" + (data.EnrollmentNo ?? "") + ",Course-" + (data.CourseName ?? "");
+
+                    using (QRCodeGenerator qrGenerator = new QRCodeGenerator())
+                    using (QRCodeData qrCodeData =
+                           qrGenerator.CreateQrCode(
+                               qrText,
+                               QRCodeGenerator.ECCLevel.Q))
+                    {
+                        var qrCode = new PngByteQRCode(qrCodeData);
+
+                        byte[] qrBytes =
+                            qrCode.GetGraphic(
+                                20,
+                                System.Drawing.Color.Black,
+                                System.Drawing.Color.Transparent,
+                                false
+                            );
+
+                        qrImage =
+                            "data:image/png;base64," +
+                            Convert.ToBase64String(
+                                qrBytes
+                            );
+
+                        Console.WriteLine(
+                            "QR Base64 generated successfully."
+                        );
+                    }
+                }
+                catch (Exception qrEx)
+                {
+                    Console.WriteLine(
+                        "QR Generation Error: " +
+                        qrEx.Message
+                    );
+
+                    qrImage = "";
+                }
+
+                return Ok(new
+                {
+                    name = data.Name ?? "",
+                    firstName = data.FirstName ?? "",
+                    fatherName = data.FatherName ?? "",
+                    enrollmentNo = data.Code ?? "",
+                    srnoDiploma = data.SrnoDiploma ?? "",
+                    endDate = data.EndDate ?? "",
+                    startDate = data.StartDate ?? "",
+                    address = data.Address ?? "",
+                    selfImage = selfImageBase64,
+                    stempImage = stempImageBase64,
+                    singhImage = sighImageBase64,
+
+                    qrimage = qrImage
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(
+                    500,
+                    new
+                    {
+                        message =
+                            "Authority Letter data fetch failed.",
+
+                        error =
+                            ex.Message,
+
+                        innerError =
+                            ex.InnerException?.Message
+                    }
+                );
+            }
+        }
+
 
     }
 }

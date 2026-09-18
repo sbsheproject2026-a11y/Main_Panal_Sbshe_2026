@@ -1,4 +1,5 @@
-﻿using Application.DTOs.MasterTypeDTOs;
+﻿using Application.DTOs;
+using Application.DTOs.MasterTypeDTOs;
 using Application.Helper;
 using Microsoft.AspNetCore.Mvc;
 
@@ -44,17 +45,41 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
         }
 
         [HttpPost("emp-wallet-create")]
-        public async Task<IActionResult> Create(LocationPostDTOs model)
+    
+        public async Task<IActionResult> Create(WalletPostDTOs model)
         {
-
-            var result = await _unitOfWork.Location.Create(model);
-
-            return Ok(new
+            try
             {
-                success = true,
-                message = result
-            });
+
+                if (model == null)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Request data is required."
+                    });
+                }
+                model.PayMode = 108;
+                var result = await _unitOfWork.Wallet.Create(model);
+
+                return Ok(new
+                {
+                    success = true,
+                    message = result
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Something went wrong.",
+                    error = ex.Message
+                });
+            }
         }
+
+
 
 
 

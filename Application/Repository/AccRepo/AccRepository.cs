@@ -172,7 +172,10 @@ namespace Application.Repository
                         Pincode = reader["PinCode"]?.ToString(),
                         MobileNo = reader["MobileNo"]?.ToString(),
                         WhatsAppNo = reader["WhatsAppNo"]?.ToString(),
-                        Email = reader["Email"]?.ToString()
+                        Email = reader["Email"]?.ToString(),
+                        OtherFacilities = reader["OtherFacilities"]?.ToString(),
+                        Experience = reader["Experience"]?.ToString(),
+                        InstituteName =  reader["InstituteName"]?.ToString()
                     };
                 }
 
@@ -187,7 +190,7 @@ namespace Application.Repository
         }
 
 
-        public async Task<string> Update(FrenchisePostDTOs model)
+        public async Task<string> Update(AccRegistrationPostDTOs model)
         {
             try
             {

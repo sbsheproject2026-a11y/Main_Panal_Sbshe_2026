@@ -49,7 +49,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
         }
 
         [HttpPost("frenchise-create")]
-        public async Task<IActionResult> Create(FrenchisePostDTOs model)
+        public async Task<IActionResult> Create(AccRegistrationPostDTOs model)
         {
             try
             {
@@ -67,12 +67,14 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
 
                 model.PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password); // Hashed Password
 
-                var result = await _unitOfWork.Frenchise.Create(model);
-
+            
+                var result = (await _unitOfWork.AccRegistration.Create(model)).Split(",");
+                var msg = result[0];
+                var entityId = result[1];
                 return Ok(new
                 {
                     success = true,
-                    message = result
+                    message = msg
                 });
             }
             catch (Exception ex)
@@ -87,10 +89,10 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
         }
 
 
-        [HttpGet("frenchise-getbyid/{id}")]
+        [HttpGet("acc-getbyid/{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var data = await _unitOfWork.Frenchise.GetById(id);
+            var data = await _unitOfWork.AccRegistration.GetById(id);
 
             if (data == null)
             {
@@ -101,7 +103,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
         }
 
         [HttpPut("frenchise-update")]
-        public async Task<IActionResult> Update(FrenchisePostDTOs model)
+        public async Task<IActionResult> Update(AccRegistrationPostDTOs model)
         {
             if (model.Id <= 0)
             {
@@ -112,7 +114,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                 });
             }
 
-            var result = await _unitOfWork.Frenchise.Update(model);
+            var result = await _unitOfWork.AccRegistration.Update(model);
 
             return Ok(new
             {
@@ -132,7 +134,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                 });
             }
 
-            var result = await _unitOfWork.Frenchise.Delete(Id);
+            var result = await _unitOfWork.AccRegistration.Delete(Id);
 
             return Ok(new
             {

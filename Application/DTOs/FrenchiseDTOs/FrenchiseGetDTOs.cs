@@ -6,6 +6,7 @@
         public string? Code { get; set; }
 
         public string? Name { get; set; }
+        public string? InstituteName { get; set; }
 
         public int? ReferenceId { get; set; }
         public int? DistrictId { get; set; }
