@@ -21,13 +21,13 @@ namespace SBSHEWEBAPI
         }
 
 
-        [HttpGet("frenchise-list")]
+        [HttpGet("frenchise-list/{id}")]
 
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get(int id)
         {
             try
             {
-                var data = await _unitOfWork.WebsiteContent.GetAll();
+                var data = await _unitOfWork.WebsiteContent.GetAll(id);
 
                 var result = data.Select(x => new
                 {

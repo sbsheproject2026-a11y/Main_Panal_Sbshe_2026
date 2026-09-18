@@ -14,11 +14,14 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
 
         private readonly IUnitOfWork _unitOfWork;
         private readonly IConfiguration _configuration;
+        private readonly IWebHostEnvironment _environment;
 
-        public AdminWalletController(IUnitOfWork unitOfWork, IConfiguration configuration)
+        public AdminWalletController(IUnitOfWork unitOfWork, IConfiguration configuration, IWebHostEnvironment environment)
         {
             _unitOfWork = unitOfWork;
             _configuration = configuration;
+            _environment = environment;
+
         }
 
         [HttpGet("wallet-getall")]
@@ -45,7 +48,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
         }
 
         [HttpPost("wallet-create")]
-        public async Task<IActionResult> Create(WalletPostDTOs model)
+        public async Task<IActionResult> Create([FromForm]WalletPostDTOs model)
         {
             try
             {
@@ -58,7 +61,27 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                         message = "Request data is required."
                     });
                 }
-                model.PayMode = 108;
+
+                string folderPath = Path.Combine(_environment.WebRootPath, "Uploads");
+                Directory.CreateDirectory(folderPath);
+
+                async Task<string> UploadFile(IFormFile file)
+                {
+                    string fileName = $"{Guid.NewGuid():N}"[..8] + "_" +
+                                      Path.GetFileName(file.FileName);
+
+                    string filePath = Path.Combine(folderPath, fileName);
+
+                    using var stream = new FileStream(filePath, FileMode.Create);
+                    await file.CopyToAsync(stream);
+
+                    return fileName;
+                }
+
+                if (model.SlipUpload1 != null && model.SlipUpload1.Length > 0)
+                    model.SlipUpload = await UploadFile(model.SlipUpload1);
+
+                model.Status = 116;
                 var result = await _unitOfWork.Wallet.Create(model);
 
                 return Ok(new

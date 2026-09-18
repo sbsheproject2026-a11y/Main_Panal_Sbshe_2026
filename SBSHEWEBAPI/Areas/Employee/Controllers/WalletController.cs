@@ -14,11 +14,13 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
 
         private readonly IUnitOfWork _unitOfWork;
         private readonly IConfiguration _configuration;
+        private readonly IWebHostEnvironment _environment;
 
-        public WalletController(IUnitOfWork unitOfWork, IConfiguration configuration)
+        public WalletController(IUnitOfWork unitOfWork, IConfiguration configuration, IWebHostEnvironment environment)
         {
             _unitOfWork = unitOfWork;
             _configuration = configuration;
+            _environment = environment;
         }
 
         [HttpGet("emp-wallet-getall")]
@@ -45,8 +47,9 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
         }
 
         [HttpPost("emp-wallet-create")]
-    
-        public async Task<IActionResult> Create(WalletPostDTOs model)
+
+     
+        public async Task<IActionResult> Create([FromForm] WalletPostDTOs model)
         {
             try
             {
@@ -59,7 +62,38 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
                         message = "Request data is required."
                     });
                 }
-                model.PayMode = 108;
+
+
+                if (!model.FranchiseId.HasValue || model.FranchiseId.Value <= 0)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Franchise is required."
+                    });
+                }
+
+
+                string folderPath = Path.Combine(_environment.WebRootPath, "Uploads");
+                Directory.CreateDirectory(folderPath);
+
+                async Task<string> UploadFile(IFormFile file)
+                {
+                    string fileName = $"{Guid.NewGuid():N}"[..8] + "_" +
+                                      Path.GetFileName(file.FileName);
+
+                    string filePath = Path.Combine(folderPath, fileName);
+
+                    using var stream = new FileStream(filePath, FileMode.Create);
+                    await file.CopyToAsync(stream);
+
+                    return fileName;
+                }
+
+                if (model.SlipUpload1 != null && model.SlipUpload1.Length > 0)
+                    model.SlipUpload = await UploadFile(model.SlipUpload1);
+
+                model.Status = 115;
                 var result = await _unitOfWork.Wallet.Create(model);
 
                 return Ok(new

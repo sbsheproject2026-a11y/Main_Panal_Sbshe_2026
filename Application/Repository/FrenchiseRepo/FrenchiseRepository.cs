@@ -17,16 +17,16 @@ namespace Application.Repository
 
         //---------------------------------------Frenchise Start------------------------------
 
-        public async Task<List<FrenchiseGetDTOs>> GetAll(
-            int referenceId,
-            int pageNo,
-            int pageSize,
+        public async Task<(List<FrenchiseGetDTOs> StudentList, int TotalCount)> GetAll(
+            int? referenceId,
+            int? pageNo,
+            int? pageSize,
             string? search)
         {
             try
             {
                 var data = new List<FrenchiseGetDTOs>();
-
+                int totalCount = 0;
                 var connectionString = _context.Database.GetConnectionString();
 
                 using (var connection = new SqlConnection(connectionString))
@@ -64,11 +64,15 @@ namespace Application.Repository
                                 DistrictName = reader["DistrictName"]?.ToString(),
                                 StateName = reader["StateName"]?.ToString()
                             });
+                            if (reader["TotalRows"] != DBNull.Value)
+                            {
+                                totalCount = Convert.ToInt32(reader["TotalRows"]);
+                            }
                         }
                     }
                 }
 
-                return data;
+                return (data, totalCount);
             }
             catch (Exception ex)
             {

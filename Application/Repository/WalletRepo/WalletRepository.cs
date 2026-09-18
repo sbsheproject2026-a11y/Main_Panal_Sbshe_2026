@@ -1,6 +1,5 @@
 ﻿
 using Application.DTOs;
-using Application.DTOs.MasterTypeDTOs;
 using Domain;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -24,29 +23,57 @@ namespace Application.Repository
 
         //---------------------------------------State Start------------------------------
 
-        public async Task<List<LocationGetDTOs>> GetAll(int typeid)
+
+        public async Task<List<WalletGetDTOs>> GetAll(int UserId, int Amountid)
         {
             try
             {
-                var data = await _context.Location.Where(x => x.IsActive == 1 && x.TypeId == typeid).OrderByDescending(x => x.Id)
-                    .Select(x => new LocationGetDTOs
-                    {
-                        Id = x.Id,
-                        Name = x.Name,
-                        Code = x.Code,
-                        TypeId = x.TypeId,
+                var data = new List<WalletGetDTOs>();
 
-                    })
-                    .ToListAsync();
+                using var connection = new SqlConnection(_connectionString);
+                using var command = new SqlCommand("ViewWallet", connection);
+
+                command.CommandType = CommandType.StoredProcedure;
+
+                command.Parameters.Add(new SqlParameter("@FranchiseId", UserId));
+
+                command.Parameters.Add(new SqlParameter("@walletId", Amountid));
+
+               
+
+                await connection.OpenAsync();
+
+                using var reader = await command.ExecuteReaderAsync();
+
+                while (await reader.ReadAsync())
+                {
+                    data.Add(new WalletGetDTOs
+                    {
+                        Id = Convert.ToInt32(reader["Id"]),
+                        FundId = Convert.ToInt32(reader["FundId"]),
+                        
+                        EntryDate = Convert.ToDateTime(reader["date"]),
+                        TransactionType = reader["TransactionType"]?.ToString(),
+                        TransactionNumber = reader["TransactionNumber"]?.ToString(),
+                        Remark = reader["Remark"]?.ToString(),
+                        dr = Convert.ToDecimal(reader["dr"]),
+                        cr = Convert.ToDecimal(reader["cr"]),
+                        balance = Convert.ToDecimal(reader["balance"]),
+                        Status = reader["Status"]?.ToString(),
+                    });
+                }
 
                 return data;
             }
             catch (Exception ex)
             {
-
-                throw new Exception("Error while fetching  data.", ex);
+                throw new Exception(
+                    "Error while fetching Course data.",
+                    ex);
             }
         }
+
+
 
 
         public async Task<string> Create(WalletPostDTOs model)
@@ -80,6 +107,10 @@ namespace Application.Repository
                 }
 
                 command.Parameters.Add(new SqlParameter("@VoucherType", 106));
+                command.Parameters.Add(new SqlParameter("@PaymentTypeId", model.PaymentTypeId));
+                command.Parameters.Add(new SqlParameter("@BankNameId", model.BankNameId));
+                command.Parameters.Add(new SqlParameter("@BankConfirmDate", model.BankConfirmDate));
+                command.Parameters.Add(new SqlParameter("@URTNo", model.TransactionNo));
 
 
                 await connection.OpenAsync();

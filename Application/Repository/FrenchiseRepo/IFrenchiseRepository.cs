@@ -6,7 +6,7 @@ namespace Application.Repository
     public interface IFrenchiseRepository
     {
 
-        Task<List<FrenchiseGetDTOs>> GetAll(int ReferenceId, int pageNo, int pageSize, string? search);
+        Task<(List<FrenchiseGetDTOs> StudentList, int TotalCount)> GetAll(int? ReferenceId, int? pageNo, int? pageSize, string? search);
 
         Task<string> Create(FrenchisePostDTOs model);
         Task<string> CreateInstituteDepartmentDetails(int entityId, FranchiseDepartmentDTOs model);

@@ -3,6 +3,7 @@ using Domain;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Model;
+using System.Collections.Generic;
 using System.Data;
 
 namespace Application.Repository
@@ -23,16 +24,12 @@ namespace Application.Repository
 
         // --------------------------------------- Account Start ---------------------------------------
 
-        public async Task<List<FrenchiseGetDTOs>> GetAll(
-            int referenceId,
-            int pageNo,
-            int pageSize,
-            string? search)
+        public async Task<(List<FrenchiseGetDTOs> StudentList, int TotalCount)> GetAll(  int? referenceId,int? pageNo, int? pageSize, string? search)
         {
             try
             {
                 var data = new List<FrenchiseGetDTOs>();
-
+                int totalCount = 0;
                 using var connection = new SqlConnection(_connectionString);
                 using var command = new SqlCommand("GetAccAcountList", connection);
 
@@ -68,9 +65,13 @@ namespace Application.Repository
                         DistrictName = reader["DistrictName"]?.ToString(),
                         StateName = reader["StateName"]?.ToString()
                     });
+                    if (reader["TotalRows"] != DBNull.Value)
+                    {
+                        totalCount = Convert.ToInt32(reader["TotalRows"]);
+                    }
                 }
-
-                return data;
+                return (data, totalCount);
+           
             }
             catch (Exception ex)
             {
@@ -175,8 +176,14 @@ namespace Application.Repository
                         Email = reader["Email"]?.ToString(),
                         OtherFacilities = reader["OtherFacilities"]?.ToString(),
                         Experience = reader["Experience"]?.ToString(),
-                        InstituteName =  reader["InstituteName"]?.ToString()
+                        InstituteName =  reader["InstituteName"]?.ToString(),
+                        Dob = Convert.ToDateTime(reader["DOB"]),
+
                     };
+                    if (data != null)
+                    {
+                        data.DOB1 = data.Dob?.ToString("yyyy-MM-dd");
+                    }
                 }
 
                 return data;
@@ -211,6 +218,21 @@ namespace Application.Repository
                 command.Parameters.Add(new SqlParameter("@MobileNo", model.MobileNo));
                 command.Parameters.Add(new SqlParameter("@Email", model.Email));
                 command.Parameters.Add(new SqlParameter("@WhatsAppNo", model.WhatsAppNo));
+                command.Parameters.Add(new SqlParameter("@InstituteName", model.InstituteName));
+                command.Parameters.Add(new SqlParameter("@Experience", model.Experience));
+                command.Parameters.Add(new SqlParameter("@Occupation", model.Occupation));
+                command.Parameters.Add(new SqlParameter(
+                    "@ExpectedAdmissions",
+                    model.ExpectedAdmissions));
+                command.Parameters.Add(new SqlParameter("@Remark", model.Remark));
+                command.Parameters.Add(new SqlParameter("@Dob", model.Dob));
+                command.Parameters.Add(new SqlParameter("@SelfImage", model.PassportPhoto));
+                command.Parameters.Add(new SqlParameter("@SignatureImage", model.AuthorizedSignature));
+                command.Parameters.Add(new SqlParameter("@AadhaarCardimage", model.AadhaarCardimage));
+                command.Parameters.Add(new SqlParameter("@Pancardimage", model.PanCardimage));
+                command.Parameters.Add(new SqlParameter("@InstituteCertificateimage", model.InstituteCertificate));
+                command.Parameters.Add(new SqlParameter("@BuildingPhoto1image", model.BuildingPhoto1));
+                command.Parameters.Add(new SqlParameter("@BuildingPhoto2image", model.BuildingPhoto2));
 
                 await connection.OpenAsync();
 

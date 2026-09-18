@@ -24,19 +24,23 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
             _configuration = configuration;
             _environment = environment;
         }
+        
         [HttpGet("frenchise-getall")]
-
-        public async Task<IActionResult> Get(int referenceId = 1, int pageNo = 1, int pageSize = 100, string? search = null)
+        public async Task<IActionResult> Get(int? referenceId = 1, int? pageNo = null, int? pageSize = null, string? search = null)
         {
             try
             {
-                var data = await _unitOfWork.Frenchise.GetAll(referenceId, pageNo, pageSize, search);
+                pageNo ??= 1;
+                pageSize ??= 10;
+
+                var (data, totalCount) = await _unitOfWork.Frenchise.GetAll(referenceId, pageNo, pageSize, search);
 
                 return Ok(new
                 {
                     Success = true,
                     PageNo = pageNo,
                     PageSize = pageSize,
+                    TotalRecords = totalCount,
                     Data = data
                 });
             }
@@ -49,6 +53,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                 });
             }
         }
+         
 
         [HttpPost("frenchise-create")]
         public async Task<IActionResult> Create(FrenchisePostDTOs model)

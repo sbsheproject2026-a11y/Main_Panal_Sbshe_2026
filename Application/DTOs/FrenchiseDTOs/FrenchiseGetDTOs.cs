@@ -18,7 +18,9 @@
         public int? LocationId { get; set; }
         public string? Address { get; set; }
         public string? Pincode { get; set; }
+        public DateTime? Dob { get; set; }
 
+        public string? DOB1 { get; set; }
         public string? MobileNo { get; set; }
         public string? WhatsAppNo { get; set; }
         public string? Email { get; set; }

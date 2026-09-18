@@ -22,8 +22,8 @@ namespace Application.Repository
         //---------------------------------------Frenchise Start------------------------------
 
 
-        public async Task<List<FrenchiseGetDTOs>> GetAll()
-        {
+        public async Task<List<FrenchiseGetDTOs>> GetAll(int id)
+         {
             try
             {
                 var data = new List<FrenchiseGetDTOs>();
@@ -34,6 +34,7 @@ namespace Application.Repository
                 await using (var command = new SqlCommand("GetListFrenchise", connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.Add(new SqlParameter("@Id", id));
 
                     await connection.OpenAsync();
 

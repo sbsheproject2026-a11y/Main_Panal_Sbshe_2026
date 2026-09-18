@@ -16,25 +16,31 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
 
         private readonly IUnitOfWork _unitOfWork;
         private readonly IConfiguration _configuration;
+        private readonly IWebHostEnvironment _environment;
 
-        public AdmissionConsultantController(IUnitOfWork unitOfWork, IConfiguration configuration)
+        public AdmissionConsultantController(IUnitOfWork unitOfWork, IConfiguration configuration, IWebHostEnvironment environment )
         {
             _unitOfWork = unitOfWork;
             _configuration = configuration;
+            _environment = environment;
         }
         [HttpGet("acc-getall")]
 
-        public async Task<IActionResult> Get(int referenceId = 1, int pageNo = 1, int pageSize = 100, string? search = null)
+        public async Task<IActionResult> Get(int? referenceId = 1, int? pageNo=null, int? pageSize=null, string? search = null)
         {
             try
             {
-                var data = await _unitOfWork.AccRegistration.GetAll(referenceId, pageNo, pageSize, search);
+                pageNo ??= 1;
+                pageSize ??= 100;
+
+                var (data, totalCount) = await _unitOfWork.AccRegistration.GetAll(referenceId, pageNo, pageSize, search);
 
                 return Ok(new
                 {
                     Success = true,
                     PageNo = pageNo,
                     PageSize = pageSize,
+                    TotalRecords = totalCount,
                     Data = data
                 });
             }
@@ -102,8 +108,9 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
             return Ok(data);
         }
 
-        [HttpPut("frenchise-update")]
-        public async Task<IActionResult> Update(AccRegistrationPostDTOs model)
+        [HttpPut("acc-update")]
+
+        public async Task<IActionResult> Update( [FromForm] AccRegistrationPostDTOs model)
         {
             if (model.Id <= 0)
             {
@@ -114,6 +121,42 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                 });
             }
 
+            string folderPath = Path.Combine(_environment.WebRootPath, "Uploads");
+            Directory.CreateDirectory(folderPath);
+
+            async Task<string> UploadFile(IFormFile file)
+            {
+                string fileName = $"{Guid.NewGuid():N}"[..8] + "_" +
+                                  Path.GetFileName(file.FileName);
+
+                string filePath = Path.Combine(folderPath, fileName);
+
+                using var stream = new FileStream(filePath, FileMode.Create);
+                await file.CopyToAsync(stream);
+
+                return fileName;
+            }
+
+            if (model.PassportPhoto1 != null && model.PassportPhoto1.Length > 0)
+                model.PassportPhoto = await UploadFile(model.PassportPhoto1);
+
+            if (model.AuthorizedSignature1 != null && model.AuthorizedSignature1.Length > 0)
+                model.AuthorizedSignature = await UploadFile(model.AuthorizedSignature1);
+
+            if (model.AadhaarCard1 != null && model.AadhaarCard1.Length > 0)
+                model.AadhaarCardimage = await UploadFile(model.AadhaarCard1);
+
+            if (model.PanCard1 != null && model.PanCard1.Length > 0)
+                model.PanCardimage = await UploadFile(model.PanCard1);
+
+            if (model.InstituteCertificate1 != null && model.InstituteCertificate1.Length > 0)
+                model.InstituteCertificate = await UploadFile(model.InstituteCertificate1);
+
+            if (model.BuildingPhoto11 != null && model.BuildingPhoto11.Length > 0)
+                model.BuildingPhoto1 = await UploadFile(model.BuildingPhoto11);
+
+            if (model.BuildingPhoto22 != null && model.BuildingPhoto22.Length > 0)
+                model.BuildingPhoto2 = await UploadFile(model.BuildingPhoto22);
             var result = await _unitOfWork.AccRegistration.Update(model);
 
             return Ok(new
@@ -122,6 +165,8 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                 Message = result
             });
         }
+
+
         [HttpDelete("frenchise-delete/{id}")]
         public async Task<IActionResult> Delete(int Id)
         {

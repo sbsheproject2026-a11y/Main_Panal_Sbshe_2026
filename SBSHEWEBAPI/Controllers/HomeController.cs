@@ -28,10 +28,36 @@ namespace SBSHEWEBAPI
         }
 
         [HttpPost("acc-create")]
-        public async Task<IActionResult> Create(AccRegistrationPostDTOs model)
+        public async Task<IActionResult> Create([FromForm] AccRegistrationPostDTOs model)
         {
             try
             {
+
+                if (model == null)
+                {
+                    return BadRequest(new
+                    {
+                        Success = false,
+                        Message = "data is required"
+                    });
+                }
+                if (model.Name == null)
+                {
+                    return BadRequest(new
+                    {
+                        Success = false,
+                        Message = "data is required"
+                    });
+                }
+                if (model.InstituteName == null)
+                {
+                    return BadRequest(new
+                    {
+                        Success = false,
+                        Message = "data is required"
+                    });
+                }
+
                 int num = RandomNumberGenerator.GetInt32(100000, 999999);
 
                 // Registration default values
@@ -100,7 +126,23 @@ namespace SBSHEWEBAPI
             try
             {
 
-
+                if (model == null)
+                {
+                    return BadRequest(new
+                    {
+                        Success = false,
+                        Message = "data is required"
+                    });
+                }
+                if (model.Name == null)
+                {
+                    return BadRequest(new
+                    {
+                        Success = false,
+                        Message = "data is required"
+                    });
+                }
+                
 
                 string folderPath = Path.Combine(_environment.WebRootPath, "Uploads");
                 Directory.CreateDirectory(folderPath);
@@ -207,6 +249,23 @@ namespace SBSHEWEBAPI
         {
             try
             {
+                if (model == null)
+                {
+                    return BadRequest(new
+                    {
+                        Success = false,
+                        Message = "data is required"
+                    });
+                }
+                if (model.Name == null)
+                {
+                    return BadRequest(new
+                    {
+                        Success = false,
+                        Message = "data is required"
+                    });
+                }
+               
                 string folderPath = Path.Combine(_environment.WebRootPath, "Uploads");
                 Directory.CreateDirectory(folderPath);
 
@@ -594,6 +653,7 @@ namespace SBSHEWEBAPI
                 return Ok(new
                 {
                     name = data.Name ?? "",
+                    centreName = data.CentreName ?? "",
                     firstName = data.FirstName ?? "",
                     fatherName = data.FatherName ?? "",
                     enrollmentNo = data.Code ?? "",

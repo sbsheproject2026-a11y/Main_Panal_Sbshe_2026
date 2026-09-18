@@ -6,7 +6,7 @@ namespace Application.Repository
     public interface IWalletRepository
     {
 
-        Task<List<LocationGetDTOs>> GetAll(int typeid);
+        Task<List<WalletGetDTOs>> GetAll(int UserId, int Amountid);
 
         Task<string> Create(WalletPostDTOs model);
        

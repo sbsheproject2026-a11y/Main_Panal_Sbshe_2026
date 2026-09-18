@@ -25,10 +25,12 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
         [Authorize]
         [HttpGet("emp-franchise-list")]
 
-        public async Task<IActionResult> Get(int pageNo = 1, int pageSize = 100, string? search = null)
+        public async Task<IActionResult> Get(int? pageNo = null, int? pageSize = null, string? search = null)
         {
             try
             {
+                pageNo ??= 1;
+                pageSize ??= 100;
                 var claims = User.Claims.ToDictionary(x => x.Type, x => x.Value);
                 var userId = claims.GetValueOrDefault("UserId");
                 var data = await _unitOfWork.Frenchise.GetAll(Convert.ToInt32(userId), pageNo, pageSize, search);

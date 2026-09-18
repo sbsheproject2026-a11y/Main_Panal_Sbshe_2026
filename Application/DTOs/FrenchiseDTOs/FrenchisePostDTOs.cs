@@ -113,6 +113,20 @@ namespace Application.DTOs
         public string? ExpectedAdmissions { get; set; }
         public string? Remark { get; set; }
         public DateTime? Dob { get; set; }
+        public string? AadhaarCardimage { get; set; }
+        public IFormFile? AadhaarCard1 { get; set; }
+        public string? PanCardimage { get; set; }
+        public IFormFile? PanCard1 { get; set; }
+        public string? PassportPhoto { get; set; }
+        public IFormFile? PassportPhoto1 { get; set; }
+        public string? AuthorizedSignature { get; set; }
+        public IFormFile? AuthorizedSignature1 { get; set; }
+        public string? InstituteCertificate { get; set; }
+        public IFormFile? InstituteCertificate1 { get; set; }
+        public string? BuildingPhoto1 { get; set; }
+        public IFormFile? BuildingPhoto11 { get; set; }
+        public string? BuildingPhoto2 { get; set; }
+        public IFormFile? BuildingPhoto22 { get; set; }
 
 
 
