@@ -28,6 +28,11 @@ namespace Domain
         public DbSet<EmployeeFrenchiseAssign> EmployeeFrenchiseAssign { get; set; }
         public DbSet<AcademicDetails> AcademicDetails { get; set; }
         public DbSet<Enquiries> Enquiries { get; set; }
+        public DbSet<ProductCategory> ProductCategory { get; set; }
+        public DbSet<ProductCategoryDetail> ProductCategoryDetail { get; set; }
+        public DbSet<ProductCategoryDocument> ProductCategoryDocument { get; set; }
+        public DbSet<ProductPersonalDetail> ProductPersonalDetail { get; set; }
+        public DbSet<ProductLink> ProductLink { get; set; }
 
     }
 }

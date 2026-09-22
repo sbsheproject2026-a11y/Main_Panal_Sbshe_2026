@@ -46,7 +46,15 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
         [HttpPost("city-create")]
         public async Task<IActionResult> Create(LocationPostDTOs model)
         {
-            model.TypeId = 3;
+            if (model == null)
+            {
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = "data is required"
+                });
+            }
+            model.TypeId = 4;
             var result = await _unitOfWork.Location.Create(model);
 
             return Ok(new
@@ -82,7 +90,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                 });
             }
 
-            model.TypeId = 3;
+            model.TypeId = 4;
             var result = await _unitOfWork.Location.Update(model);
 
             return Ok(new

@@ -11,10 +11,11 @@ namespace Model
         public string? ShortName { get; set; }
         public string? Name { get; set; }
         public string? CourseNameHindi { get; set; }
-        public string? ProductCategoryId { get; set; }
+        public int? ProductCategoryId { get; set; }
 
         public DateTime? Date { get; set; }
 
+        public string? Eligbilty { get; set; }
         public int? Duration { get; set; }
         public int? DurationTypeId { get; set; }
         public int? ParentId { get; set; }

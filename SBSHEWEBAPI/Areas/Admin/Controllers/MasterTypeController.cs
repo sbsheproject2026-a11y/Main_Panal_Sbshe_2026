@@ -46,6 +46,15 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
         [HttpPost("mastertype-create")]
         public async Task<IActionResult> Create(MasterTypePostDTOs model)
         {
+
+            if (model == null)
+            {
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = "data is required"
+                });
+            }
             var result = await _unitOfWork.MasterType.Create(model);
 
             return Ok(new

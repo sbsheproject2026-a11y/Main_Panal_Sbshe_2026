@@ -56,6 +56,7 @@ namespace Application.Repository
                     Date = DateTime.Now,
                     ParentId = model.ParentId ?? null,
                     IsActive = model.IsActive,
+                   
                     IsDelete = 0
                 };
 

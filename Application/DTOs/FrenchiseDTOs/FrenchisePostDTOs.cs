@@ -85,6 +85,7 @@ namespace Application.DTOs
         public int? Id { get; set; }
         public string? Code { get; set; }
 
+        public string? EnrollmentNo { get; set; }
         public string? Name { get; set; }
 
         public int? ReferenceId { get; set; }

@@ -10,6 +10,7 @@
 
     <!-- Authentication / Security -->
     <PackageReference Include="BCrypt.Net-Next" Version="4.2.0" />
+    <PackageReference Include="ClosedXML" Version="0.105.1" />
 
     <!-- Excel -->
     <PackageReference Include="EPPlus" Version="7.0.0" />

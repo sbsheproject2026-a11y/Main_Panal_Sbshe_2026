@@ -47,6 +47,14 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
         [HttpPost("lecture-create-subject")]
         public async Task<IActionResult> Create(LecturePostDTOs model)
         {
+            if (model == null)
+            {
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = "data is required"
+                });
+            }
             var result = await _unitOfWork.Lecture.CreateSubject(model);
 
             return Ok(new

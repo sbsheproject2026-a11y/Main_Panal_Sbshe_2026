@@ -15,10 +15,12 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
 
 
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IWebHostEnvironment _environment;
 
-        public MasterTypeDetailController(IUnitOfWork unitOfWork)
+        public MasterTypeDetailController(IUnitOfWork unitOfWork, IWebHostEnvironment environment)
         {
             _unitOfWork = unitOfWork;
+            _environment = environment;
         }
         [HttpGet("mastertypedetail-getall")]
         public async Task<IActionResult> Get()
@@ -44,8 +46,36 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
         }
 
         [HttpPost("mastertypedetail-create")]
-        public async Task<IActionResult> Create(MasterTypeDetailPostDTOs model)
+        public async Task<IActionResult> Create([FromForm] MasterTypeDetailPostDTOs model)
         {
+            if (model == null)
+            {
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = "data is required"
+                });
+            }
+            string folderPath = Path.Combine(_environment.WebRootPath, "Uploads");
+            Directory.CreateDirectory(folderPath);
+
+            async Task<string> UploadFile(IFormFile file)
+            {
+                string fileName = $"{Guid.NewGuid():N}"[..8] + "_" +
+                                  Path.GetFileName(file.FileName);
+
+                string filePath = Path.Combine(folderPath, fileName);
+
+                using var stream = new FileStream(filePath, FileMode.Create);
+                await file.CopyToAsync(stream);
+
+                return fileName;
+            }
+
+            if (model.File != null && model.File.Length > 0)
+                model.FilePath = await UploadFile(model.File);
+
+
             var result = await _unitOfWork.MasterTypeDetail.Create(model);
 
             return Ok(new
@@ -70,7 +100,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
         }
 
         [HttpPut("mastertypedetail-update")]
-        public async Task<IActionResult> Update(MasterTypeDetailPostDTOs model)
+        public async Task<IActionResult> Update([FromForm] MasterTypeDetailPostDTOs model)
         {
             if (model.Id <= 0)
             {
@@ -80,7 +110,24 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                     Message = "Id is required"
                 });
             }
+            string folderPath = Path.Combine(_environment.WebRootPath, "Uploads");
+            Directory.CreateDirectory(folderPath);
 
+            async Task<string> UploadFile(IFormFile file)
+            {
+                string fileName = $"{Guid.NewGuid():N}"[..8] + "_" +
+                                  Path.GetFileName(file.FileName);
+
+                string filePath = Path.Combine(folderPath, fileName);
+
+                using var stream = new FileStream(filePath, FileMode.Create);
+                await file.CopyToAsync(stream);
+
+                return fileName;
+            }
+
+            if (model.File != null && model.File.Length > 0)
+                model.FilePath = await UploadFile(model.File);
             var result = await _unitOfWork.MasterTypeDetail.Update(model);
 
             return Ok(new

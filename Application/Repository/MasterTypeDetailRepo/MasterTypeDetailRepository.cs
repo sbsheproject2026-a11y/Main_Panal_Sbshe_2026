@@ -1,5 +1,6 @@
 ﻿using Application.DTOs.MasterTypeDTOs;
 using Domain;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Model;
 
@@ -35,6 +36,7 @@ namespace Application.Repository
                                       Name = pa.Name,
                                       Code = pa.Code,
                                       MasterTypeId = pa.MasterTypeId,
+                                      FilePath = pa.FilePath,
                                       IsActive = pa.IsActive
 
                                   })
@@ -62,6 +64,7 @@ namespace Application.Repository
                     Date = DateTime.Now,
                     ParentId = model.ParentId ?? null,
                     IsActive = model.IsActive,
+                    FilePath = model.FilePath,
                     IsDelete = 0
                 };
 
@@ -87,6 +90,7 @@ namespace Application.Repository
                         Id = x.Id,
                         Name = x.Name,
                         Code = x.Code,
+                        FilePath = x.FilePath,
                         IsActive = x.IsActive,
                         MasterTypeId = x.MasterTypeId
                     })
@@ -116,6 +120,8 @@ namespace Application.Repository
                 data.Code = model.Code;
                 data.ParentId = model.ParentId ?? null;
                 data.IsActive = model.IsActive;
+                data.FilePath = model.FilePath;
+
                 data.MasterTypeId = model.MasterTypeId;
 
                 await _context.SaveChangesAsync();

@@ -47,6 +47,14 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
         [HttpPost("mastersession-create")]
         public async Task<IActionResult> Create(MasterSessionPostDTOs model)
         {
+            if (model == null)
+            {
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = "data is required"
+                });
+            }
             var result = await _unitOfWork.MasterSession.Create(model);
 
             return Ok(new

@@ -58,7 +58,15 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
         {
             try
             {
-               
+                if (model == null)
+                {
+                    return BadRequest(new
+                    {
+                        Success = false,
+                        Message = "data is required"
+                    });
+                }
+
                 string randomString = Guid.NewGuid().ToString("N").Substring(0, 8);
                 // Image Upload
                 if (model.SelfImage1 != null && model.SelfImage1.Length > 0)

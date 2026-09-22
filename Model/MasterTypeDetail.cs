@@ -11,6 +11,7 @@ namespace Model
 
         public string? Code { get; set; }
         public DateTime? Date { get; set; }
+        public string? FilePath { get; set; }
 
         public int? ParentId { get; set; }
         [Required]

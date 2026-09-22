@@ -15,6 +15,9 @@ namespace Application.DTOs
         public string? Name { get; set; }
         public string? NameHindi { get; set; }
 
+        public string? ShortDescription { get; set; }
+        public string? Descrption { get; set; }
+        public string? Eligbilty { get; set; }
         public string? DurationName { get; set; }
         public string? CategoryName { get; set; }
         public string? DepartmentName { get; set; }
@@ -22,10 +25,13 @@ namespace Application.DTOs
         public int? DurationTypeId { get; set; }
         public int? ParentId { get; set; }
         public int? IsActive { get; set; }
+        public int? IsHighlight { get; set; }
         public int? CategoryId { get; set; }
         public int? DepartmentId { get; set; }
         public int? TotalClass { get; set; }
         public int? ClassNo { get; set; }
+        public List<ProductMaterialDtos>? ProductCategoryDocuments { get; set; }
+        public List<ProductAmountDtos>? ProductAmounts { get; set; }
 
     }
 }

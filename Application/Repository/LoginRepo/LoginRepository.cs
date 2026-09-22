@@ -28,7 +28,7 @@ namespace Application.Repository
                     from ml in _context.MasterLogin
                     join e in _context.BasicProfile
                         on ml.EntityId equals e.EntityId
-                    where ml.UserName == model.Email
+                    where ml.UserName == model.Email && ml.Password==model.Password
                     select new
                     {
                         User = ml,

@@ -5,6 +5,8 @@ using QRCoder;
 using System.Data;
 
 
+
+
 namespace SBSHEWEBAPI.Areas.Admin.Controllers
 {
     [Area("Admin")]
@@ -12,18 +14,19 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
     [Route("api/[controller]")]
     public class DocumentProfileController : ControllerBase
     {
-        private readonly Microsoft.AspNetCore.Hosting.IHostingEnvironment _appEnvironment;
+        private readonly IWebHostEnvironment _environment;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IConfiguration _configuration;
 
         public DocumentProfileController(
             IUnitOfWork unitOfWork,
             IConfiguration configuration,
-            Microsoft.AspNetCore.Hosting.IHostingEnvironment appEnvironment)
+            IWebHostEnvironment environment
+            )
         {
             _unitOfWork = unitOfWork;
             _configuration = configuration;
-            _appEnvironment = appEnvironment;
+            _environment = environment;
         }
 
         private byte[]? Getimage(string filepath)
@@ -89,7 +92,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                         // -------------------------------------------------
 
                         string imagePath = Path.Combine(
-                            _appEnvironment.WebRootPath,
+                            _environment.WebRootPath,
                             "Uploads",
                             fileName
                         );
@@ -353,7 +356,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                         // -------------------------------------------------
 
                         string imagePath = Path.Combine(
-                            _appEnvironment.WebRootPath,
+                            _environment.WebRootPath,
                             "Uploads",
                             fileName
                         );
@@ -523,7 +526,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                             Path.GetFileName(data.SelfImage);
 
                         string imagePath = Path.Combine(
-                            _appEnvironment.WebRootPath,
+                            _environment.WebRootPath,
                             "Uploads",
                             fileName
                         );
@@ -600,7 +603,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                     string stampFileName = "stemp_1.png";
 
                     string stampImagePath = Path.Combine(
-                        _appEnvironment.WebRootPath,
+                        _environment.WebRootPath,
                         "Uploads",
                         stampFileName
                     );
@@ -669,7 +672,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                     string sighFileName = "singh.png";
 
                     string sighImagePath = Path.Combine(
-                        _appEnvironment.WebRootPath,
+                        _environment.WebRootPath,
                         "Uploads",
                         sighFileName
                     );
@@ -889,7 +892,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                 // ============================================================
                 // 2. RDLC file path
                 // ============================================================
-                var webRoot = _appEnvironment.WebRootPath;
+                var webRoot = _environment.WebRootPath;
 
                 if (string.IsNullOrWhiteSpace(webRoot))
                 {
@@ -1064,7 +1067,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                 // Uploads folder - Linux compatible path
                 // ============================================================
                 string folderPath = Path.Combine(
-                    _appEnvironment.WebRootPath,
+                    _environment.WebRootPath,
                     "Uploads"
                 );
 
@@ -1156,7 +1159,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                             Path.GetFileName(data.SelfImage);
 
                         string imagePath = Path.Combine(
-                            _appEnvironment.WebRootPath,
+                            _environment.WebRootPath,
                             "Uploads",
                             fileName
                         );
@@ -1233,7 +1236,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                     string stampFileName = "stemp_1.png";
 
                     string stampImagePath = Path.Combine(
-                        _appEnvironment.WebRootPath,
+                        _environment.WebRootPath,
                         "Uploads",
                         stampFileName
                     );
@@ -1302,7 +1305,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                     string sighFileName = "singh.png";
 
                     string sighImagePath = Path.Combine(
-                        _appEnvironment.WebRootPath,
+                        _environment.WebRootPath,
                         "Uploads",
                         sighFileName
                     );

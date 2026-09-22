@@ -93,7 +93,7 @@ namespace Application.Repository
 
                 command.CommandType = CommandType.StoredProcedure;
 
-                command.Parameters.Add(new SqlParameter("@Code", model.Code));
+                command.Parameters.Add(new SqlParameter("@Code", model.EnrollmentNo));
                 command.Parameters.Add(new SqlParameter("@Name", model.Name));
                 command.Parameters.Add(new SqlParameter("@FatherName", model.FatherName));
                 command.Parameters.Add(new SqlParameter("@LocationId", model.LocationId));
@@ -202,9 +202,7 @@ namespace Application.Repository
             try
             {
                 using var connection = new SqlConnection(_connectionString);
-                using var command = new SqlCommand(
-                    "UpdateFrenchise",
-                    connection);
+                using var command = new SqlCommand( "UpdateFrenchise", connection);
 
                 command.CommandType = CommandType.StoredProcedure;
 

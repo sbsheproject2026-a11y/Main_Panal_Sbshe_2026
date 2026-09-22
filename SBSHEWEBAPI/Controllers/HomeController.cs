@@ -1,9 +1,9 @@
 ﻿using Application.DTOs;
 using Application.Helper;
+using ClosedXML.Excel;
 using Microsoft.AspNetCore.Mvc;
 using QRCoder;
 using System.Security.Cryptography;
-
 namespace SBSHEWEBAPI
 {
 
@@ -120,6 +120,7 @@ namespace SBSHEWEBAPI
 
 
 
+
         [HttpPost("new-student-create")]
         public async Task<IActionResult> Create([FromForm] StudentPostDTOs model)
         {
@@ -142,7 +143,7 @@ namespace SBSHEWEBAPI
                         Message = "data is required"
                     });
                 }
-                
+
 
                 string folderPath = Path.Combine(_environment.WebRootPath, "Uploads");
                 Directory.CreateDirectory(folderPath);
@@ -265,7 +266,7 @@ namespace SBSHEWEBAPI
                         Message = "data is required"
                     });
                 }
-               
+
                 string folderPath = Path.Combine(_environment.WebRootPath, "Uploads");
                 Directory.CreateDirectory(folderPath);
 
@@ -688,6 +689,231 @@ namespace SBSHEWEBAPI
         }
 
 
+
+
+
+        [HttpPost("bulk-upload")]
+        public async Task<IActionResult> BulkUpload(IFormFile? file, [FromForm] AccRegistrationPostDTOs model)
+        {
+            try
+            {
+                // =====================================================
+                // VALIDATION
+                // =====================================================
+                if (file == null || file.Length == 0)
+                {
+                    return BadRequest(new
+                    {
+                        Success = false,
+                        Message = "Please upload an Excel file."
+                    });
+                }
+
+                // Validate extension
+                var extension = Path.GetExtension(file.FileName).ToLower();
+                if (extension != ".xlsx" && extension != ".xls")
+                {
+                    return BadRequest(new
+                    {
+                        Success = false,
+                        Message = "Only .xlsx or .xls files are allowed"
+                    });
+                }
+
+                var successList = new List<object>();
+                var failedList = new List<object>();
+                int rowNumber = 1;
+
+                using (var stream = new MemoryStream())
+                {
+                    await file.CopyToAsync(stream);
+
+                    using (var workbook = new XLWorkbook(stream))
+                    {
+                        var worksheet = workbook.Worksheet(1);
+
+                        // =============================================
+                        // Data starts from ROW 2 (Row 1 = Header)
+                        // =============================================
+                        var lastRow = worksheet.LastRowUsed()?.RowNumber() ?? 1;
+
+                        if (lastRow < 2)
+                        {
+                            return BadRequest(new
+                            {
+                                Success = false,
+                                Message = "Excel file is empty."
+                            });
+                        }
+
+                        // Loop from row 2 to last row
+                        for (int r = 2; r <= lastRow; r++)
+                        {
+                            rowNumber = r;
+
+                            try
+                            {
+                                var row = worksheet.Row(r);
+
+                                // Skip completely empty rows
+                                if (row.IsEmpty())
+                                {
+                                    continue;
+                                }
+
+                                // =============================================
+                                // Map Excel columns to DTO
+                                // Column 1: EnrollmentNo
+                                // Column 2: CENTER NAME -> FatherName
+                                // Column 3: NAME -> Name
+                                // Column 4: MobileNo
+                                // Column 5: ADRESS -> Address
+                                // Column 6: Email
+                                // =============================================
+                                var rowModel = new AccRegistrationPostDTOs
+                                {
+                                    EnrollmentNo = row.Cell(1).GetString()?.Trim(),
+                                    Name = row.Cell(2).GetString()?.Trim(), // Center Name
+                                    FatherName = row.Cell(3).GetString()?.Trim(),
+                                    MobileNo = row.Cell(4).GetString()?.Trim(),
+                                    Address = row.Cell(5).GetString()?.Trim(),
+                                    Email = row.Cell(6).GetString()?.Trim(),
+                                };
+
+                                // =============================================
+                                // Validate required fields
+                                // =============================================
+                                var missingFields = new List<string>();
+
+                                if (string.IsNullOrWhiteSpace(rowModel.EnrollmentNo))
+                                    missingFields.Add("Enrollment No");
+
+                                if (string.IsNullOrWhiteSpace(rowModel.Name))
+                                    missingFields.Add("Center Name");
+
+                                if (string.IsNullOrWhiteSpace(rowModel.FatherName))
+                                    missingFields.Add("Name");
+
+                                if (string.IsNullOrWhiteSpace(rowModel.MobileNo))
+                                    missingFields.Add("Number");
+
+                                if (string.IsNullOrWhiteSpace(rowModel.Address))
+                                    missingFields.Add("Address");
+
+                                if (string.IsNullOrWhiteSpace(rowModel.Email))
+                                    missingFields.Add("Email");
+
+                                if (missingFields.Count > 0)
+                                {
+                                    failedList.Add(new
+                                    {
+                                        Row = rowNumber,
+                                        EnrollmentNo = rowModel.EnrollmentNo ?? "",
+                                        Name = rowModel.Name ?? "",
+                                        FatherName = rowModel.FatherName ?? "",
+                                        Address = rowModel.Address ?? "",
+                                        MobileNo = rowModel.MobileNo ?? "",
+                                        Email = rowModel.Email ?? "",
+                                        Reason = $"Missing required fields: {string.Join(", ", missingFields)}"
+                                    });
+                                    continue;
+                                }
+
+                                // =============================================
+                                // Default values (same as acc-create)
+                                // =============================================
+                                rowModel.EntityTypeId = 9;
+                                rowModel.RoleId = 6;
+                                rowModel.ContactTypeId = 18;
+                                rowModel.WhatsAppContactTypeId = 19;
+                                rowModel.AddressTypeId = 16;
+                                rowModel.FatherEntityTypeId = 14;
+                                rowModel.ReferenceId = 1;
+
+                                // =============================================
+                                // Login credentials
+                                // Username = Email
+                                // Password = SBSHE@ + MobileNo
+                                // =============================================
+                                rowModel.UserName = rowModel.Email;
+                                rowModel.Password = $"SBSHE@" + rowModel.MobileNo;
+                                rowModel.PasswordHash = BCrypt.Net.BCrypt.HashPassword(rowModel.Password);
+
+                                // =============================================
+                                // Create registration
+                                // =============================================
+                                var result = (await _unitOfWork.AccRegistration.Create(rowModel)).Split(",");
+                                var msg = result[0];
+                                var entityId = result.Length > 1 ? result[1] : "";
+
+                                if (msg == "Successfully")
+                                {
+                                     
+
+                                    successList.Add(new
+                                    {
+                                        Row = rowNumber,
+                                        EnrollmentNo = rowModel.EnrollmentNo,
+                                        CenterName = rowModel.FatherName,
+                                        Name = rowModel.Name,
+                                        MobileNo = rowModel.MobileNo,
+                                        Address = rowModel.Address,
+                                        Email = rowModel.Email,
+                                        UserName = rowModel.UserName,
+                                        Password = rowModel.Password,
+                                        EntityId = entityId 
+                                    });
+                                }
+                                else
+                                {
+                                    failedList.Add(new
+                                    {
+                                        Row = rowNumber,
+                                        EnrollmentNo = rowModel.EnrollmentNo,
+                                        Name = rowModel.Name,
+                                        MobileNo = rowModel.MobileNo,
+                                        Email = rowModel.Email,
+                                        Reason = msg
+                                    });
+                                }
+                            }
+                            catch (Exception rowEx)
+                            {
+                                failedList.Add(new
+                                {
+                                    Row = rowNumber,
+                                    Reason = rowEx.Message
+                                });
+                            }
+                        }
+                    }
+                }
+
+                return Ok(new
+                {
+                    success = true,
+                    message = $"Bulk upload completed. Success: {successList.Count}, Failed: {failedList.Count}",
+                    totalRecords = successList.Count + failedList.Count,
+                    successCount = successList.Count,
+                    failedCount = failedList.Count,
+                    successData = successList,
+                    failedData = failedList
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = "Something went wrong",
+                    error = ex.Message
+                });
+            }
+        }
+
     }
+
+
 }
+
 

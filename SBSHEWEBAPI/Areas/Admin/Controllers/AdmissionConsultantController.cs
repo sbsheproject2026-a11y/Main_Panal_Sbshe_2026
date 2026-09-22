@@ -59,6 +59,15 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
         {
             try
             {
+                if (model == null)
+                {
+                    return BadRequest(new
+                    {
+                        Success = false,
+                        Message = "data is required"
+                    });
+                }
+
                 int num = RandomNumberGenerator.GetInt32(100000, 999999);
 
                 model.EntityTypeId = 9;
@@ -157,6 +166,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
 
             if (model.BuildingPhoto22 != null && model.BuildingPhoto22.Length > 0)
                 model.BuildingPhoto2 = await UploadFile(model.BuildingPhoto22);
+
             var result = await _unitOfWork.AccRegistration.Update(model);
 
             return Ok(new

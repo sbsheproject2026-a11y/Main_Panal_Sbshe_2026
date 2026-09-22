@@ -13,25 +13,27 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
 
         private readonly IUnitOfWork _unitOfWork;
         private readonly IConfiguration _configuration;
+        private readonly IWebHostEnvironment _environment;
 
-        public CourseController(IUnitOfWork unitOfWork, IConfiguration configuration)
+        public CourseController(IUnitOfWork unitOfWork, IConfiguration configuration, IWebHostEnvironment environment)
         {
             _unitOfWork = unitOfWork;
             _configuration = configuration;
+            _environment = environment;
         }
         [HttpGet("course-getall")]
 
-        public async Task<IActionResult> Get(int referenceId = 1, int pageNo = 1, int pageSize = 100, string? search = null)
+        public async Task<IActionResult> Get()
         {
             try
             {
-                var data = await _unitOfWork.Course.GetAll(referenceId, pageNo, pageSize, search);
+                var data = await _unitOfWork.Course.GetAll();
 
                 return Ok(new
                 {
                     Success = true,
-                    PageNo = pageNo,
-                    PageSize = pageSize,
+                    //PageNo = pageNo,
+                    //PageSize = pageSize,
                     TotalRecords = data.Count,
                     Data = data
                 });
@@ -47,11 +49,51 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
         }
 
         [HttpPost("course-create")]
-        public async Task<IActionResult> Create(CoursePostDTOs model)
+        public async Task<IActionResult> Create([FromForm] CoursePostDTOs model)
         {
             try
             {
+                if (model == null)
+                {
+                    return BadRequest(new
+                    {
+                        Success = false,
+                        Message = "data is required"
+                    });
+                }
 
+                string folderPath = Path.Combine(   _environment.WebRootPath, "Uploads" );
+
+                Directory.CreateDirectory(folderPath);
+
+               
+
+                async Task<string> UploadFile(IFormFile file)
+                {
+                    string fileName = $"{Guid.NewGuid():N}"[..8] + "_" +
+                                      Path.GetFileName(file.FileName);
+
+                    string filePath = Path.Combine(folderPath, fileName);
+
+                    using var stream = new FileStream(filePath, FileMode.Create);
+                    await file.CopyToAsync(stream);
+
+                    return fileName;
+                }
+                if (model.ProductCategoryDocuments != null && model.ProductCategoryDocuments.Count > 0)
+                {
+                    foreach (var academic in model.ProductCategoryDocuments)
+                    {
+                        if (academic.Fileupload1 != null &&
+                            academic.Fileupload1.Length > 0)
+                        {
+                            academic.Fileupload = await UploadFile(academic.Fileupload1);
+                        }
+                    }
+                }
+
+
+                model.ParentId = model.ParentId == 0 ? null : model.ParentId;
 
                 var result = await _unitOfWork.Course.Create(model);
 
@@ -164,7 +206,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                 {
                     return BadRequest("At least one Amount is required");
                 }
-                
+
 
                 var result = await _unitOfWork.Course.CreateCourseAmount(model);
 
@@ -216,6 +258,9 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                 Message = result
             });
         }
+       
+        
+        
         [HttpDelete("course-paymentamount-delete/{id}")]
         public async Task<IActionResult> DeleteProductAmount(int Id)
         {
@@ -236,6 +281,126 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                 Message = result
             });
         }
+
+
+
+
+
+        [HttpGet("course-material-get/{id}")]
+        public async Task<IActionResult> GetCourseMaterial(int id)
+        {
+            try
+            {
+                var data = await _unitOfWork.Course.getCourseMaterial(id);
+
+                return Ok(new
+                {
+                    Success = true,
+                    Data = data
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = ex.Message
+                });
+            }
+        }
+
+
+        [HttpPost("create-course-material")]
+       
+        public async Task<IActionResult> CreateCourseMaterial(  [FromForm] ProductMaterialDtos model)
+        {
+            try
+            {
+                if (model == null || model.GetType().GetProperties().All(p => p.GetValue(model) == null))
+                {
+                    return BadRequest("Course Material is required");
+                }
+
+                string folderPath = Path.Combine(
+                    _environment.WebRootPath,
+                    "Uploads"
+                );
+
+                Directory.CreateDirectory(folderPath);
+
+                // =========================
+                // FILE UPLOAD
+                // =========================
+
+                if (model.Fileupload1 != null &&
+                    model.Fileupload1.Length > 0)
+                {
+                    string fileName =
+                        $"{Guid.NewGuid():N}"[..8] +
+                        "_" +
+                        Path.GetFileName(model.Fileupload1.FileName);
+
+                    string filePath = Path.Combine(
+                        folderPath,
+                        fileName
+                    );
+
+                    await using (var stream = new FileStream(
+                        filePath,
+                        FileMode.Create
+                    ))
+                    {
+                        await model.Fileupload1.CopyToAsync(stream);
+                    }
+
+                    model.Fileupload = fileName;
+                }
+
+                // =========================
+                // DATABASE SAVE
+                // =========================
+
+                var result =  await _unitOfWork.Course.CreateCourseMaterial(model);
+
+                if (result.Contains("Something went wrong"))
+                {
+                    return StatusCode(500, result);
+                }
+
+                return Ok(new
+                {
+                    success = true,
+                    message = "Course Material created successfully",
+                    fileName = model.Fileupload
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(
+                    500,
+                    "Something went wrong: " + ex.Message
+                );
+            }
+        }
+
+
+
+        //[HttpGet("course-course-material-getbyid/{id}")]
+        //public async Task<IActionResult> GetCourseMaterialById(int id)
+        //{
+        //    var data = await _unitOfWork.Course.getEditCourseMaterial(id);
+
+        //    if (data == null)
+        //    {
+        //        return NotFound("Lecture not found");
+        //    }
+
+        //    return Ok(data);
+        //}
+
+
+
+       
 
 
         //----------------------------Course Drop Down All--------------------

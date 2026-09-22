@@ -11,7 +11,7 @@ namespace Model
 
         public string? Code { get; set; }
         public DateTime? Date { get; set; }
-
+      
         public int? ParentId { get; set; }
         public int? IsActive { get; set; }
         public int? IsDelete { get; set; }

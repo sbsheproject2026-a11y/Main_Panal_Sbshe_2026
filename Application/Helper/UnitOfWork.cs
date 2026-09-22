@@ -31,6 +31,7 @@ namespace Application.Helper
         public IEnquiriesRepository Enquiries { get; private set; }
         public IAccRepository AccRegistration { get; private set; }
         public IWalletRepository Wallet { get; private set; }
+        
 
 
 
@@ -54,6 +55,7 @@ namespace Application.Helper
             Enquiries = new EnquiriesRepository(_context);
             AccRegistration = new AccRepository(_context);
             Wallet = new WalletRepository(_context);
+
 
 
         }
