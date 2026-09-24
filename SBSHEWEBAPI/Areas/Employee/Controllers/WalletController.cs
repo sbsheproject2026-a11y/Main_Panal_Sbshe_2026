@@ -28,7 +28,9 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
         {
             try
             {
-                var data = await _unitOfWork.Location.GetAll(2);
+                var claims = User.Claims.ToDictionary(x => x.Type, x => x.Value);
+                var userId = claims.GetValueOrDefault("UserId");
+                var data = await _unitOfWork.Wallet.GetAll(Convert.ToInt32(userId), 112);
 
                 return Ok(new
                 {

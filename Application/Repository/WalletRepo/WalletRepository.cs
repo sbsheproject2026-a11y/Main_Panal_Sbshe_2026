@@ -58,8 +58,61 @@ namespace Application.Repository
                         Remark = reader["Remark"]?.ToString(),
                         dr = Convert.ToDecimal(reader["dr"]),
                         cr = Convert.ToDecimal(reader["cr"]),
-                        balance = Convert.ToDecimal(reader["balance"]),
+                       
+                        balance = reader["balance"]?.ToString(),
                         Status = reader["Status"]?.ToString(),
+                    });
+                }
+
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(
+                    "Error while fetching Course data.",
+                    ex);
+            }
+        }
+        public async Task<List<WalletGetDTOs>> GetAllPending(int UserId, int Amountid)
+        {
+            try
+            {
+                var data = new List<WalletGetDTOs>();
+
+                using var connection = new SqlConnection(_connectionString);
+                using var command = new SqlCommand("ViewWalletPending", connection);
+
+                command.CommandType = CommandType.StoredProcedure;
+
+                command.Parameters.Add(new SqlParameter("@FranchiseId", UserId));
+
+                command.Parameters.Add(new SqlParameter("@walletId", Amountid));
+                command.Parameters.Add(new SqlParameter("@status", 115));
+
+
+
+                await connection.OpenAsync();
+
+                using var reader = await command.ExecuteReaderAsync();
+
+                while (await reader.ReadAsync())
+                {
+                    data.Add(new WalletGetDTOs
+                    {
+                        Id = Convert.ToInt32(reader["Id"]),
+                        FundId = Convert.ToInt32(reader["FundId"]),
+                        
+                        EntryDate = Convert.ToDateTime(reader["date"]),
+                        TransactionType = reader["TransactionType"]?.ToString(),
+                        TransactionNumber = reader["TransactionNumber"]?.ToString(),
+                        Remark = reader["Remark"]?.ToString(),
+                        dr = Convert.ToDecimal(reader["dr"]),
+                        cr = Convert.ToDecimal(reader["cr"]),
+                       
+                        balance = reader["balance"]?.ToString(),
+                        Status = reader["Status"]?.ToString(),
+                        Branchname = reader["Branchname"]?.ToString(),
+                        Slip = reader["slip"]?.ToString(),
                     });
                 }
 
@@ -127,28 +180,29 @@ namespace Application.Repository
 
 
 
-        public async Task<string> Delete(int Id)
+        public async Task<string> WalletPaymentConfirm(int Id,int Status)
         {
             try
             {
-                var data = await _context.Location
-                    .FirstOrDefaultAsync(x => x.Id == Id);
+                using var connection = new SqlConnection(_connectionString);
+                using var command = new SqlCommand("PaymentConfirm", connection);
 
-                if (data == null)
-                {
-                    return "MasterType not found";
-                }
+                command.CommandType = CommandType.StoredProcedure;
 
-                data.IsActive = 0;
+                command.Parameters.Add(new SqlParameter("@EntityId", Id));
+                command.Parameters.Add(new SqlParameter("@Status", Status));
+                
 
 
-                await _context.SaveChangesAsync();
+                await connection.OpenAsync();
 
-                return "Location delete successfully";
+                var result = await command.ExecuteScalarAsync();
+
+                return result?.ToString() ?? "Wallet created successfully";
             }
             catch (Exception ex)
             {
-                throw new Exception("Error while updating Location", ex);
+                return "Something went wrong: " + ex.Message;
             }
         }
 

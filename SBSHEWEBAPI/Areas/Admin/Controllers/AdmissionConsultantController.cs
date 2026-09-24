@@ -26,14 +26,14 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
         }
         [HttpGet("acc-getall")]
 
-        public async Task<IActionResult> Get(int? referenceId = 1, int? pageNo=null, int? pageSize=null, string? search = null)
+        public async Task<IActionResult> Get(int typeid,int? referenceId = 1, int? pageNo = null, int? pageSize = null, string? search = null )
         {
             try
             {
                 pageNo ??= 1;
                 pageSize ??= 100;
 
-                var (data, totalCount) = await _unitOfWork.AccRegistration.GetAll(referenceId, pageNo, pageSize, search);
+                var (data, totalCount) = await _unitOfWork.AccRegistration.GetAll( typeid,referenceId, pageNo, pageSize, search);
 
                 return Ok(new
                 {
@@ -53,6 +53,36 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                 });
             }
         }
+        [HttpGet("franchise-penging-getall")]
+
+        public async Task<IActionResult> GetPenging(int typeid,int? referenceId = 1, int? pageNo = null, int? pageSize = null, string? search = null )
+        {
+            try
+            {
+                pageNo ??= 1;
+                pageSize ??= 100;
+
+                var (data, totalCount) = await _unitOfWork.AccRegistration.GetAllPendingList( typeid,referenceId, pageNo, pageSize, search);
+
+                return Ok(new
+                {
+                    Success = true,
+                    PageNo = pageNo,
+                    PageSize = pageSize,
+                    TotalRecords = totalCount,
+                    Data = data
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = ex.Message
+                });
+            }
+        }
+
 
         [HttpPost("frenchise-create")]
         public async Task<IActionResult> Create(AccRegistrationPostDTOs model)
@@ -197,7 +227,34 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                 Message = result
             });
         }
+        [HttpPut("request-ConfirmToAdmin")]
+        public async Task<IActionResult> ConfirmToAdmin([FromQuery] int code,[FromBody] List<int> ids)
+        {
+            if (ids == null || ids.Count == 0)
+            {
+                return BadRequest("Please provide at least one student ID.");
+            }
 
+            var results = new List<object>();
+
+            foreach (var id in ids)
+            {
+                var result = await _unitOfWork.AccRegistration.ConfirmFranchise(id, code);
+
+                results.Add(new
+                {
+                    id = id,
+                    message = result
+                });
+            }
+
+            return Ok(new
+            {
+                success = true,
+                message = "Students processed successfully.",
+                data = results
+            });
+        }
 
     }
 }

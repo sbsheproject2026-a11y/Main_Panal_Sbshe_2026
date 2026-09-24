@@ -15,6 +15,7 @@ namespace Application.Repository
         Task<string> Delete(int Id);
 
         //ProductAmount  Working Start//
+        Task<string> SetFranchiseAmount(CommissionDtos model);
         Task<string> CreateCourseAmount(List<ProductAmountDtos> model);
         Task<List<GetProductAmountDtos>> GetProductAmount(int id);
 

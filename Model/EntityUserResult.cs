@@ -11,6 +11,12 @@ namespace Model
         public int Id { get; set; }
         public string Name { get; set; }
     }
+    public class CommissionAmount
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string? Amount { get; set; }
+    }
     public class EntityWalletResult
     {
         public int Id { get; set; }

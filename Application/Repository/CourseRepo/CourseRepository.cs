@@ -23,125 +23,79 @@ namespace Application.Repository
 
         // --------------------------------------- Course Start ---------------------------------------
 
-        //public async Task<List<CourseGetDTOs>> GetAll(
-        //    int referenceId,
-        //    int pageNo,
-        //    int pageSize,
-        //    string? search)
-        //{
-        //    try
-        //    {
-        //        var data = new List<CourseGetDTOs>();
-
-        //        using var connection = new SqlConnection(_connectionString);
-        //        using var command = new SqlCommand("GetCourse", connection);
-
-        //        command.CommandType = CommandType.StoredProcedure;
-
-        //        command.Parameters.Add(new SqlParameter("@ReferenceId", referenceId));
-
-        //        command.Parameters.Add(new SqlParameter("@PageNo", pageNo));
-
-        //        command.Parameters.Add(new SqlParameter("@PageSize", pageSize));
-
-        //        command.Parameters.Add(new SqlParameter("@Search", search ?? (object)DBNull.Value));
-
-        //        await connection.OpenAsync();
-
-        //        using var reader = await command.ExecuteReaderAsync();
-
-        //        while (await reader.ReadAsync())
-        //        {
-        //            data.Add(new CourseGetDTOs
-        //            {
-        //                Id = Convert.ToInt32(reader["Id"]),
-        //                ParentId = Convert.ToInt32(reader["ParentId"]),
-        //                IsActive = Convert.ToInt32(reader["IsActive"]),
-        //                Code = reader["Code"]?.ToString(),
-        //                Name = reader["Name"]?.ToString(),
-        //                NameHindi = reader["CourseNameHindi"]?.ToString(),
-        //                DurationName = reader["Duration"]?.ToString(),
-        //                CategoryName = reader["Category"]?.ToString(),
-        //                DepartmentName = reader["Department"]?.ToString()
-        //            });
-        //        }
-
-        //        return data;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw new Exception(
-        //            "Error while fetching Course data.",
-        //            ex);
-        //    }
-        //}
 
 
         public async Task<List<CourseGetDTOs>> GetAll()
         {
             try
             {
-
-                var data = await (from pa in _context.ProductCategory
-                                  join p in _context.Product on pa.Id equals p.ProductCategoryId into product
-                                  from p in product.DefaultIfEmpty()
-                                  join ppd in _context.ProductPersonalDetail on p.Id equals ppd.ProductId into productppd
-                                  from p1 in productppd.DefaultIfEmpty()
-                                  join ppl in _context.ProductLink on p.Id equals ppl.ProductId into productppl
-                                  from p4 in productppl.DefaultIfEmpty()
-                                  join pcd in _context.ProductCategoryDetail on p.Id equals pcd.ProductCategoryId into productGroup
-                                  from p3 in productGroup.DefaultIfEmpty()
-
+                var data = await (from p in _context.Product 
+                                    join pa in _context.ProductCategory on p.ProductCategoryId equals pa.Id into productGroup1
+                                  from pa in productGroup1.DefaultIfEmpty()
+                                    join ppd in _context.ProductPersonalDetail  on p.Id equals ppd.ProductId into productGroup2
+                                  from p1 in productGroup2.DefaultIfEmpty()
+                                   join ppl in _context.ProductLink  on p.Id equals ppl.ProductId into productGroup3
+                                  from p4 in productGroup3.DefaultIfEmpty()
+                                   join pcd in _context.ProductCategoryDetail  on p.Id equals pcd.ProductCategoryId into productGroup4
+                                  from p3 in productGroup4.DefaultIfEmpty()
+                                  join mtd in _context.MasterTypeDetail on p.Duration equals mtd.Id into mtdd
+                                  from mtd in mtdd.DefaultIfEmpty()
+                                  join mtd1 in _context.MasterTypeDetail on p.DurationTypeId equals mtd1.Id into mtdd1
+                                  from mtd1 in mtdd1.DefaultIfEmpty()
+                                  join mtddep in _context.MasterTypeDetail on p1.DepartmentId equals mtddep.Id into mtddep1
+                                  from mtddep in mtddep1.DefaultIfEmpty()
+                                  join mtdcat in _context.MasterTypeDetail on p1.CategoryId equals mtdcat.Id into mtdcat1
+                                  from mtdcat in mtdcat1.DefaultIfEmpty()
                                   where pa.IsDelete == 0 && pa.ProductTypeId == null
 
-                                  orderby pa.Id descending
+                                  orderby p.Id descending
+
                                   select new CourseGetDTOs
                                   {
-                                      Id = pa.Id,
-                                      Name = pa.Name,
+                                      Id = p.Id,
+                                      Name = p.Name,
+                                      NameHindi = p.CourseNameHindi,
+                                      DepartmentName= mtddep.Name,
+                                      CategoryName= mtdcat.Name,
+                                      ParentId = p.ParentId,
                                       IsHighlight = pa.IsHighlight,
-                                      ShortDescription = p3.ShortDescription,
-                                      Descrption = p3.Descrption,
+                                      DurationName = mtd.Name + ' '+ mtd1.Name,
+                                      ShortDescription = p3 != null ? p3.ShortDescription : null,
+                                      Descrption = p3 != null ? p3.Descrption : null,
                                       IsActive = pa.IsActive,
-                                      ProductCategoryDocuments = _context.ProductCategoryDocument.Where(x => x.ProductCategoryId == pa.Id && x.IsActive == 1)
-                                        .Select(x => new ProductMaterialDtos
-                                        {
-                                            Id = x.Id,
 
-                                            SrNo = x.SrNo,
-                                            Name = x.Title,
-                                            Fileupload = x.Path,
-                                            AltTag = x.AltTag,
-                                            //IsActive = x.IsActive
-                                        })
-                        .ToList(),
-                                      ProductAmounts = _context.ProductAmount.Where(x => x.ProductId == p.Id && x.IsActive == 1)
-                                        .Select(x => new ProductAmountDtos
-                                        {
-                                            Id = x.Id,
+                                      ProductCategoryDocuments = _context.ProductCategoryDocument
+                                          .Where(x => x.ProductCategoryId == pa.Id && x.IsActive == 1)
+                                          .Select(x => new ProductMaterialDtos
+                                          {
+                                              Id = x.Id,
+                                              SrNo = x.SrNo,
+                                              Name = x.Title,
+                                              Fileupload = x.Path,
+                                              AltTag = x.AltTag,
+                                          })
+                                          .ToList(),
 
-
-                                            Name = x.Name,
-                                            Amount = x.Amount,
-                                            AmountTypeId = x.AmountTypeId,
-                                            //IsActive = x.IsActive
-                                        })
-                        .ToList()
-
-
+                                      ProductAmounts = _context.ProductAmount
+                                          .Where(x => x.ProductId == p.Id && x.IsActive == 1)
+                                          .Select(x => new ProductAmountDtos
+                                          {
+                                              Id = x.Id,
+                                              Name = x.Name,
+                                              Amount = x.Amount,
+                                              AmountTypeId = x.AmountTypeId,
+                                          })
+                                          .ToList()
                                   })
-
                                   .ToListAsync();
 
                 return data;
             }
             catch (Exception ex)
             {
-
                 throw new Exception("Error while fetching MasterTypeDetail data.", ex);
             }
         }
-
 
         public async Task<string> Create(CoursePostDTOs model)
         {
@@ -159,7 +113,7 @@ namespace Application.Repository
                     Date = DateTime.Now,
                     IsActive = model.IsActive,
                     IsHighlight = model.IsHighlight,
-                    IsDelete = 1
+                    IsDelete = 0
                 };
 
                 await _context.ProductCategory.AddAsync(productcategory);
@@ -191,7 +145,7 @@ namespace Application.Repository
                     CategoryId = model.CategoryId,
                     DepartmentId = model.DepartmentId,
                     TotalClass = model.TotalClass,
-                    ClassNo = model.ClassNo,
+                    ClassNo = 1,
 
                 };
 
@@ -230,18 +184,22 @@ namespace Application.Repository
                 {
                     foreach (var item in model.ProductCategoryDocuments)
                     {
-                        var productcategorydocument = new ProductCategoryDocument
+                        if (!string.IsNullOrWhiteSpace(item.Name) && item.DocumentTypeId > 0)
                         {
-                            ProductCategoryId = productcategory.Id,
-                            DocumentTypeId = item.DocumentTypeId,
-                            Title = item.Name,
-                            AltTag = item.AltTag,
-                            Path = item.Fileupload,
-                            Date = DateTime.Now,
-                            IsActive = 1,
-                        };
 
-                        await _context.ProductCategoryDocument.AddAsync(productcategorydocument);
+                            var productcategorydocument = new ProductCategoryDocument
+                            {
+                                ProductCategoryId = productcategory.Id,
+                                DocumentTypeId = item.DocumentTypeId,
+                                Title = item.Name,
+                                AltTag = item.AltTag,
+                                Path = item.Fileupload,
+                                Date = DateTime.Now,
+                                IsActive = 1,
+                            };
+
+                            await _context.ProductCategoryDocument.AddAsync(productcategorydocument);
+                        }
                     }
                 }
 
@@ -251,22 +209,119 @@ namespace Application.Repository
                 {
                     foreach (var item in model.ProductAmounts)
                     {
-                        var productamount = new ProductAmount
+                       if (item.Amount > 0 && item.AmountTypeId > 0)
                         {
-                            ProductId = product.Id,
-                            Name = item.Name,
-                            Amount = item.Amount,
-                            AmountTypeId = item.AmountTypeId,
-                            Date = DateTime.Now,
-                            IsActive = 1
-                        };
+                            var productamount = new ProductAmount
+                            {
+                                ProductId = product.Id,
+                                Name = item.Name,
+                                Amount = item.Amount,
+                                AmountTypeId = item.AmountTypeId,
+                                Date = DateTime.Now,
+                                IsActive = 1
+                            };
 
-                        await _context.ProductAmount.AddAsync(productamount);
+                            await _context.ProductAmount.AddAsync(productamount);
+                        }
+
+
+                        if (item.AmountTypeId == 114)
+                        {
+                            var commission = new Commission
+                            {
+                                ProductId = product.Id,
+                                DepartmentId = model.DepartmentId,
+                                Amount = item.Amount,
+                                Date = DateTime.Now,
+                                IsActive = 1
+                            };
+
+                            await _context.Commission.AddAsync(commission);
+
+                        }
                     }
+
+
+                    
                 }
 
+                if (model.TotalClass.HasValue && model.TotalClass.Value > 1)
+                {
+                    // 1. Master se parent duration details lao
+                    var durationRecord = _context.MasterTypeDetail.FirstOrDefault(x => x.Id == model.Duration);
 
+                    int parentDurationMonths = 0;
 
+                    if (durationRecord != null)
+                    {
+                        string name = durationRecord.Name.ToLower();
+
+                        string numberPart = new string(name.Where(char.IsDigit).ToArray());
+                        int numericValue = 0;
+                        int.TryParse(numberPart, out numericValue);
+
+                        if (name.Contains("year"))
+                        {
+                            parentDurationMonths = numericValue * 12;
+                        }
+                        else
+                        {
+                            parentDurationMonths = numericValue;
+                        }
+                    }
+
+                    // 2. Calculate per class duration
+                    int perClassDurationMonths = 0;
+                    int DurationMonthsId = 0;
+
+                    if (parentDurationMonths > 0)
+                    {
+                        perClassDurationMonths = parentDurationMonths / model.TotalClass.Value;
+
+                        var durationRecord1 = _context.MasterTypeDetail
+                            .FirstOrDefault(x => x.Name == perClassDurationMonths.ToString() && x.MasterTypeId == 11);
+
+                        if (durationRecord1 != null)
+                        {
+                            DurationMonthsId = durationRecord1.Id;
+                        }
+                        else
+                        {
+                            DurationMonthsId = 0;
+                        }
+                    }
+
+                    // ✅ Sirf EK entry banegi, aur ClassNo = TotalClass.Value hogi
+                    int i = model.TotalClass.Value;   // e.g. 2 aaya to i = 2
+
+                    Product classProduct = new Product()
+                    {
+                        ProductCategoryId = productcategory.Id,
+                        Code = $"{model.Code}-C{i}",
+                        Name = $"{model.Name} - Class {i}",
+                        ShortName = $"{model.ShortName}-C{i}",
+                        ParentId = product.Id,
+                        Date = DateTime.Now,
+                        Duration = DurationMonthsId,
+                        DurationTypeId = model.DurationTypeId,
+                        Eligbilty = model.Eligbilty,
+                        IsActive = model.IsActive,
+                        IsDelete = 0,
+                    };
+                    _context.Product.Add(classProduct);
+                    _context.SaveChanges();
+
+                    ProductPersonalDetail classPersonal = new ProductPersonalDetail()
+                    {
+                        ProductId = classProduct.Id,
+                        CategoryId = model.CategoryId,
+                        DepartmentId = model.DepartmentId,
+                        TotalClass = model.TotalClass,
+                        ClassNo = i,
+                    };
+                    _context.ProductPersonalDetail.Add(classPersonal);
+                    _context.SaveChanges();
+                }
 
                 // Save Detail + Documents
                 await _context.SaveChangesAsync();
@@ -306,9 +361,19 @@ namespace Application.Repository
                                   orderby pa.Id descending
                                   select new CourseGetDTOs
                                   {
-                                      Id = pa.Id,
-                                      Name = pa.Name,
+                                      Id = p.Id,
+                                      Code = p.Code ?? "",
+                                      Name = p.Name,
+                                      Eligbilty = p.Eligbilty ?? "",
+                                      Duration = p.Duration,
+                                      DurationTypeId = p.DurationTypeId,
+                                      NameHindi = p.CourseNameHindi,
                                       IsHighlight = pa.IsHighlight,
+                                      ParentId = p.ParentId,
+                                      DepartmentId = p1.DepartmentId,
+                                      CategoryId = p1.CategoryId,
+                                      TotalClass = p1.TotalClass,
+                                      ClassNo = p1.ClassNo,
                                       ShortDescription = p3.ShortDescription,
                                       Descrption = p3.Descrption,
                                       IsActive = pa.IsActive,
@@ -351,103 +416,10 @@ namespace Application.Repository
             }
         }
 
-        //public async Task<string> Create(CoursePostDTOs model)
-        //{
-        //    try
-        //    {
-        //        using var connection = new SqlConnection(_connectionString);
-        //        using var command = new SqlCommand("insCourse", connection);
-
-        //        command.CommandType = CommandType.StoredProcedure;
-
-        //        command.Parameters.Add(new SqlParameter("@Code", model.Code));
-        //        command.Parameters.Add(new SqlParameter("@ShortName", model.ShortName));
-        //        command.Parameters.Add(new SqlParameter("@Name", model.Name));
-        //        command.Parameters.Add(new SqlParameter("@NameHindi", model.NameHindi));
-        //        command.Parameters.Add(new SqlParameter("@Duration", model.Duration));
-        //        command.Parameters.Add(new SqlParameter("@DurationTypeId", model.DurationTypeId));
-        //        command.Parameters.Add(new SqlParameter("@ParentId", model.ParentId ?? (object)DBNull.Value));
-        //        command.Parameters.Add(new SqlParameter("@IsActive", model.IsActive));
-        //        command.Parameters.Add(new SqlParameter("@CategoryId", model.CategoryId));
-        //        command.Parameters.Add(new SqlParameter("@DepartmentId", model.DepartmentId));
-        //        command.Parameters.Add(new SqlParameter("@TotalClass", model.TotalClass));
-        //        command.Parameters.Add(new SqlParameter("@ClassNo", model.ClassNo));
-        //        command.Parameters.Add(new SqlParameter("@ShortDescription", model.ShortDescription));
-        //        command.Parameters.Add(new SqlParameter("@Descrption", model.Descrption));
-        //        command.Parameters.Add(new SqlParameter("@Eligbilty", model.Eligbilty));
-
-        //        await connection.OpenAsync();
-
-        //        var result = await command.ExecuteScalarAsync();
-
-        //        return result?.ToString() ?? "Course created successfully";
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return "Something went wrong: " + ex.Message;
-        //    }
-        //}
 
 
-        //public async Task<CourseGetDTOs?> GetById(int id)
-        //{
-        //    try
-        //    {
-        //        CourseGetDTOs? data = null;
 
-        //        using var connection = new SqlConnection(_connectionString);
-        //        using var command = new SqlCommand(
-        //            "getEditCourse",
-        //            connection);
 
-        //        command.CommandType = CommandType.StoredProcedure;
-
-        //        command.Parameters.Add(
-        //            new SqlParameter("@Id", id));
-
-        //        await connection.OpenAsync();
-
-        //        using var reader = await command.ExecuteReaderAsync();
-
-        //        if (await reader.ReadAsync())
-        //        {
-        //            data = new CourseGetDTOs
-        //            {
-        //                Id = Convert.ToInt32(reader["Id"]),
-        //                IsActive = Convert.ToInt32(reader["IsActive"]),
-        //                Duration = Convert.ToInt32(reader["Duration"]),
-        //                DurationTypeId =
-        //                    Convert.ToInt32(reader["DurationTypeId"]),
-        //                CategoryId =
-        //                    Convert.ToInt32(reader["CategoryId"]),
-        //                DepartmentId =
-        //                    Convert.ToInt32(reader["DepartmentId"]),
-        //                TotalClass =
-        //                    Convert.ToInt32(reader["TotalClass"]),
-        //                ClassNo =
-        //                    Convert.ToInt32(reader["ClassNo"]),
-        //                ParentId =
-        //                    reader["ParentId"] == DBNull.Value
-        //                        ? null
-        //                        : Convert.ToInt32(reader["ParentId"]),
-        //                Code = reader["Code"]?.ToString(),
-        //                Name = reader["Name"]?.ToString(),
-        //                NameHindi = reader["CourseNameHindi"]?.ToString(),
-        //                ShortDescription = reader["ShortDescription"]?.ToString(),
-        //                Descrption = reader["Descrption"]?.ToString(),
-        //                Eligbilty = reader["Eligbilty"]?.ToString(),
-        //            };
-        //        }
-
-        //        return data;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        throw new Exception(
-        //            "Error while fetching Course by id.",
-        //            ex);
-        //    }
-        //}
 
 
         public async Task<string> Update(CoursePostDTOs model)
@@ -456,8 +428,8 @@ namespace Application.Repository
 
             try
             {
-                var productcategory = await _context.ProductCategory.FirstOrDefaultAsync(x => x.Id == model.Id);
-                var product = await _context.Product.FirstOrDefaultAsync(x => x.ProductCategoryId == productcategory.Id);
+                var product = await _context.Product.FirstOrDefaultAsync(x => x.ProductCategoryId == model.Id);
+                var productcategory = await _context.ProductCategory.FirstOrDefaultAsync(x => x.Id == product.ProductCategoryId);
 
                 if (product == null)
                 {
@@ -517,24 +489,27 @@ namespace Application.Repository
                     _context.ProductAmount.RemoveRange(oldAmounts);
                 }
 
-                if (model.ProductAmounts != null &&
-                    model.ProductAmounts.Any())
+                if (model.ProductAmounts != null && model.ProductAmounts.Any())
                 {
                     foreach (var item in model.ProductAmounts)
                     {
-                        var productamount = new ProductAmount
+                        if (item.Amount != null || item.Amount != 0)
                         {
-                            ProductId = product.Id,
-                            Name = item.Name,
-                            Amount = item.Amount,
-                            AmountTypeId = item.AmountTypeId,
-                            Date = DateTime.Now,
-                            IsActive = 1
-                        };
 
-                        await _context.ProductAmount.AddAsync(
-                            productamount
-                        );
+                            var productamount = new ProductAmount
+                            {
+                                ProductId = product.Id,
+                                Name = item.Name,
+                                Amount = item.Amount,
+                                AmountTypeId = item.AmountTypeId,
+                                Date = DateTime.Now,
+                                IsActive = 1
+                            };
+
+                            await _context.ProductAmount.AddAsync(
+                                productamount
+                            );
+                        }
                     }
                 }
 
@@ -547,13 +522,15 @@ namespace Application.Repository
                     );
                 }
 
-                if (model.ProductCategoryDocuments != null &&
-                    model.ProductCategoryDocuments.Any())
+                if (model.ProductCategoryDocuments != null && model.ProductCategoryDocuments.Any())
                 {
                     foreach (
                         var item in model.ProductCategoryDocuments)
                     {
-                        var productcategorydocument =
+                        if (item.Name != null || item.Name != "")
+                        {
+
+                            var productcategorydocument =
                             new ProductCategoryDocument
                             {
                                 ProductCategoryId = product.ProductCategoryId,
@@ -565,10 +542,8 @@ namespace Application.Repository
                                 IsActive = 1
                             };
 
-                        await _context.ProductCategoryDocument
-                            .AddAsync(
-                                productcategorydocument
-                            );
+                            await _context.ProductCategoryDocument.AddAsync(productcategorydocument);
+                        }
                     }
                 }
 
@@ -601,7 +576,7 @@ namespace Application.Repository
                     new SqlParameter("@Id", id));
 
                 command.Parameters.Add(
-                    new SqlParameter("@Code", 0));
+                    new SqlParameter("@Code", 1));
 
                 await connection.OpenAsync();
 
@@ -852,8 +827,82 @@ namespace Application.Repository
 
 
 
+        public async Task<string> SetFranchiseAmount(CommissionDtos item)
+        {
+            try
+            {
+                // 1️⃣ Null check
+                if (item == null)
+                    return "Data is required";
 
+                // 2️⃣ Compulsory fields (FranchiseId optional hai)
+                if (!item.Amount.HasValue ||
+                    !item.DepartmentId.HasValue ||
+                    !item.ProductId.HasValue)
+                {
+                    return "Amount, DepartmentId, ProductId are required";
+                }
 
+                // 3️⃣ Existing record dhundo — FranchiseId ke hisaab se conditional
+                Commission existing;
+
+                if (item.FranchiseId.HasValue && item.FranchiseId.Value > 0)
+                {
+                    // ✅ FranchiseId aaya hai → teeno match karo
+                    existing = await _context.Commission
+                        .FirstOrDefaultAsync(x =>
+                            x.FranchiseId == item.FranchiseId.Value &&
+                            x.DepartmentId == item.DepartmentId.Value &&
+                            x.ProductId == item.ProductId.Value);
+                }
+                else
+                {
+                    // ✅ FranchiseId nahi aaya → sirf DepartmentId + ProductId match
+                    existing = await _context.Commission
+                        .FirstOrDefaultAsync(x =>
+                            x.DepartmentId == item.DepartmentId.Value &&
+                            x.ProductId == item.ProductId.Value  && x.FranchiseId == null);
+                }
+
+                // 4️⃣ Record mila ya nahi?
+                if (existing != null)
+                {
+                    // Same amount → skip
+                    if (Math.Abs((existing.Amount ?? 0) - item.Amount.Value) < 0.01m)
+                    {
+                        return "Skipped";
+                    }
+
+                    // Alag amount → update
+                    existing.Amount = item.Amount.Value;
+                    existing.IsActive = item.IsActive ?? 1;
+                    existing.Date = DateTime.UtcNow;
+
+                    await _context.SaveChangesAsync();
+                    return "Updated";
+                }
+
+                // 5️⃣ Naya record insert
+                var data = new Commission
+                {
+                    ProductId = item.ProductId,
+                    DepartmentId = item.DepartmentId,
+                    Amount = item.Amount,
+                    FranchiseId = item.FranchiseId ?? null,   // null ho to null hi rahega ✅
+                    IsActive = item.IsActive ?? 1,
+                    Date = DateTime.UtcNow
+                };
+
+                await _context.Commission.AddAsync(data);
+                await _context.SaveChangesAsync();
+
+                return "Inserted";
+            }
+            catch (Exception ex)
+            {
+                return "Something went wrong: " + ex.Message;
+            }
+        }
         //Course  Material  Working End//
 
         // --------------------------------------- Course End ---------------------------------------

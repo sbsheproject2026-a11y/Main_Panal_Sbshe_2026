@@ -233,7 +233,23 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
             }
         }
 
+ 
+    
 
+        [HttpGet("dropdown-setfranchisecourse-amount/{id}")]
+        public async Task<IActionResult> SetFranchiseCourseAmount(int id, [FromQuery] int? Fid)
+        {
+            try
+            {
+                var data = await _unitOfWork.DropDown.SetFranchiseCourseAmount(id, Fid ?? 0);
+
+                return Ok(new { Success = true, Data = data });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Success = false, Message = ex.Message });
+            }
+        }
     }
 }
 

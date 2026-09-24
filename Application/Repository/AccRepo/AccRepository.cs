@@ -24,7 +24,7 @@ namespace Application.Repository
 
         // --------------------------------------- Account Start ---------------------------------------
 
-        public async Task<(List<FrenchiseGetDTOs> StudentList, int TotalCount)> GetAll(  int? referenceId,int? pageNo, int? pageSize, string? search)
+        public async Task<(List<FrenchiseGetDTOs> StudentList, int TotalCount)> GetAll( int typeid,  int? referenceId,int? pageNo, int? pageSize, string? search)
         {
             try
             {
@@ -35,6 +35,64 @@ namespace Application.Repository
 
                 command.CommandType = CommandType.StoredProcedure;
 
+                command.Parameters.Add(new SqlParameter("@typeid", typeid));
+                command.Parameters.Add(new SqlParameter("@ReferenceId", referenceId));
+                command.Parameters.Add(new SqlParameter("@PageNo", pageNo));
+                command.Parameters.Add(new SqlParameter("@PageSize", pageSize));
+                command.Parameters.Add(new SqlParameter(
+                    "@Search",
+                    search ?? (object)DBNull.Value));
+
+                await connection.OpenAsync();
+
+                using var reader = await command.ExecuteReaderAsync();
+
+                while (await reader.ReadAsync())
+                {
+                    data.Add(new FrenchiseGetDTOs
+                    {
+                        Id = Convert.ToInt32(reader["Id"]),
+                        ReferenceId = Convert.ToInt32(reader["ReferenceId"]),
+                        Code = reader["Code"]?.ToString(),
+                        Name = reader["Name"]?.ToString(),
+                        FatherName = reader["FatherName"]?.ToString(),
+                        Address = reader["Address"]?.ToString(),
+                        Pincode = reader["PinCode"]?.ToString(),
+                        MobileNo = reader["MobileNo"]?.ToString(),
+                        Email = reader["Email"]?.ToString(),
+                        UserName = reader["UserName"]?.ToString(),
+                        Password = reader["Password"]?.ToString(),
+                        CityName = reader["CityName"]?.ToString(),
+                        DistrictName = reader["DistrictName"]?.ToString(),
+                        StateName = reader["StateName"]?.ToString()
+                    });
+                    if (reader["TotalRows"] != DBNull.Value)
+                    {
+                        totalCount = Convert.ToInt32(reader["TotalRows"]);
+                    }
+                }
+                return (data, totalCount);
+           
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(
+                    "Error while fetching Account data.",
+                    ex);
+            }
+        }
+        public async Task<(List<FrenchiseGetDTOs> StudentList, int TotalCount)> GetAllPendingList( int typeid,  int? referenceId,int? pageNo, int? pageSize, string? search)
+        {
+            try
+            {
+                var data = new List<FrenchiseGetDTOs>();
+                int totalCount = 0;
+                using var connection = new SqlConnection(_connectionString);
+                using var command = new SqlCommand("GetFranchisePendingList", connection);
+
+                command.CommandType = CommandType.StoredProcedure;
+
+                command.Parameters.Add(new SqlParameter("@typeid", typeid));
                 command.Parameters.Add(new SqlParameter("@ReferenceId", referenceId));
                 command.Parameters.Add(new SqlParameter("@PageNo", pageNo));
                 command.Parameters.Add(new SqlParameter("@PageSize", pageSize));
@@ -257,6 +315,30 @@ namespace Application.Repository
 
                 command.Parameters.Add(new SqlParameter("@Id", id));
                 command.Parameters.Add(new SqlParameter("@Code", 1));
+
+                await connection.OpenAsync();
+
+                var result = await command.ExecuteScalarAsync();
+
+                return result?.ToString()
+                    ?? "Account deleted successfully";
+            }
+            catch (Exception ex)
+            {
+                return "Something went wrong: " + ex.Message;
+            }
+        }
+        public async Task<string> ConfirmFranchise(int id,int sts)
+        {
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                using var command = new SqlCommand("GetConfirmFranchise",  connection);
+
+                command.CommandType = CommandType.StoredProcedure;
+
+                command.Parameters.Add(new SqlParameter("@Id", id));
+                command.Parameters.Add(new SqlParameter("@Code", sts));
 
                 await connection.OpenAsync();
 

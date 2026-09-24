@@ -13,6 +13,7 @@ namespace Domain
         }
 
         public DbSet<MasterType> MasterType { get; set; }
+        public DbSet<CommissionAmount> CommissionAmount { get; set; }
         public DbSet<Lecture> Lecture { get; set; }
         public DbSet<MasterTypeDetail> MasterTypeDetail { get; set; }
         public DbSet<Location> Location { get; set; }
@@ -33,6 +34,7 @@ namespace Domain
         public DbSet<ProductCategoryDocument> ProductCategoryDocument { get; set; }
         public DbSet<ProductPersonalDetail> ProductPersonalDetail { get; set; }
         public DbSet<ProductLink> ProductLink { get; set; }
+        public DbSet<Commission> Commission { get; set; }
 
     }
 }

@@ -62,11 +62,11 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                     });
                 }
 
-                string folderPath = Path.Combine(   _environment.WebRootPath, "Uploads" );
+                string folderPath = Path.Combine(_environment.WebRootPath, "Uploads");
 
                 Directory.CreateDirectory(folderPath);
 
-               
+
 
                 async Task<string> UploadFile(IFormFile file)
                 {
@@ -84,10 +84,14 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                 {
                     foreach (var academic in model.ProductCategoryDocuments)
                     {
-                        if (academic.Fileupload1 != null &&
-                            academic.Fileupload1.Length > 0)
+                        if (academic.Fileupload1 != null)
                         {
-                            academic.Fileupload = await UploadFile(academic.Fileupload1);
+
+                            if (academic.Fileupload1 != null &&
+                                academic.Fileupload1.Length > 0)
+                            {
+                                academic.Fileupload = await UploadFile(academic.Fileupload1);
+                            }
                         }
                     }
                 }
@@ -258,9 +262,9 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                 Message = result
             });
         }
-       
-        
-        
+
+
+
         [HttpDelete("course-paymentamount-delete/{id}")]
         public async Task<IActionResult> DeleteProductAmount(int Id)
         {
@@ -311,8 +315,8 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
 
 
         [HttpPost("create-course-material")]
-       
-        public async Task<IActionResult> CreateCourseMaterial(  [FromForm] ProductMaterialDtos model)
+
+        public async Task<IActionResult> CreateCourseMaterial([FromForm] ProductMaterialDtos model)
         {
             try
             {
@@ -360,7 +364,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                 // DATABASE SAVE
                 // =========================
 
-                var result =  await _unitOfWork.Course.CreateCourseMaterial(model);
+                var result = await _unitOfWork.Course.CreateCourseMaterial(model);
 
                 if (result.Contains("Something went wrong"))
                 {
@@ -383,7 +387,47 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
             }
         }
 
+        [HttpPost("set-franchise-commission-amount")]
+        public async Task<IActionResult> SetFramchiseAmount([FromBody] List<CommissionDtos> model)
+        {
+            try
+            {
+                if (model == null || model.Count == 0)
+                {
+                    return BadRequest("At least one Amount is required");
+                }
 
+                // ✅ 1-1-1 karke repo ko bhejo
+                var results = new List<string>();
+
+                foreach (var item in model)
+                {
+                    // Validation
+                    if (!item.Amount.HasValue || !item.FranchiseId.HasValue ||
+                        !item.DepartmentId.HasValue || !item.ProductId.HasValue)
+                    {
+                        results.Add($"Skipped — Amount/FranchiseId/DepartmentId/ProductId required");
+                        continue;
+                    }
+
+                    // ✅ Har item alag se service ko bhejo
+                    var result = await _unitOfWork.Course.SetFranchiseAmount(item);
+
+                    results.Add(result);
+                }
+
+                return Ok(new
+                {
+                    Success = true,
+                    Total = model.Count,
+                    Results = results
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Something went wrong: " + ex.Message);
+            }
+        }
 
         //[HttpGet("course-course-material-getbyid/{id}")]
         //public async Task<IActionResult> GetCourseMaterialById(int id)
@@ -400,7 +444,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
 
 
 
-       
+
 
 
         //----------------------------Course Drop Down All--------------------
