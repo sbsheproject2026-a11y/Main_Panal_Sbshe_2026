@@ -23,7 +23,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
         }
 
 
-        [HttpGet("request-student-confirmtoadmin")]
+        [HttpGet("request-student-confirm-to-admin")]
 
         public async Task<IActionResult> GetConfirmToAdmin(int pageNo = 1, int pageSize = 100, string? search = null)
         {
@@ -84,7 +84,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
 
 
 
-        [HttpPut("request-student-ConfirmToAdmin")]
+        [HttpPut("request-student-confirm")]
         public async Task<IActionResult> ConfirmToAdmin([FromBody] List<int> ids)
         {
             if (ids == null || ids.Count == 0)
@@ -288,14 +288,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                     });
                 }
 
-                if (model.ClassId <= 0)
-                {
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = "Class is required."
-                    });
-                }
+                 
 
                 if (model.ExamSessionId <= 0)
                 {
@@ -321,14 +314,12 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                 {
                     var studentModel = new StudentClassDto
                     {
-                        ClassId = model.ClassId,
+                        //ClassId = model.ClassId,
                         ExamSessionId = model.ExamSessionId,
                         PUid = new List<int> { puid }
                     };
 
-                    var result = await _unitOfWork.Student.AddClassStudent(
-                        studentModel
-                    );
+                    var result = await _unitOfWork.Student.AddClassStudent(studentModel);
 
                     results.Add(result);
                 }

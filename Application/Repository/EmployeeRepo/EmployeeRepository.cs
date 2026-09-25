@@ -174,7 +174,7 @@ namespace Application.Repository
 
                                 SelfImage = reader["SelfImage"]?.ToString(),
                                 SelfImageShow =
-                                    "http://localhost:5188/Uploads/" +
+                                   
                                     reader["SelfImage"]?.ToString(),
 
                                 IdNumber = reader["IdNumber"]?.ToString(),

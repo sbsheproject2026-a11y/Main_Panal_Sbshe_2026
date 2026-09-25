@@ -657,6 +657,7 @@ namespace SBSHEWEBAPI
                     centreName = data.CentreName ?? "",
                     firstName = data.FirstName ?? "",
                     fatherName = data.FatherName ?? "",
+                    relacition = data.Relacition ?? "",
                     enrollmentNo = data.Code ?? "",
                     srnoDiploma = data.SrnoDiploma ?? "",
                     endDate = data.EndDate ?? "",

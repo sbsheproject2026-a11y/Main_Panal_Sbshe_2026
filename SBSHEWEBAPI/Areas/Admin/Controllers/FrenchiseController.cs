@@ -31,7 +31,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
             try
             {
                 pageNo ??= 1;
-                pageSize ??= 10;
+                pageSize ??= 100;
 
                 var (data, totalCount) = await _unitOfWork.Frenchise.GetAll(referenceId, pageNo, pageSize, search);
 

@@ -429,6 +429,52 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
             }
         }
 
+        [HttpPost("set-course-commission")]
+        public async Task<IActionResult> SetCourseCommissionAmount([FromBody] List<CommissionDtos> model)
+        {
+            try
+            {
+                if (model == null || model.Count == 0)
+                {
+                    return BadRequest("At least one Amount is required");
+                }
+
+                // ✅ 1-1-1 karke repo ko bhejo
+                var results = new List<string>();
+
+                foreach (var item in model)
+                {
+                    // Validation
+                    if (!item.Amount.HasValue ||  
+                        !item.DepartmentId.HasValue || !item.ProductId.HasValue)
+                    {
+                        results.Add($"Skipped — Amount/FranchiseId/DepartmentId/ProductId required");
+                        continue;
+                    }
+
+                    item.FranchiseId = null;
+                    var result = await _unitOfWork.Course.SetFranchiseAmount(item);
+
+                    results.Add(result);
+                }
+
+                return Ok(new
+                {
+                    Success = true,
+                    Total = model.Count,
+                    Results = results
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Something went wrong: " + ex.Message);
+            }
+        }
+
+
+
+
+
         //[HttpGet("course-course-material-getbyid/{id}")]
         //public async Task<IActionResult> GetCourseMaterialById(int id)
         //{

@@ -62,6 +62,7 @@ namespace Application.Repository
                                 EndDate = reader["EndDate"]?.ToString(),
                                 CentreName = reader["CenterName"]?.ToString(),
                                 InstituteName = reader["InstituteName"]?.ToString(),
+                                Relacition = reader["Relacition"]?.ToString(),
                             };
                         }
                     }

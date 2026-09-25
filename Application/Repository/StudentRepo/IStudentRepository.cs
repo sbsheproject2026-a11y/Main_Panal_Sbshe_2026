@@ -15,7 +15,7 @@ namespace Application.Repository
         Task<StudentGetDTOs> GetById(int id);
         Task<string> Update(StudentPostDTOs model);
         Task<string> Delete(int Id);
-        Task<string> GetUpdateStudent(int Id);
+        Task<string> insSendForConfirm(int Id, int FranchiseId, int ParentFranchiseId, int TotalAmount, string unic6);
         Task<string> ConfirmToAdmin(int Id);
 
         Task<List<StudentGetDTOs>> UnSetMarksStudents(int pageNo, int pageSize, string? search);
@@ -27,6 +27,7 @@ namespace Application.Repository
 
         Task<string> AddClassStudent(StudentClassDto model);
         Task<List<AcademicDetailGetDTO>> GetAcademicDetailsById(int id);
+        Task<string> viewbalview(int FranchiseId, int aa);
 
     }
 }

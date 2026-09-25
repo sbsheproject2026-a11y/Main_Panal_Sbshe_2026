@@ -5,6 +5,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Model;
 using System.Data;
+using System.Drawing;
 using System.Linq;
 
 
@@ -63,7 +64,7 @@ namespace Application.Repository
                                 CityName = reader["CityName"]?.ToString(),
                                 DistrictName = reader["DistrictName"]?.ToString(),
                                 StateName = reader["StateName"]?.ToString(),
-                                SelfImageShow = "http://localhost:5188/Uploads/" + reader["SelfImage"]?.ToString(),
+                                SelfImageShow =   reader["SelfImage"]?.ToString(),
                                 CourseName = reader["CourseName"]?.ToString(),
                             });
                         }
@@ -105,7 +106,9 @@ namespace Application.Repository
                             data.Add(new StudentGetDTOs
                             {
                                 Id = Convert.ToInt32(reader["Id"]),
+                                Amount = Convert.ToInt32(reader["Amount"]),
                                 ReferenceId = Convert.ToInt32(reader["ReferenceId"]),
+                                CourseId = Convert.ToInt32(reader["CourseId"]),
                                 Code = reader["Code"]?.ToString(),
                                 Name = reader["Name"]?.ToString(),
                                 FatherName = reader["FatherName"]?.ToString(),
@@ -118,7 +121,7 @@ namespace Application.Repository
                                 CityName = reader["CityName"]?.ToString(),
                                 DistrictName = reader["DistrictName"]?.ToString(),
                                 StateName = reader["StateName"]?.ToString(),
-                                SelfImageShow = "http://localhost:5188/Uploads/" + reader["SelfImage"]?.ToString(),
+                                SelfImageShow =   reader["SelfImage"]?.ToString(),
                                 CourseName = reader["CourseName"]?.ToString(),
                             });
                         }
@@ -172,7 +175,7 @@ namespace Application.Repository
                                 CityName = reader["CityName"]?.ToString(),
                                 DistrictName = reader["DistrictName"]?.ToString(),
                                 StateName = reader["StateName"]?.ToString(),
-                                SelfImageShow = "http://localhost:5188/Uploads/" + reader["SelfImage"]?.ToString(),
+                                SelfImageShow =   reader["SelfImage"]?.ToString(),
                                 CourseName = reader["CourseName"]?.ToString(),
                             });
                         }
@@ -230,7 +233,7 @@ namespace Application.Repository
                                 CityName = reader["CityName"]?.ToString(),
                                 DistrictName = reader["DistrictName"]?.ToString(),
                                 StateName = reader["StateName"]?.ToString(),
-                                SelfImageShow = "http://localhost:5188/Uploads/" + reader["SelfImage"]?.ToString(),
+                                SelfImageShow =   reader["SelfImage"]?.ToString(),
                                 CourseName = reader["CourseName"]?.ToString(),
                             });
                         }
@@ -385,10 +388,10 @@ namespace Application.Repository
                                 AadhaarCardFrant = reader["AadhaarCardFrant"]?.ToString(),
                                 AadhaarCardBack = reader["AadhaarCardBack"]?.ToString(),
 
-                                SelfImageShow = "http://localhost:5188/Uploads/" + reader["SelfImage"]?.ToString(),
-                                SignatureImageShow = "http://localhost:5188/Uploads/" + reader["SignatureImage"]?.ToString(),
-                                AadhaarCardFrantShow = "http://localhost:5188/Uploads/" + reader["AadhaarCardFrant"]?.ToString(),
-                                AadhaarCardBackShow = "http://localhost:5188/Uploads/" + reader["AadhaarCardBack"]?.ToString(),
+                                SelfImageShow =   reader["SelfImage"]?.ToString(),
+                                SignatureImageShow =  reader["SignatureImage"]?.ToString(),
+                                AadhaarCardFrantShow =   reader["AadhaarCardFrant"]?.ToString(),
+                                AadhaarCardBackShow =   reader["AadhaarCardBack"]?.ToString(),
 
                                 IdNumber = reader["IdNumber"]?.ToString()
                             };
@@ -488,20 +491,24 @@ namespace Application.Repository
             }
         }
 
-        public async Task<string> GetUpdateStudent(int Id)
+        public async Task<string> insSendForConfirm(int Id,int FranchiseId, int ParentFranchiseId, int TotalAmount, string unic6)
         {
             try
             {
                 var connectionString = _context.Database.GetConnectionString();
 
                 using (var connection = new SqlConnection(connectionString))
-                using (var command = new SqlCommand("GetSendToAdmin", connection))
+               // using (var command = new SqlCommand("GetSendToAdmin", connection))
+                using (var command = new SqlCommand("insSendForConfirm", connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
 
-                    command.Parameters.Add(new SqlParameter("@Id", Id));
-                    command.Parameters.Add(new SqlParameter("@Code", 12));
-
+                    command.Parameters.Add(new SqlParameter("@StudentId", Id));
+                    command.Parameters.Add(new SqlParameter("@FranchiseId", FranchiseId));
+                    command.Parameters.Add(new SqlParameter("@ParentFranchiseId", ParentFranchiseId));
+                    command.Parameters.Add(new SqlParameter("@TotalAmount", TotalAmount));
+                    command.Parameters.Add(new SqlParameter("@demoId", unic6));
+                      
                     await connection.OpenAsync();
 
                     var result = await command.ExecuteScalarAsync();
@@ -587,7 +594,7 @@ namespace Application.Repository
                                 CityName = reader["CityName"]?.ToString(),
                                 DistrictName = reader["DistrictName"]?.ToString(),
                                 StateName = reader["StateName"]?.ToString(),
-                                SelfImageShow = "http://localhost:5188/Uploads/" + reader["SelfImage"]?.ToString(),
+                                SelfImageShow =  reader["SelfImage"]?.ToString(),
                                 CourseName = reader["CourseName"]?.ToString(),
                             });
                         }
@@ -748,10 +755,11 @@ namespace Application.Repository
                                 Email = reader["Email"]?.ToString(),
 
                                 SelfImageShow =
-                                    "http://localhost:5188/Uploads/" +
+                                    
                                     reader["SelfImage"]?.ToString(),
 
                                 CourseName = reader["CourseName"]?.ToString(),
+                                StartDate = reader["ExamSession"]?.ToString(),
                             });
                         }
                     }
@@ -777,14 +785,11 @@ namespace Application.Repository
                 {
                     command.CommandType = CommandType.StoredProcedure;
 
-                    command.Parameters.Add(
-                        new SqlParameter("@puId", model.PUid[0]));
+                    command.Parameters.Add( new SqlParameter("@puId", model.PUid[0]));
 
-                    command.Parameters.Add(
-                        new SqlParameter("@ClassId", model.ClassId));
+                   // command.Parameters.Add(  new SqlParameter("@ClassId", model.ClassId));
 
-                    command.Parameters.Add(
-                        new SqlParameter("@ExamSession", model.ExamSessionId));
+                    command.Parameters.Add(  new SqlParameter("@ExamSession", model.ExamSessionId));
 
                     await connection.OpenAsync();
 
@@ -848,7 +853,33 @@ namespace Application.Repository
             }
         }
 
+        
 
+        public async Task<string> viewbalview(int FranchiseId, int aa)
+        {
+            try
+            {
+                var connectionString = _context.Database.GetConnectionString();
+
+                using (var connection = new SqlConnection(connectionString))
+                using (var command = new SqlCommand("walletbalanceNew", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@Id", aa);
+                    command.Parameters.AddWithValue("@franchiseId", FranchiseId);
+
+                    await connection.OpenAsync();
+
+                    var result = await command.ExecuteScalarAsync();
+
+                    return result?.ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                return "Something went wrong: " + ex.Message;
+            }
+        }
 
     }
 }

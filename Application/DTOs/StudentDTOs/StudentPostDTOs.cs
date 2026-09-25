@@ -80,4 +80,11 @@ namespace Application.DTOs
     
         public string? FileName { get; set; }
     }
+
+    public class SendToConfirmDTO
+    {
+        public int Id { get; set; }
+        public int CourseId { get; set; }
+        public int Amount { get; set; }
+    }
 }

@@ -55,36 +55,7 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
         }
         [Authorize]
 
-        [HttpGet("student-senttoconfirm")]
-
-        public async Task<IActionResult> GetSendToConfirm(int pageNo = 1, int pageSize = 100, string? search = null)
-        {
-            try
-            {
-                var claims = User.Claims.ToDictionary(x => x.Type, x => x.Value);
-                var userId = claims.GetValueOrDefault("UserId");
-                var data = await _unitOfWork.Student.GetSendToConfirm(Convert.ToInt32(userId), pageNo, pageSize, search);
-
-                return Ok(new
-                {
-                    Success = true,
-                    PageNo = pageNo,
-                    PageSize = pageSize,
-                    TotalRecords = data.Count,
-                    Data = data
-                });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new
-                {
-                    Success = false,
-                    Message = ex.Message
-                });
-            }
-        }
-
-
+       
 
         [Authorize]
         [HttpPost("student-create")]
@@ -321,36 +292,7 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
 
 
 
-        [HttpPut("student-updateStudent")]
-        public async Task<IActionResult> UpdateStudent([FromBody] List<int> ids)
-        {
-            if (ids == null || ids.Count == 0)
-            {
-                return BadRequest("Please provide at least one student ID.");
-            }
-
-            var results = new List<object>();
-
-            foreach (var id in ids)
-            {
-                var result = await _unitOfWork.Student.GetUpdateStudent(id);
-
-                results.Add(new
-                {
-                    id = id,
-                    message = result
-                });
-            }
-
-            return Ok(new
-            {
-                success = true,
-                message = "Students processed successfully.",
-                data = results
-            });
-        }
-
-
+     
 
         [HttpPut("student-update")]
         public async Task<IActionResult> Update(StudentPostDTOs model)

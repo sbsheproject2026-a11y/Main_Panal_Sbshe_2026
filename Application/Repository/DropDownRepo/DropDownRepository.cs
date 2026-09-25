@@ -60,6 +60,12 @@ namespace Application.Repository
                 .FromSqlRaw("EXEC dbo.SetFranchiseCourseAmount @Id = {0},@FranchiseId={1}", Id, FId)
                 .ToListAsync();
         }
+        public async Task<List<CommissionAmount>> SetCourseCommission(int Id)
+        {
+            return await _context.CommissionAmount
+                .FromSqlRaw("EXEC dbo.SetCourseCommission @Id = {0}", Id)
+                .ToListAsync();
+        }
         public async Task<List<EntityUserResult>> getEntityUser(int Id)
         {
             return await _context.EntityUserResult

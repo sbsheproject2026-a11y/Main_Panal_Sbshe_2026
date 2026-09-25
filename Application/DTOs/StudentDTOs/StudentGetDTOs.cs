@@ -4,6 +4,7 @@
     {
         public int? Id { get; set; }
         public int? PuId { get; set; }
+        public int? Amount { get; set; }
         public string? Code { get; set; }
         public string? EnrollmentNo { get; set; }
         public string? Rollno { get; set; }
@@ -35,6 +36,7 @@
         public string? PasswordHash { get; set; }
         public string? IdNumber { get; set; }
         public string? InstituteName { get; set; }
+        public string? Relacition { get; set; }
         public string? CityName { get; set; }
         public string? DistrictName { get; set; }
         public string? StateName { get; set; }
@@ -148,7 +150,7 @@
     }
     public class StudentClassDto
     {
-        public int ClassId { get; set; }
+        
         public int ExamSessionId { get; set; }
         public List<int> PUid { get; set; } = new List<int>();
     }
