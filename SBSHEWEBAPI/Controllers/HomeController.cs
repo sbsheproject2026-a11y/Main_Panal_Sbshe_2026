@@ -245,7 +245,7 @@ namespace SBSHEWEBAPI
         }
 
 
-        [HttpPost("studycenter-create")]
+        [HttpPost("study-center-create")]
         public async Task<IActionResult> Create([FromForm] FrenchisePostDTOs model)
         {
             try

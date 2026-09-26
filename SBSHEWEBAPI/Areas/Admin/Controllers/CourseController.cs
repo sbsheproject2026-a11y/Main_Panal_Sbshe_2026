@@ -448,12 +448,12 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                     if (!item.Amount.HasValue ||  
                         !item.DepartmentId.HasValue || !item.ProductId.HasValue)
                     {
-                        results.Add($"Skipped — Amount/FranchiseId/DepartmentId/ProductId required");
+                        results.Add($"Skipped — Amount/DepartmentId/ProductId required");
                         continue;
                     }
 
                     item.FranchiseId = null;
-                    var result = await _unitOfWork.Course.SetFranchiseAmount(item);
+                    var result = await _unitOfWork.Course.SetCourseCommission(item);
 
                     results.Add(result);
                 }

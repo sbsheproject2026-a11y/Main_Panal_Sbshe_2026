@@ -66,6 +66,7 @@ namespace Application.DTOs
 
 
     }
+  
     public class FranchiseDepartmentDTOs
     {
         public int? DepartmentId { get; set; }

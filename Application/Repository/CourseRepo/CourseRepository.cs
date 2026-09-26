@@ -416,12 +416,7 @@ namespace Application.Repository
             }
         }
 
-
-
-
-
-
-
+ 
         public async Task<string> Update(CoursePostDTOs model)
         {
             await using var transaction = await _context.Database.BeginTransactionAsync();
@@ -835,7 +830,58 @@ namespace Application.Repository
                 if (item == null)
                     return "Data is required";
 
-                // 2️⃣ Compulsory fields (FranchiseId optional hai)
+                // 2️⃣ Sirf FranchiseId wale valid (FranchiseId, Amount, DepartmentId, ProductId zaroori)
+                if (!item.FranchiseId.HasValue || item.FranchiseId.Value <= 0 ||
+                    !item.Amount.HasValue ||
+                    !item.DepartmentId.HasValue ||
+                    !item.ProductId.HasValue)
+                {
+                    return "Amount, DepartmentId, ProductId, FranchiseId are required";
+                }
+
+                // 3️⃣ Matching purana record dhundho (3 fields)
+                var existing = await _context.FranchiseCommission
+                    .FirstOrDefaultAsync(x =>
+                        x.FranchiseId == item.FranchiseId.Value &&
+                        x.DepartmentId == item.DepartmentId.Value &&
+                        x.ProductId == item.ProductId.Value);
+
+                // 4️⃣ Mil gaya → REMOVE
+                if (existing != null)
+                    _context.FranchiseCommission.Remove(existing);
+
+                // 5️⃣ Naya record INSERT
+                var newRecord = new FranchiseCommission
+                {
+                    ProductId = item.ProductId,
+                    DepartmentId = item.DepartmentId,
+                    Amount = item.Amount,
+                    FranchiseId = item.FranchiseId,
+                    IsActive = item.IsActive ?? 1,
+                    Date = DateTime.UtcNow
+                };
+
+                await _context.FranchiseCommission.AddAsync(newRecord);
+
+                // 6️⃣ Save
+                await _context.SaveChangesAsync();
+
+                return existing != null ? "Deleted & Inserted" : "Inserted";
+            }
+            catch (Exception ex)
+            {
+                return "Something went wrong: " + ex.Message;
+            }
+        }
+        public async Task<string> SetCourseCommission(CommissionDtos item)
+        {
+            try
+            {
+                // 1️⃣ Null check
+                if (item == null)
+                    return "Data is required";
+
+                // 2️⃣ Sirf FranchiseId wale valid (FranchiseId, Amount, DepartmentId, ProductId zaroori)
                 if (!item.Amount.HasValue ||
                     !item.DepartmentId.HasValue ||
                     !item.ProductId.HasValue)
@@ -843,66 +889,37 @@ namespace Application.Repository
                     return "Amount, DepartmentId, ProductId are required";
                 }
 
-                // 3️⃣ Existing record dhundo — FranchiseId ke hisaab se conditional
-                Commission existing;
+                // 3️⃣ Matching purana record dhundho (3 fields)
+                var existing = await _context.Commission
+                    .FirstOrDefaultAsync(x => x.DepartmentId == item.DepartmentId.Value && x.ProductId == item.ProductId.Value);
 
-                if (item.FranchiseId.HasValue && item.FranchiseId.Value > 0)
-                {
-                    // ✅ FranchiseId aaya hai → teeno match karo
-                    existing = await _context.Commission
-                        .FirstOrDefaultAsync(x =>
-                            x.FranchiseId == item.FranchiseId.Value &&
-                            x.DepartmentId == item.DepartmentId.Value &&
-                            x.ProductId == item.ProductId.Value);
-                }
-                else
-                {
-                    // ✅ FranchiseId nahi aaya → sirf DepartmentId + ProductId match
-                    existing = await _context.Commission
-                        .FirstOrDefaultAsync(x =>
-                            x.DepartmentId == item.DepartmentId.Value &&
-                            x.ProductId == item.ProductId.Value  && x.FranchiseId == null);
-                }
-
-                // 4️⃣ Record mila ya nahi?
+                // 4️⃣ Mil gaya → REMOVE
                 if (existing != null)
-                {
-                    // Same amount → skip
-                    if (Math.Abs((existing.Amount ?? 0) - item.Amount.Value) < 0.01m)
-                    {
-                        return "Skipped";
-                    }
+                    _context.Commission.Remove(existing);
 
-                    // Alag amount → update
-                    existing.Amount = item.Amount.Value;
-                    existing.IsActive = item.IsActive ?? 1;
-                    existing.Date = DateTime.UtcNow;
-
-                    await _context.SaveChangesAsync();
-                    return "Updated";
-                }
-
-                // 5️⃣ Naya record insert
-                var data = new Commission
+                // 5️⃣ Naya record INSERT
+                var newRecord = new Commission
                 {
                     ProductId = item.ProductId,
                     DepartmentId = item.DepartmentId,
                     Amount = item.Amount,
-                    FranchiseId = item.FranchiseId ?? null,   // null ho to null hi rahega ✅
                     IsActive = item.IsActive ?? 1,
                     Date = DateTime.UtcNow
                 };
 
-                await _context.Commission.AddAsync(data);
+                await _context.Commission.AddAsync(newRecord);
+
+                // 6️⃣ Save
                 await _context.SaveChangesAsync();
 
-                return "Inserted";
+                return existing != null ? "Deleted & Inserted" : "Inserted";
             }
             catch (Exception ex)
             {
                 return "Something went wrong: " + ex.Message;
             }
         }
+
         //Course  Material  Working End//
 
         // --------------------------------------- Course End ---------------------------------------
