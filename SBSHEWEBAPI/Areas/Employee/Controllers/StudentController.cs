@@ -114,7 +114,9 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
                 model.UserName = $"{num}@SBSHE";
                 model.Password = $"SBSHE@{num}";
                 model.StudyModeId = model.StudyModeId == 0 ? 88 : model.StudyModeId;
-
+                model.GenderId = model.GenderId == 0 ? null : model.GenderId;
+                model.CasteCategory = model.CasteCategory == 0 ? null : model.CasteCategory;
+                
 
 
                 model.PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password); // Hashed Password

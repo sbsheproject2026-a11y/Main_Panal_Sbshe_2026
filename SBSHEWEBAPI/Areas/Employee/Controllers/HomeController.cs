@@ -100,6 +100,7 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
                 Message = result
             });
         }
+        
         [HttpPut("emp-update-password")]
         public async Task<IActionResult> UpdatePassword(FranchiseUpdatePasswordDTOs model)
         {
