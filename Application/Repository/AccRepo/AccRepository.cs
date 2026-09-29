@@ -64,7 +64,8 @@ namespace Application.Repository
                         Password = reader["Password"]?.ToString(),
                         CityName = reader["CityName"]?.ToString(),
                         DistrictName = reader["DistrictName"]?.ToString(),
-                        StateName = reader["StateName"]?.ToString()
+                        StateName = reader["StateName"]?.ToString(),
+                        
                     });
                     if (reader["TotalRows"] != DBNull.Value)
                     {
@@ -81,6 +82,8 @@ namespace Application.Repository
                     ex);
             }
         }
+        
+        
         public async Task<(List<FrenchiseGetDTOs> StudentList, int TotalCount)> GetAllPendingList( int typeid,  int? referenceId,int? pageNo, int? pageSize, string? search)
         {
             try

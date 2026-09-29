@@ -24,13 +24,33 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
         }
 
         [HttpGet("emp-wallet-getall")]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get([FromQuery] int? userId)
         {
             try
             {
-                var claims = User.Claims.ToDictionary(x => x.Type, x => x.Value);
-                var userId = claims.GetValueOrDefault("UserId");
-                var data = await _unitOfWork.Wallet.GetAll(Convert.ToInt32(userId), 112);
+                int finalUserId;
+
+                if (userId.HasValue && userId.Value > 0)
+                {
+                    finalUserId = userId.Value;
+                }
+                else
+                {
+                    var claims = User.Claims.ToDictionary(x => x.Type, x => x.Value);
+                    var tokenUserId = claims.GetValueOrDefault("UserId");
+
+                    if (string.IsNullOrEmpty(tokenUserId))
+                    {
+                        return BadRequest(new
+                        {
+                            Success = false,
+                            Message = "UserId not found"
+                        });
+                    }
+
+                    finalUserId = Convert.ToInt32(tokenUserId);
+                }
+                var data = await _unitOfWork.Wallet.GetAll(finalUserId, 112);
 
                 return Ok(new
                 {

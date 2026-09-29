@@ -25,6 +25,34 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
         [Authorize]
         [HttpGet("emp-franchise-list")]
 
+        //public async Task<IActionResult> Get(int? pageNo = null, int? pageSize = null, string? search = null)
+        //{
+        //    try
+        //    {
+        //        pageNo ??= 1;
+        //        pageSize ??= 100;
+        //        var claims = User.Claims.ToDictionary(x => x.Type, x => x.Value);
+        //        var userId = claims.GetValueOrDefault("UserId");
+        //        var data = await _unitOfWork.Frenchise.GetAll(Convert.ToInt32(userId), pageNo, pageSize, search);
+
+        //        return Ok(new
+        //        {
+        //            Success = true,
+        //            PageNo = pageNo,
+        //            PageSize = pageSize,
+        //            Data = data
+        //        });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(new
+        //        {
+        //            Success = false,
+        //            Message = ex.Message
+        //        });
+        //    }
+        //}
+
         public async Task<IActionResult> Get(int? pageNo = null, int? pageSize = null, string? search = null)
         {
             try
@@ -33,13 +61,14 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
                 pageSize ??= 100;
                 var claims = User.Claims.ToDictionary(x => x.Type, x => x.Value);
                 var userId = claims.GetValueOrDefault("UserId");
-                var data = await _unitOfWork.Frenchise.GetAll(Convert.ToInt32(userId), pageNo, pageSize, search);
+                var (data, totalCount) = await _unitOfWork.Employee.GetAssignFrenchise(Convert.ToInt32(userId), pageNo, pageSize, search);
 
                 return Ok(new
                 {
                     Success = true,
                     PageNo = pageNo,
                     PageSize = pageSize,
+                    TotalRecords = totalCount,
                     Data = data
                 });
             }
@@ -52,6 +81,7 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
                 });
             }
         }
+
 
 
 

@@ -30,6 +30,7 @@
         public string? CityName { get; set; }
         public string? DistrictName { get; set; }
         public string? StateName { get; set; }
+        public string? EmployeeName { get; set; }
 
         public string? AadhaarCardimage { get; set; }
 

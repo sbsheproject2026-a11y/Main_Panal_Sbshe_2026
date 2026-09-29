@@ -27,13 +27,33 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
         [Authorize]
         [HttpGet("student-getall")]
 
-        public async Task<IActionResult> Get(int pageNo = 1, int pageSize = 100, string? search = null)
+        public async Task<IActionResult> Get(int? referenceId, int pageNo = 1, int pageSize = 100, string? search = null)
         {
             try
             {
-                var claims = User.Claims.ToDictionary(x => x.Type, x => x.Value);
-                var userId = claims.GetValueOrDefault("UserId");
-                var data = await _unitOfWork.Student.GetAll(Convert.ToInt32(userId), pageNo, pageSize, search);
+                int finalUserId;
+
+                if (referenceId.HasValue && referenceId.Value > 0)
+                {
+                    finalUserId = referenceId.Value;
+                }
+                else
+                {
+                    var claims = User.Claims.ToDictionary(x => x.Type, x => x.Value);
+                    var tokenUserId = claims.GetValueOrDefault("UserId");
+
+                    if (string.IsNullOrEmpty(tokenUserId))
+                    {
+                        return BadRequest(new
+                        {
+                            Success = false,
+                            Message = "UserId not found"
+                        });
+                    }
+
+                    finalUserId = Convert.ToInt32(tokenUserId);
+                }
+                var data = await _unitOfWork.Student.GetAll(finalUserId, pageNo, pageSize, search);
 
                 return Ok(new
                 {
@@ -109,8 +129,9 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
 
                 int num = RandomNumberGenerator.GetInt32(10000, 99999);
 
+                model.ReferenceId = model.ReferenceId == 0 ? Convert.ToInt32(userId) : model.ReferenceId;
 
-                model.ReferenceId = Convert.ToInt32(userId);
+                //model.ReferenceId = Convert.ToInt32(userId);
                 model.UserName = $"{num}@SBSHE";
                 model.Password = $"SBSHE@{num}";
                 model.StudyModeId = model.StudyModeId == 0 ? 88 : model.StudyModeId;

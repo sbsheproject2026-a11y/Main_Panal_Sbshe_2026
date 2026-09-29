@@ -30,14 +30,33 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
         [Authorize]
         [HttpGet("student-senttoconfirm")]
 
-        public async Task<IActionResult> GetSendToConfirm(int pageNo = 1, int pageSize = 100, string? search = null)
+        public async Task<IActionResult> GetSendToConfirm(int? referenceId, int pageNo = 1, int pageSize = 100, string? search = null)
         {
             try
             {
-                var claims = User.Claims.ToDictionary(x => x.Type, x => x.Value);
-                var userId = claims.GetValueOrDefault("UserId");
-             
-                var data = await _unitOfWork.Student.GetSendToConfirm(Convert.ToInt32(userId), pageNo, pageSize, search);
+                int finalUserId;
+
+                if (referenceId.HasValue && referenceId.Value > 0)
+                {
+                    finalUserId = referenceId.Value;
+                }
+                else
+                {
+                    var claims = User.Claims.ToDictionary(x => x.Type, x => x.Value);
+                    var tokenUserId = claims.GetValueOrDefault("UserId");
+
+                    if (string.IsNullOrEmpty(tokenUserId))
+                    {
+                        return BadRequest(new
+                        {
+                            Success = false,
+                            Message = "UserId not found"
+                        });
+                    }
+
+                    finalUserId = Convert.ToInt32(tokenUserId);
+                }
+                var data = await _unitOfWork.Student.GetSendToConfirm(finalUserId, pageNo, pageSize, search);
 
                 return Ok(new
                 {
@@ -62,10 +81,30 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
         [Authorize]
 
         [HttpPut("SendToRequest")]
-        public async Task<IActionResult> SendToRequest([FromBody] List<SendToConfirmDTO> students)
+        public async Task<IActionResult> SendToRequest([FromBody] List<SendToConfirmDTO> students, int? userId)
         {
-            var claims = User.Claims.ToDictionary(x => x.Type, x => x.Value);
-            var userId = claims.GetValueOrDefault("UserId");
+            int finalUserId;
+
+            if (userId.HasValue && userId.Value > 0)
+            {
+                finalUserId = userId.Value;
+            }
+            else
+            {
+                var claims = User.Claims.ToDictionary(x => x.Type, x => x.Value);
+                var tokenUserId = claims.GetValueOrDefault("UserId");
+
+                if (string.IsNullOrEmpty(tokenUserId))
+                {
+                    return BadRequest(new
+                    {
+                        Success = false,
+                        Message = "UserId not found"
+                    });
+                }
+
+                finalUserId = Convert.ToInt32(tokenUserId);
+            }
 
             var buser = 1;
             string result = "";
@@ -95,12 +134,12 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
                 int amount = item.Amount;
 
                 // ✅ Wallet balance check
-                string ss = await _unitOfWork.Student.viewbalview(  Convert.ToInt32(userId), amount);
+                string ss = await _unitOfWork.Student.viewbalview(finalUserId, amount);
 
                 if (ss == "ok")
                 {
                     // ✅ Update student
-                    string spMessage = await _unitOfWork.Student.insSendForConfirm( studentId, Convert.ToInt32(userId), Convert.ToInt32(buser),  amount,
+                    string spMessage = await _unitOfWork.Student.insSendForConfirm( studentId, finalUserId, Convert.ToInt32(buser),  amount,
                         unic6
                     );
 

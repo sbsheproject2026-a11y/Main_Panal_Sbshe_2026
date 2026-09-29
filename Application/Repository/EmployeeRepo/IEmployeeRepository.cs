@@ -8,7 +8,7 @@ namespace Application.Repository
     {
 
         Task<List<EmployeeGetDTOs>> GetAll(int ReferenceId, int pageNo, int pageSize, string? search);
-        Task<List<EmployeeGetDTOs>> GetAssignFrenchise(int ReferenceId, int pageNo, int pageSize, string? search);
+        Task<(List<FrenchiseGetDTOs> StudentList, int TotalCount)> GetAssignFrenchise(int? referenceId, int? pageNo, int? pageSize, string? search);
 
         Task<string> Create(EmployeePostDTOs model);
         Task<EmployeeGetDTOs> GetById(int id);

@@ -239,18 +239,21 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
 
 
         [HttpGet("employee-getassignfrenchise")]
-
-        public async Task<IActionResult> GetAssignFrenchise(int referenceId = 1, int pageNo = 1, int pageSize = 100, string? search = null)
+        public async Task<IActionResult> GetAssignFrenchise(int? referenceId = null, int? pageNo = null, int? pageSize = null, string? search = null)
         {
             try
             {
-                var data = await _unitOfWork.Employee.GetAssignFrenchise(referenceId, pageNo, pageSize, search);
+                pageNo ??= 1;
+                pageSize ??= 100;
+
+                var (data, totalCount) = await _unitOfWork.Employee.GetAssignFrenchise(referenceId, pageNo, pageSize, search);
 
                 return Ok(new
                 {
                     Success = true,
                     PageNo = pageNo,
                     PageSize = pageSize,
+                    TotalRecords = totalCount,
                     Data = data
                 });
             }
@@ -264,6 +267,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
             }
         }
 
+         
         [HttpDelete("employee-deleteassignfrenchise/{id}")]
         public async Task<IActionResult> DeleteAssignFrenchise(int Id)
         {

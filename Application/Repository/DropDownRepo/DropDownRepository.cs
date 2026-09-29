@@ -72,6 +72,12 @@ namespace Application.Repository
                 .FromSqlRaw("EXEC dbo.getEntityUser @Id = {0}", Id)
                 .ToListAsync();
         }
+        public async Task<List<EntityUserResult>> getEmployeedropList(int Id)
+        {
+            return await _context.EntityUserResult
+                .FromSqlRaw("EXEC dbo.getEmployeedropList @Id = {0}", Id)
+                .ToListAsync();
+        }
         public async Task<List<EntityUserResult>> getEmployeeFranchiselist(int Id)
         {
             return await _context.EntityUserResult

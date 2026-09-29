@@ -299,54 +299,64 @@ namespace Application.Repository
         }
 
 
-        public async Task<List<EmployeeGetDTOs>> GetAssignFrenchise(
-            int referenceId,
-            int pageNo,
-            int pageSize,
-            string? search)
+    
+        public async Task<(List<FrenchiseGetDTOs> StudentList, int TotalCount)> GetAssignFrenchise(int? referenceId, int? pageNo, int? pageSize, string? search)
         {
             try
             {
-                var data = new List<EmployeeGetDTOs>();
+                var data = new List<FrenchiseGetDTOs>();
+                int totalCount = 0;
+                using var connection = new SqlConnection(_connectionString);
+                using var command = new SqlCommand("GetAssignFrenchise", connection);
 
-                using (var connection = new SqlConnection(_connectionString))
-                using (var command = new SqlCommand("GetAssignFrenchise", connection))
+                command.CommandType = CommandType.StoredProcedure;
+ 
+                command.Parameters.Add(new SqlParameter("@ReferenceId", referenceId));
+                command.Parameters.Add(new SqlParameter("@PageNo", pageNo));
+                command.Parameters.Add(new SqlParameter("@PageSize", pageSize));
+                command.Parameters.Add(new SqlParameter(
+                    "@Search",
+                    search ?? (object)DBNull.Value));
+
+                await connection.OpenAsync();
+
+                using var reader = await command.ExecuteReaderAsync();
+
+                while (await reader.ReadAsync())
                 {
-                    command.CommandType = CommandType.StoredProcedure;
-
-                    command.Parameters.Add(new SqlParameter("@ReferenceId", referenceId));
-                    command.Parameters.Add(new SqlParameter("@PageNo", pageNo));
-                    command.Parameters.Add(new SqlParameter("@PageSize", pageSize));
-                    command.Parameters.Add(new SqlParameter(
-                        "@Search",
-                        search ?? (object)DBNull.Value));
-
-                    await connection.OpenAsync();
-
-                    using (var reader = await command.ExecuteReaderAsync())
+                    data.Add(new FrenchiseGetDTOs
                     {
-                        while (await reader.ReadAsync())
-                        {
-                            data.Add(new EmployeeGetDTOs
-                            {
-                                Id = Convert.ToInt32(reader["Id"]),
-                                Name = reader["EmployeeName"]?.ToString(),
-                                FatherName = reader["FrenchiseName"]?.ToString()
-                            });
-                        }
+                        Id = Convert.ToInt32(reader["Id"]),
+                        ReferenceId = Convert.ToInt32(reader["ReferenceId"]),
+                        Code = reader["Code"]?.ToString(),
+                        Name = reader["Name"]?.ToString(),
+                        FatherName = reader["FatherName"]?.ToString(),
+                        Address = reader["Address"]?.ToString(),
+                        Pincode = reader["PinCode"]?.ToString(),
+                        MobileNo = reader["MobileNo"]?.ToString(),
+                        Email = reader["Email"]?.ToString(),
+                        UserName = reader["UserName"]?.ToString(),
+                        Password = reader["Password"]?.ToString(),
+                        CityName = reader["CityName"]?.ToString(),
+                        DistrictName = reader["DistrictName"]?.ToString(),
+                        StateName = reader["StateName"]?.ToString(),
+                        EmployeeName = reader["EmployeeName"]?.ToString()
+                    });
+                    if (reader["TotalRows"] != DBNull.Value)
+                    {
+                        totalCount = Convert.ToInt32(reader["TotalRows"]);
                     }
                 }
+                return (data, totalCount);
 
-                return data;
             }
             catch (Exception ex)
             {
                 throw new Exception(
-                    "Error while fetching assigned Frenchise data.",
+                    "Error while fetching Account data.",
                     ex);
             }
         }
-
 
         public async Task<string> DeleteAssignFrenchise(int id)
         {

@@ -47,6 +47,28 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
                 });
             }
         }
+        [HttpGet("dropdown-employee-list/{id}")]
+        public async Task<IActionResult> getEmployeedropList(int Id)
+        {
+            try
+            {
+                var data = await _unitOfWork.DropDown.getEmployeedropList(Id);
+
+                return Ok(new
+                {
+                    Success = true,
+                    Data = data
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = ex.Message
+                });
+            }
+        }
 
 
         [HttpGet("dropdown-getdistrict/{id}")]
