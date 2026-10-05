@@ -8,7 +8,7 @@ namespace Application.Repository
         Task<List<StudentGetDTOs>> GetAll(int ReferenceId, int pageNo, int pageSize, string? search);
         Task<List<StudentGetDTOs>> GetSendToConfirm(int ReferenceId, int pageNo, int pageSize, string? search);
         Task<List<StudentGetDTOs>> GetConfirmToAdmin( int pageNo, int pageSize, string? search);
-        Task<List<StudentGetDTOs>> GetConfirmAddmissions( int pageNo, int pageSize, string? search);
+        Task<List<StudentGetDTOs>> GetConfirmAddmissions(int? referenceId, int pageNo, int pageSize, string? search);
 
         Task<string> Create(StudentPostDTOs model);
         Task<string> CreateAcademicDetail(int entityId, AcademicDetailDTO model);
@@ -18,12 +18,13 @@ namespace Application.Repository
         Task<string> insSendForConfirm(int Id, int FranchiseId, int ParentFranchiseId, int TotalAmount, string unic6);
         Task<string> ConfirmToAdmin(int Id);
 
-        Task<List<StudentGetDTOs>> UnSetMarksStudents(int pageNo, int pageSize, string? search);
+        Task<List<StudentGetDTOs>> UnSetMarksStudents(int? referenceId, int pageNo, int pageSize, string? search);
         Task<List<GetStudentMarksGetDTOs>> getStudentSubjectMarks(string rollno);
 
         Task<string> SaveStudentMarks(StudentMarksDto model);
 
         Task<List<StudentGetDTOs>> GetUpgradeStudentList(int pageNo, int pageSize, string? search);
+     
 
         Task<string> AddClassStudent(StudentClassDto model);
         Task<List<AcademicDetailGetDTO>> GetAcademicDetailsById(int id);

@@ -131,10 +131,10 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
 
                 model.ReferenceId = model.ReferenceId == 0 ? Convert.ToInt32(userId) : model.ReferenceId;
 
-                //model.ReferenceId = Convert.ToInt32(userId);
+                model.EmployeeId = Convert.ToInt32(userId);
                 model.UserName = $"{num}@SBSHE";
                 model.Password = $"SBSHE@{num}";
-                model.StudyModeId = model.StudyModeId == 0 ? 88 : model.StudyModeId;
+                model.StudyModeId = model.StudyModeId == 0 ? 89 : model.StudyModeId;
                 model.GenderId = model.GenderId == 0 ? null : model.GenderId;
                 model.CasteCategory = model.CasteCategory == 0 ? null : model.CasteCategory;
                 

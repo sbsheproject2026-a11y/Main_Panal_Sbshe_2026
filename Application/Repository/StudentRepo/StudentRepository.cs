@@ -190,7 +190,7 @@ namespace Application.Repository
             }
         }
 
-        public async Task<List<StudentGetDTOs>> GetConfirmAddmissions(int pageNo, int pageSize, string? search)
+        public async Task<List<StudentGetDTOs>> GetConfirmAddmissions(int? referenceId,int pageNo, int pageSize, string? search)
         {
             try
             {
@@ -203,7 +203,7 @@ namespace Application.Repository
                 {
                     command.CommandType = CommandType.StoredProcedure;
 
-                    // command.Parameters.Add(new SqlParameter("@ReferenceId", referenceId));
+                    command.Parameters.Add(new SqlParameter("@ReferenceId", referenceId));
                     command.Parameters.Add(new SqlParameter("@PageNo", pageNo));
                     command.Parameters.Add(new SqlParameter("@PageSize", pageSize));
                     command.Parameters.Add(new SqlParameter("@Search", search ?? (object)DBNull.Value));
@@ -247,7 +247,7 @@ namespace Application.Repository
                 throw new Exception("Error while fetching confirmed admissions.", ex);
             }
         }
-
+        
 
         public async Task<string> Create(StudentPostDTOs model)
         {
@@ -289,6 +289,7 @@ namespace Application.Repository
                     command.Parameters.Add(new SqlParameter("@CourseId", model.CourseId));
                     command.Parameters.Add(new SqlParameter("@ExamSessionId", model.ExamSessionId));
                     command.Parameters.Add(new SqlParameter("@StudyModeId", model.StudyModeId));
+                    command.Parameters.Add(new SqlParameter("@EmployeeId", model.EmployeeId));
 
                     await connection.OpenAsync();
 
@@ -552,7 +553,7 @@ namespace Application.Repository
 
 
 
-        public async Task<List<StudentGetDTOs>> UnSetMarksStudents(int pageNo, int pageSize, string? search)
+        public async Task<List<StudentGetDTOs>> UnSetMarksStudents(int? referenceId, int pageNo, int pageSize, string? search)
         {
             try
             {
@@ -564,7 +565,7 @@ namespace Application.Repository
                 using (var command = new SqlCommand("GetUnSetMarksStudents", connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
-
+                    command.Parameters.Add(new SqlParameter("@ReferenceId", referenceId));
                     command.Parameters.Add(new SqlParameter("@PageNo", pageNo));
                     command.Parameters.Add(new SqlParameter("@PageSize", pageSize));
                     command.Parameters.Add(new SqlParameter("@Search", search ?? (object)DBNull.Value));

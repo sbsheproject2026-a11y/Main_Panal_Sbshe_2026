@@ -35,9 +35,10 @@ namespace SBSHEWEBAPI
             }
 
             // Invalid login / unauthorized
-            return Unauthorized(new
+            return Ok(new
             {
                 success = false,
+                token = (string)null,
                 message = result
             });
         }

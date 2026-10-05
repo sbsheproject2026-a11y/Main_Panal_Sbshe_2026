@@ -356,7 +356,7 @@ namespace Application.Repository
                                   join pcd in _context.ProductCategoryDetail on p.Id equals pcd.ProductCategoryId into productGroup
                                   from p3 in productGroup.DefaultIfEmpty()
 
-                                  where pa.Id == id
+                                  where p.Id == id
 
                                   orderby pa.Id descending
                                   select new CourseGetDTOs

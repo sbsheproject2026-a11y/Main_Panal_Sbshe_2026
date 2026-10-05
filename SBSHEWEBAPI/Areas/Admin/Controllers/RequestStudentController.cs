@@ -60,7 +60,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
             {
 
 
-                var data = await _unitOfWork.Student.GetConfirmAddmissions(pageNo, pageSize, search);
+                var data = await _unitOfWork.Student.GetConfirmAddmissions(null,pageNo, pageSize, search);
 
                 return Ok(new
                 {
@@ -145,7 +145,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
             {
 
 
-                var data = await _unitOfWork.Student.UnSetMarksStudents(pageNo, pageSize, search);
+                var data = await _unitOfWork.Student.UnSetMarksStudents(null,pageNo, pageSize, search);
 
                 return Ok(new
                 {

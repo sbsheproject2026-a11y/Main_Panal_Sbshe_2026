@@ -28,6 +28,97 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
        
         
         [Authorize]
+        [HttpGet("emp-student-unsetmarks")]
+
+        public async Task<IActionResult> GetEmpUnSetMarksStudents(int pageNo = 1, int pageSize = 100, string? search = null)
+        {
+            try
+            {
+                int finalUserId;
+
+                
+                    var claims = User.Claims.ToDictionary(x => x.Type, x => x.Value);
+                    var tokenUserId = claims.GetValueOrDefault("UserId");
+
+                    if (string.IsNullOrEmpty(tokenUserId))
+                    {
+                        return BadRequest(new
+                        {
+                            Success = false,
+                            Message = "UserId not found"
+                        });
+                    }
+
+                    finalUserId = Convert.ToInt32(tokenUserId);
+               
+                var data = await _unitOfWork.Student.UnSetMarksStudents(finalUserId, pageNo, pageSize, search);
+
+                return Ok(new
+                {
+                    Success = true,
+                    PageNo = pageNo,
+                    PageSize = pageSize,
+                    TotalRecords = data.Count,
+                    Data = data
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = ex.Message
+                });
+            }
+        }
+        
+        [Authorize]
+        [HttpGet("emp-student-confirm-print")]
+
+        public async Task<IActionResult> ConfirmPrintStudent(int pageNo = 1, int pageSize = 100, string? search = null)
+        {
+            try
+            {
+                int finalUserId;
+
+                
+                    var claims = User.Claims.ToDictionary(x => x.Type, x => x.Value);
+                    var tokenUserId = claims.GetValueOrDefault("UserId");
+
+                    if (string.IsNullOrEmpty(tokenUserId))
+                    {
+                        return BadRequest(new
+                        {
+                            Success = false,
+                            Message = "UserId not found"
+                        });
+                    }
+
+                    finalUserId = Convert.ToInt32(tokenUserId);
+               
+                var data = await _unitOfWork.Student.GetConfirmAddmissions(finalUserId, pageNo, pageSize, search);
+
+                return Ok(new
+                {
+                    Success = true,
+                    PageNo = pageNo,
+                    PageSize = pageSize,
+                    TotalRecords = data.Count,
+                    Data = data
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = ex.Message
+                });
+            }
+        }
+        
+        
+        [Authorize]
         [HttpGet("student-senttoconfirm")]
 
         public async Task<IActionResult> GetSendToConfirm(int? referenceId, int pageNo = 1, int pageSize = 100, string? search = null)

@@ -12,6 +12,7 @@ namespace Application.DTOs
 
         public int? ReferenceId { get; set; }
         public int? StudyModeId { get; set; }
+        public int? EmployeeId { get; set; }
 
         public string? ShortName { get; set; }
 
