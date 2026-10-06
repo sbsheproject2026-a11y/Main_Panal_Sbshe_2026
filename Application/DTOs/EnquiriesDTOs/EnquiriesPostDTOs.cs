@@ -8,6 +8,7 @@ namespace Application.DTOs.MasterTypeDTOs
         public string? Name { get; set; }
         public string? MobileNo { get; set; }
         public string? Email { get; set; }
+        public string? Subject { get; set; }
         public string? Course { get; set; }
         public int? CourseId { get; set; }
         public string? Address { get; set; }

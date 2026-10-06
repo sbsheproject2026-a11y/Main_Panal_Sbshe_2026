@@ -188,11 +188,11 @@ namespace SBSHEWEBAPI
 
                 int num = RandomNumberGenerator.GetInt32(10000, 99999);
 
-
-                model.ReferenceId = 3;
+                model.ReferenceId = model.ReferenceId == 0 ? 3 : model.ReferenceId;
+                model.EmployeeId =  null;
                 model.UserName = $"{num}@SBSHE";
                 model.Password = $"SBSHE@{num}";
-                model.StudyModeId = 88;
+                model.StudyModeId = model.StudyModeId == 0 ? 88 : model.StudyModeId;
 
 
                 model.PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password); // Hashed Password

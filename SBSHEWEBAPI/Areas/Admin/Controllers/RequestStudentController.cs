@@ -54,20 +54,21 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
 
         [HttpGet("request-student-confirm-addmissions")]
 
-        public async Task<IActionResult> GetConfirmAddmissions(int pageNo = 1, int pageSize = 100, string? search = null)
+        public async Task<IActionResult> GetConfirmAddmissions(int? pageNo = null, int? pageSize = null, string? search = null, int studyModeId = 0)
         {
             try
             {
+                pageNo ??= 1;
+                pageSize ??= 100;
 
-
-                var data = await _unitOfWork.Student.GetConfirmAddmissions(null,pageNo, pageSize, search);
+                var (data, totalCount) = await _unitOfWork.Student.GetConfirmAddmissions(null, pageNo, pageSize, search, studyModeId);
 
                 return Ok(new
                 {
                     Success = true,
                     PageNo = pageNo,
                     PageSize = pageSize,
-                    TotalRecords = data.Count,
+                    TotalRecords = totalCount,
                     Data = data
                 });
             }

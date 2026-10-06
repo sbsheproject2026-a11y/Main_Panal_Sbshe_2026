@@ -31,6 +31,7 @@ namespace Application.Repository
                         Course = x.Course,
                         Address = x.Address,
                         Status = x.Status,
+                        Subject = x.Subject,
                         Remarks = x.Remarks
 
                     })
@@ -55,6 +56,7 @@ namespace Application.Repository
                     Name = model.Name,
                     MobileNo = model.MobileNo ?? null,
                     Email = model.Email ?? null,
+                    Subject = model.Subject ?? null,
                     Course = model.Course ?? null,
                     EnquiryDate=DateTime.Now,
                     CreatedDate = DateTime.Now,
@@ -70,7 +72,7 @@ namespace Application.Repository
                 await _context.Enquiries.AddAsync(data);
                 await _context.SaveChangesAsync();
 
-                return "Student created successfully";
+                return "successfully submit";
             }
             catch (Exception ex)
             {

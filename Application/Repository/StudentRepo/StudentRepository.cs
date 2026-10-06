@@ -66,6 +66,7 @@ namespace Application.Repository
                                 StateName = reader["StateName"]?.ToString(),
                                 SelfImageShow =   reader["SelfImage"]?.ToString(),
                                 CourseName = reader["CourseName"]?.ToString(),
+                                InstituteName = reader["CentreName"]?.ToString(),
                             });
                         }
                     }
@@ -123,6 +124,7 @@ namespace Application.Repository
                                 StateName = reader["StateName"]?.ToString(),
                                 SelfImageShow =   reader["SelfImage"]?.ToString(),
                                 CourseName = reader["CourseName"]?.ToString(),
+                                InstituteName = reader["CentreName"]?.ToString(),
                             });
                         }
                     }
@@ -177,6 +179,7 @@ namespace Application.Repository
                                 StateName = reader["StateName"]?.ToString(),
                                 SelfImageShow =   reader["SelfImage"]?.ToString(),
                                 CourseName = reader["CourseName"]?.ToString(),
+                                InstituteName = reader["CentreName"]?.ToString(),
                             });
                         }
                     }
@@ -190,12 +193,12 @@ namespace Application.Repository
             }
         }
 
-        public async Task<List<StudentGetDTOs>> GetConfirmAddmissions(int? referenceId,int pageNo, int pageSize, string? search)
+        public async  Task<(List<StudentGetDTOs> StudentList, int TotalCount)> GetConfirmAddmissions(int? referenceId,int? pageNo, int? pageSize, string? search, int? studyModeId )
         {
             try
             {
                 var data = new List<StudentGetDTOs>();
-
+                int totalCount = 0;
                 var connectionString = _context.Database.GetConnectionString();
 
                 using (var connection = new SqlConnection(connectionString))
@@ -206,6 +209,7 @@ namespace Application.Repository
                     command.Parameters.Add(new SqlParameter("@ReferenceId", referenceId));
                     command.Parameters.Add(new SqlParameter("@PageNo", pageNo));
                     command.Parameters.Add(new SqlParameter("@PageSize", pageSize));
+                    command.Parameters.Add(new SqlParameter("@studyModeId", studyModeId));
                     command.Parameters.Add(new SqlParameter("@Search", search ?? (object)DBNull.Value));
 
                     await connection.OpenAsync();
@@ -235,12 +239,17 @@ namespace Application.Repository
                                 StateName = reader["StateName"]?.ToString(),
                                 SelfImageShow =   reader["SelfImage"]?.ToString(),
                                 CourseName = reader["CourseName"]?.ToString(),
+                                InstituteName = reader["CentreName"]?.ToString(),
                             });
+                            if (reader["TotalRows"] != DBNull.Value)
+                            {
+                                totalCount = Convert.ToInt32(reader["TotalRows"]);
+                            }
                         }
                     }
                 }
 
-                return data;
+                return (data, totalCount);
             }
             catch (Exception ex)
             {

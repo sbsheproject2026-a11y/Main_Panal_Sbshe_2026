@@ -22,4 +22,12 @@ namespace Model
         public int Id { get; set; }
         public decimal Balance { get; set; }
     }
+
+    public class DashboardStatsDTO
+    {
+        public int TotalStudent { get; set; }
+        public int TotalFranchise { get; set; }
+        public int TotalEmployee { get; set; }
+        public int TotalCourse { get; set; }
+    }
 }

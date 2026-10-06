@@ -144,6 +144,7 @@ namespace Application.Repository
                     ProductId = product.Id,
                     CategoryId = model.CategoryId,
                     DepartmentId = model.DepartmentId,
+                    StudyModeId = model.StudyModeId ?? 89,
                     TotalClass = model.TotalClass,
                     ClassNo = 1,
 
@@ -374,6 +375,7 @@ namespace Application.Repository
                                       CategoryId = p1.CategoryId,
                                       TotalClass = p1.TotalClass,
                                       ClassNo = p1.ClassNo,
+                                      StudyModeId = p1.StudyModeId,
                                       ShortDescription = p3.ShortDescription,
                                       Descrption = p3.Descrption,
                                       IsActive = pa.IsActive,
@@ -459,12 +461,10 @@ namespace Application.Repository
                 if (productpersonaldetail != null)
                 {
                     productpersonaldetail.CategoryId = model.CategoryId;
-
                     productpersonaldetail.DepartmentId = model.DepartmentId;
-
                     productpersonaldetail.TotalClass = model.TotalClass;
-
                     productpersonaldetail.ClassNo = model.ClassNo;
+                    productpersonaldetail.StudyModeId = model.StudyModeId;
                 }
 
                 var productcategorydetail = await _context.ProductCategoryDetail.FirstOrDefaultAsync(x => x.ProductCategoryId == product.ProductCategoryId);

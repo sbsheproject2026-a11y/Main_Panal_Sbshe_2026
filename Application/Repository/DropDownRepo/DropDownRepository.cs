@@ -72,6 +72,12 @@ namespace Application.Repository
                 .FromSqlRaw("EXEC dbo.getEntityUser @Id = {0}", Id)
                 .ToListAsync();
         }
+        public async Task<List<EntityUserResult>> getFranchise(int Id)
+        {
+            return await _context.EntityUserResult
+                .FromSqlRaw("EXEC dbo.getFranchiseDropDown @Id = {0}", Id)
+                .ToListAsync();
+        }
         public async Task<List<EntityUserResult>> getEmployeedropList(int Id)
         {
             return await _context.EntityUserResult
@@ -93,6 +99,15 @@ namespace Application.Repository
                 )
                 .ToListAsync();
         }
+        //public async Task<List<DashboardStatsDTO>> getDashboard(int? Id)
+        //{
+        //    return await _context.DashboardStatsDTO
+        //        .FromSqlRaw(
+        //            "EXEC dbo.getDashboard @Id = {0}", Id
+
+        //        )
+        //        .ToListAsync();
+        //}
 
         public async Task<List<DropDownDTOs>> GetMasterSession()
         {
@@ -141,7 +156,7 @@ namespace Application.Repository
                 throw new Exception("Error while fetching MasterType data.", ex);
             }
         }
-       
+        
         public async Task<List<DropDownDTOs>> GetMasterDetailTypeParent()
         {
             try

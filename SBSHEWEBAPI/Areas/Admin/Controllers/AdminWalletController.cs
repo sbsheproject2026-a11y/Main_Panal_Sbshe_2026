@@ -24,12 +24,17 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
 
         }
 
+   
         [HttpGet("wallet-getall")]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get([FromQuery] int? franchiseId = null)
         {
             try
             {
-                var data = await _unitOfWork.Wallet.GetAll(0,112);
+                // agar franchiseId aaya hai toh us specific ka data
+                // warna saara data (0 = all, 112 = role/type jo bhi ho)
+                var data = franchiseId.HasValue
+                    ? await _unitOfWork.Wallet.GetAll(franchiseId.Value, 112)
+                    : await _unitOfWork.Wallet.GetAll(0, 112);
 
                 return Ok(new
                 {
@@ -46,6 +51,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                 });
             }
         }
+
         [HttpGet("penfing-wallet-getall")]
         public async Task<IActionResult> GetAllPending()
         {

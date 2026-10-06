@@ -16,6 +16,8 @@ namespace Application.Repository
         Task<List<CommissionAmount>> SetFranchiseCourseAmount(int Id,int FId);
         Task<List<CommissionAmount>> SetCourseCommission(int Id);
         Task<List<EntityUserResult>> getEmployeedropList(int Id);
+        Task<List<EntityUserResult>> getFranchise(int Id);
+        //Task<List<DashboardStatsDTO>> getDashboard(int? Id);
         Task<List<DropDownDTOs>> GetMasterDetailType(int Id);
         Task<List<DropDownDTOs>> GetMasterDetailTypeParent();
         Task<List<EntityWalletResult>> getwalletbalance(int Id);

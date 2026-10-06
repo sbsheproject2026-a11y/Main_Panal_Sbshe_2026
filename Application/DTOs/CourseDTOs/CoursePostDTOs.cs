@@ -21,6 +21,7 @@ namespace Application.DTOs
         public int? IsHighlight { get; set; }
         public int? IsActive { get; set; }
         public int? CategoryId { get; set; }
+        public int? StudyModeId { get; set; }
         public int? DepartmentId { get; set; }
         public int? TotalClass { get; set; }
         public int? ClassNo { get; set; }

@@ -47,6 +47,55 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
                 });
             }
         }
+        
+        [HttpGet("dropdown-franchise/{id}")]
+        public async Task<IActionResult> getFranchise(int Id)
+        {
+            try
+            {
+                var data = await _unitOfWork.DropDown.getFranchise(Id);
+
+                return Ok(new
+                {
+                    Success = true,
+                    Data = data
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = ex.Message
+                });
+            }
+        }
+        //[HttpGet("dashboard")]
+        //public async Task<IActionResult> getDashboard()
+        //{
+        //    try
+        //    {
+                 
+
+        //        var data = await _unitOfWork.DropDown.getDashboard(0);
+
+        //        return Ok(new
+        //        {
+        //            Success = true,
+        //            Data = data
+        //        });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(new
+        //        {
+        //            Success = false,
+        //            Message = ex.Message
+        //        });
+        //    }
+        //}
+        
+        
         [HttpGet("dropdown-employee-list/{id}")]
         public async Task<IActionResult> getEmployeedropList(int Id)
         {

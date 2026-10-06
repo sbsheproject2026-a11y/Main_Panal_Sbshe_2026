@@ -13,6 +13,7 @@ namespace Model
         public int? DepartmentId { get; set; }
         public int? TotalClass { get; set; }
         public int? ClassNo { get; set; }
+        public int? StudyModeId { get; set; }
 
 
 
