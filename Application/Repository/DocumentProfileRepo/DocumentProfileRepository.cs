@@ -51,6 +51,7 @@ namespace Application.Repository
                                 Code = reader["Code"]?.ToString(),
                                 Name = reader["Name"]?.ToString(),
                                 FatherName = reader["FatherName"]?.ToString(),
+                                FatherName1 = reader["FatherName1"]?.ToString(),
                                 Address = reader["Address"]?.ToString(),
                                 Pincode = reader["PinCode"]?.ToString(),
                                 MobileNo = reader["MobileNo"]?.ToString(),
@@ -63,6 +64,7 @@ namespace Application.Repository
                                 CentreName = reader["CenterName"]?.ToString(),
                                 InstituteName = reader["InstituteName"]?.ToString(),
                                 Relacition = reader["Relacition"]?.ToString(),
+                                EntityType = reader["EntityType"]?.ToString(),
                             };
                         }
                     }

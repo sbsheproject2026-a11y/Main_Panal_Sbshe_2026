@@ -12,6 +12,7 @@ namespace Application.Repository
         Task<string> Create(StudentPostDTOs model);
         Task<string> CreateAcademicDetail(int entityId, AcademicDetailDTO model);
         Task<StudentGetDTOs> GetById(int id);
+        Task<StudentGetDTOs> GetStudentDetailsPrint(int id);
         Task<string> Update(StudentPostDTOs model);
         Task<string> Delete(int Id);
         Task<string> insSendForConfirm(int Id, int FranchiseId, int ParentFranchiseId, int TotalAmount, string unic6);

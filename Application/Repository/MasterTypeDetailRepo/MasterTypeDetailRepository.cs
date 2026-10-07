@@ -33,6 +33,7 @@ namespace Application.Repository
                                   select new MasterTypeDetailGetDTOs
                                   {
                                       Id = pa.Id,
+                                      SrNo = pa.SrNo,
                                       Name = pa.Name,
                                       Code = pa.Code,
                                       MasterTypeId = pa.MasterTypeId,
@@ -63,6 +64,7 @@ namespace Application.Repository
                     MasterTypeId = model.MasterTypeId,
                     Date = DateTime.Now,
                     ParentId = model.ParentId ?? null,
+                    SrNo = model.SrNo ?? null,
                     IsActive = model.IsActive,
                     FilePath = model.FilePath,
                     IsDelete = 0
@@ -88,6 +90,7 @@ namespace Application.Repository
                     .Select(x => new MasterTypeDetailGetDTOs
                     {
                         Id = x.Id,
+                        SrNo = x.SrNo,
                         Name = x.Name,
                         Code = x.Code,
                         FilePath = x.FilePath,
@@ -119,6 +122,7 @@ namespace Application.Repository
                 data.Name = model.Name;
                 data.Code = model.Code;
                 data.ParentId = model.ParentId ?? null;
+                data.SrNo = model.SrNo;
                 data.IsActive = model.IsActive;
                 data.FilePath = model.FilePath;
 

@@ -1418,6 +1418,8 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                     mobileNo = data.MobileNo ?? "",
                     email = data.Email ?? "",
                     districtName = data.DistrictName ?? "",
+                    entityType = data.EntityType ?? "",
+                    fatherName1 = data.FatherName1 ?? "",
 
                     firstName = data.FirstName ?? "",
                     fatherName = data.FatherName ?? "",

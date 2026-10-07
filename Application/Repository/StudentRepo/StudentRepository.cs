@@ -382,6 +382,7 @@ namespace Application.Repository
                                 CourseTypeId = Convert.ToInt32(reader["CourseTypeId"]),
                                 ExamSessionId = Convert.ToInt32(reader["ExamSessionId"]),
 
+                               
                                 Name = reader["Name"]?.ToString(),
                                 StudentNameHindi = reader["StudentNameHindi"]?.ToString(),
                                 DOB = Convert.ToDateTime(reader["DOB"]),
@@ -402,6 +403,83 @@ namespace Application.Repository
                                 SignatureImageShow =  reader["SignatureImage"]?.ToString(),
                                 AadhaarCardFrantShow =   reader["AadhaarCardFrant"]?.ToString(),
                                 AadhaarCardBackShow =   reader["AadhaarCardBack"]?.ToString(),
+
+                                IdNumber = reader["IdNumber"]?.ToString()
+                            };
+
+                            if (data != null)
+                            {
+                                data.DOB1 = data.DOB?.ToString("yyyy-MM-dd");
+                            }
+                        }
+                    }
+                }
+
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error while fetching Student by id.", ex);
+            }
+        }
+        public async Task<StudentGetDTOs> GetStudentDetailsPrint(int id)
+        {
+            try
+            {
+                StudentGetDTOs data = null;
+
+                var connectionString = _context.Database.GetConnectionString();
+
+                using (var connection = new SqlConnection(connectionString))
+                using (var command = new SqlCommand("GetStudentDetail", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    command.Parameters.Add(new SqlParameter("@Id", id));
+
+                    await connection.OpenAsync();
+
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        if (await reader.ReadAsync())
+                        {
+                            data = new StudentGetDTOs
+                            {
+                                Id = Convert.ToInt32(reader["Id"]),
+                                LocationId = Convert.ToInt32(reader["LocationId"]),
+                                DistrictId = Convert.ToInt32(reader["DistrictId"]),
+                                ReferenceId = Convert.ToInt32(reader["ReferenceId"]),
+                                StateId = Convert.ToInt32(reader["StateId"]),
+                                GenderId = Convert.ToInt32(reader["GenderId"]),
+                                CasteCategoryId = Convert.ToInt32(reader["CasteCategoryId"]),
+
+                                CourseId = Convert.ToInt32(reader["CourseId"]),
+                                CourseCategoryId = Convert.ToInt32(reader["CourseCategoryId"]),
+                                CourseTypeId = Convert.ToInt32(reader["CourseTypeId"]),
+                                ExamSessionId = Convert.ToInt32(reader["ExamSessionId"]),
+                                Code = reader["Code"]?.ToString(),
+                                Name = reader["Name"]?.ToString(),
+                                StudentNameHindi = reader["StudentNameHindi"]?.ToString(),
+                                DOB = Convert.ToDateTime(reader["DOB"]),
+                                FatherNameHindi = reader["FatherNameHindi"]?.ToString(),
+                                FatherName = reader["FatherName"]?.ToString(),
+                                MotherName = reader["MotherName"]?.ToString(),
+                                Address = reader["Address"]?.ToString(),
+                                Pincode = reader["PinCode"]?.ToString(),
+                                MobileNo = reader["MobileNo"]?.ToString(),
+
+                                Email = reader["Email"]?.ToString(),
+                                SelfImage = reader["SelfImage"]?.ToString(),
+                                SignatureImage = reader["SignatureImage"]?.ToString(),
+                                AadhaarCardFrant = reader["AadhaarCardFrant"]?.ToString(),
+                                AadhaarCardBack = reader["AadhaarCardBack"]?.ToString(),
+
+                                SelfImageShow =   reader["SelfImage"]?.ToString(),
+                                SignatureImageShow =  reader["SignatureImage"]?.ToString(),
+                                AadhaarCardFrantShow =   reader["AadhaarCardFrant"]?.ToString(),
+                                AadhaarCardBackShow =   reader["AadhaarCardBack"]?.ToString(),
+                                CourseCode =   reader["CourseCode"]?.ToString(),
+                                Duration =   reader["Duration"]?.ToString(),
 
                                 IdNumber = reader["IdNumber"]?.ToString()
                             };
@@ -862,6 +940,8 @@ namespace Application.Repository
                     ex);
             }
         }
+
+
 
         
 

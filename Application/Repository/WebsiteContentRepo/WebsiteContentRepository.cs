@@ -185,7 +185,7 @@ namespace Application.Repository
                     ProductTypeId = model.ProductTypeId,
                     Date = DateTime.Now,
                     IsActive = model.IsActive,
-                    IsDelete = 1
+                    IsDelete = 0
                 };
 
                 await _context.ProductCategory.AddAsync(productcategory);
@@ -216,6 +216,7 @@ namespace Application.Repository
                         var productcategorydocument = new ProductCategoryDocument
                         {
                             ProductCategoryId = productcategory.Id,
+                            SrNo = item.SrNo,
                             Title = item.Title,
                             AltTag = item.AltTag,
                             Path = item.Path,

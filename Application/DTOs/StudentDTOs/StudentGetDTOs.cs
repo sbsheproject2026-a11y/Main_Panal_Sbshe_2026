@@ -19,6 +19,7 @@
         public string? ShortName { get; set; }
 
         public string? FatherName { get; set; }
+        public string? FatherName1 { get; set; }
         public string? FatherNameHindi { get; set; }
         public string? MotherName { get; set; }
         public string? MotherNameHindi { get; set; }
@@ -37,6 +38,7 @@
         public string? IdNumber { get; set; }
         public string? InstituteName { get; set; }
         public string? Relacition { get; set; }
+        public string? EntityType { get; set; }
         public string? CityName { get; set; }
         public string? DistrictName { get; set; }
         public string? StateName { get; set; }
@@ -70,6 +72,8 @@
         public string? Session { get; set; }
         public string? StudentYear { get; set; }
         public string? CentreName { get; set; }
+        public string? CourseCode { get; set; }
+        public string? Duration { get; set; }
         public string? BranchAddress { get; set; }
         public int? CasteCategory { get; set; }
         public int? CourseId { get; set; }

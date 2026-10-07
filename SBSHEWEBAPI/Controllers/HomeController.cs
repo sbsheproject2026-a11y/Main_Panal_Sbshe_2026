@@ -190,8 +190,9 @@ namespace SBSHEWEBAPI
 
                 model.ReferenceId = model.ReferenceId == 0 ? 3 : model.ReferenceId;
                 model.EmployeeId =  null;
-                model.UserName = $"{num}@SBSHE";
-                model.Password = $"SBSHE@{num}";
+                model.UserName = model.Email;
+              
+                model.Password = model.DOB?.ToString("ddMMyyyy") ?? "";
                 model.StudyModeId = model.StudyModeId == 0 ? 88 : model.StudyModeId;
 
 
@@ -230,6 +231,7 @@ namespace SBSHEWEBAPI
                     success = true,
                     message = msg,
                     data = model,
+                    userid= entityId,
                     printmsg = printmsg1
                 });
             }
@@ -912,6 +914,114 @@ namespace SBSHEWEBAPI
             }
         }
 
+
+
+        [HttpGet("student-details-print/{id}")]
+
+        public async Task<IActionResult> StudentDetailsPrint(int id)
+        {
+            try
+            {
+                var data = await _unitOfWork.Student.GetStudentDetailsPrint(id);
+
+                if (data == null)
+                {
+                    return NotFound(new { message = "Student not found" });
+                }
+
+                var academicDetailsData = await _unitOfWork.Student.GetAcademicDetailsById(id);
+                var franchisedata = await _unitOfWork.Frenchise.GetDetaiId((int)data.ReferenceId);
+
+                // 👇 Academic list me har row me levelName add karo
+                var academicWithLevel = new List<object>();
+                if (academicDetailsData != null && academicDetailsData.Any())
+                {
+                    foreach (var ac in academicDetailsData)
+                    {
+                        var levelMaster = await _unitOfWork.DropDown.GetMasterDetail(Convert.ToInt32(ac.LevelTypeId));
+                       
+                        academicWithLevel.Add(new
+                        {
+                            id = ac.Id,
+                            levelTypeId = ac.LevelTypeId,
+                            levelName = levelMaster?.Name ?? "",     // 👈 Level ka naam
+                            entityId = ac.EntityId,
+                            schoolCollege = ac.SchoolCollege,
+                            rollNo = ac.RollNo,
+                            boardUniversity = ac.BoardUniversity,
+                            percentageCgpa = ac.PercentageCgpa,
+                       
+                            fileName = ac.FileName
+                        });
+                    }
+                }
+
+                return Ok(new
+                {
+                    studentdata = new
+                    {
+                        id = data.Id,
+                        code = data.Code,
+                        name = data.Name,
+                        studentNameHindi = data.StudentNameHindi,
+                        fatherName = data.FatherName,
+                        fatherNameHindi = data.FatherNameHindi,
+                        motherName = data.MotherName,
+                        dob = data.DOB,
+                        genderId = data.GenderId,
+                        mobileNo = data.MobileNo,
+                        whatsAppNo = data.WhatsAppNo,
+                        email = data.Email,
+                        idNumber = data.IdNumber,
+                        address = data.Address,
+                        pincode = data.Pincode,
+                        stateId = data.StateId,
+                        districtId = data.DistrictId,
+                        locationId = data.LocationId,
+                        courseTypeId = data.CourseTypeId,
+                        courseCategoryId = data.CourseCategoryId,
+                        courseId = data.CourseId,
+                        courseCode = data.CourseCode,
+                        duration = data.Duration,
+                        examSessionId = data.ExamSessionId,
+                        casteCategoryId = data.CasteCategoryId,
+                        selfImageShow = data.SelfImageShow,
+                        signatureImageShow = data.SignatureImageShow,
+                        aadhaarCardFrantShow = data.AadhaarCardFrantShow,
+                        aadhaarCardBackShow = data.AadhaarCardBackShow
+                    },
+                    academicDetails = academicWithLevel,   // 👈 yahan bhej do
+                    franchise = franchisedata == null ? null : new
+                    {
+                        id = franchisedata.Id,
+                        code = franchisedata.Code,
+                        name = franchisedata.Name,
+                        fatherName = franchisedata.FatherName,
+                        address = franchisedata.Address,
+                        pincode = franchisedata.Pincode,
+                        mobileNo = franchisedata.MobileNo,
+                        whatsAppNo = franchisedata.WhatsAppNo,
+                        email = franchisedata.Email,
+                        cityName = franchisedata.CityName,
+                        districtName = franchisedata.DistrictName,
+                        stateName = franchisedata.StateName,
+                        affiliation = franchisedata.Affiliation
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(
+                    StatusCodes.Status500InternalServerError,
+                    new
+                    {
+                        message = "Error while fetching student data.",
+                        error = ex.Message,
+                        innerError = ex.InnerException?.Message
+                    }
+                );
+            }
+        }
     }
 
 

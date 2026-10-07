@@ -16,6 +16,7 @@ namespace Model
         public int? ParentId { get; set; }
         [Required]
         public int MasterTypeId { get; set; }
+        public int? SrNo { get; set; }
         public int? IsActive { get; set; }
         public int? IsDelete { get; set; }
 

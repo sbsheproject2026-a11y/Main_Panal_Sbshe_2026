@@ -22,6 +22,7 @@ namespace Application.Repository
         Task<List<DropDownDTOs>> GetMasterDetailTypeParent();
         Task<List<EntityWalletResult>> getwalletbalance(int Id);
         Task<List<DropDownDTOs>> GetParentCourse();
+        Task<DropDownDTOs> GetMasterDetail(int Id);
         Task<List<DropDownDTOs>> GetCourseClass();
 
         Task<List<DropDownDTOs>> GetState();

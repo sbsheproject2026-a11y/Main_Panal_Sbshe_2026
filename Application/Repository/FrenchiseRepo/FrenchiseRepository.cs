@@ -262,6 +262,57 @@ namespace Application.Repository
                 throw new Exception("Error while fetching Frenchise by id.", ex);
             }
         }
+        public async Task<FrenchiseGetDTOs> GetDetaiId(int id)
+        {
+            try
+            {
+                FrenchiseGetDTOs data = null;
+
+                var connectionString = _context.Database.GetConnectionString();
+
+                using (var connection = new SqlConnection(connectionString))
+                using (var command = new SqlCommand("getFrenchiseDetail", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    command.Parameters.Add(new SqlParameter("@Id", id));
+
+                    await connection.OpenAsync();
+
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        if (await reader.ReadAsync())
+                        {
+                            data = new FrenchiseGetDTOs
+                            {
+                                Id = Convert.ToInt32(reader["Id"]),
+                                Code = reader["Code"]?.ToString(),
+                               Name = reader["Name"]?.ToString(),
+                                FatherName = reader["FatherName"]?.ToString(),
+                                Address = reader["Address"]?.ToString(),
+                                Pincode = reader["PinCode"]?.ToString(),
+                                MobileNo = reader["MobileNo"]?.ToString(),
+                                WhatsAppNo = reader["WhatsAppNo"]?.ToString(),
+                                Email = reader["Email"]?.ToString(),
+                                Affiliation = reader["Affiliation"]?.ToString(),
+                                CityName = reader["CityName"]?.ToString(),
+                                DistrictName = reader["District"]?.ToString(),
+                                StateName = reader["State"]?.ToString(),
+                            
+                                
+                                
+                            };
+                        }
+                    }
+                }
+
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error while fetching Frenchise by id.", ex);
+            }
+        }
 
         public async Task<string> Update(FrenchisePostDTOs model)
         {

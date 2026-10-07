@@ -43,6 +43,7 @@ namespace Application.DTOs
         public string? AadhaarCardBack { get; set; }
         public DateTime? AdmissionDate { get; set; }
         public DateTime? DOB { get; set; }
+        public string? DOB1 { get; set; }
         public int? CasteCategory { get; set; }
         public int? CourseId { get; set; }
         public int? ClassId { get; set; }

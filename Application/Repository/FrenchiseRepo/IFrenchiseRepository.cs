@@ -11,6 +11,7 @@ namespace Application.Repository
         Task<string> Create(FrenchisePostDTOs model);
         Task<string> CreateInstituteDepartmentDetails(int entityId, FranchiseDepartmentDTOs model);
         Task<FrenchiseGetDTOs> GetById(int id);
+        Task<FrenchiseGetDTOs> GetDetaiId(int id);
         Task<string> Update(FrenchisePostDTOs model);
         Task<string> UpdateDocument(FrenchisePostDTOs model);
         Task<string> UpdatePassword(FranchiseUpdatePasswordDTOs model);

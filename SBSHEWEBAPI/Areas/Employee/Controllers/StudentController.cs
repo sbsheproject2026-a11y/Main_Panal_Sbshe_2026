@@ -132,8 +132,11 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
                 model.ReferenceId = model.ReferenceId == 0 ? Convert.ToInt32(userId) : model.ReferenceId;
 
                 model.EmployeeId = Convert.ToInt32(userId);
-                model.UserName = $"{num}@SBSHE";
-                model.Password = $"SBSHE@{num}";
+
+                model.UserName = model.Email;
+
+                model.Password = model.DOB?.ToString("ddMMyyyy") ?? "";
+
                 model.StudyModeId = model.StudyModeId == 0 ? 89 : model.StudyModeId;
                 model.GenderId = model.GenderId == 0 ? null : model.GenderId;
                 model.CasteCategory = model.CasteCategory == 0 ? null : model.CasteCategory;
@@ -293,8 +296,7 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
             try
             {
 
-                var academicDetailsData =
-                    await _unitOfWork.Student.GetAcademicDetailsById(id);
+                var academicDetailsData =  await _unitOfWork.Student.GetAcademicDetailsById(id);
 
 
 

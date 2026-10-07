@@ -10,6 +10,7 @@ namespace Application.DTOs.MasterTypeDTOs
         public string? FilePath { get; set; }
         public string? Code { get; set; }
         public DateTime? Date { get; set; }
+        public int? SrNo { get; set; }
         public int MasterTypeId { get; set; }
         public int? ParentId { get; set; }
         public int? IsActive { get; set; }
