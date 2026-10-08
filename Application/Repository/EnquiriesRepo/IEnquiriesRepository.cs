@@ -10,6 +10,11 @@ namespace Application.Repository
         Task<string> Create(EnquiriesPostDTOs model);
    
         Task<string> Delete(int Id);
+        Task<List<RTIApplicationsGetDTOs>> GetRTIAll();
+        Task<string> RTICreate(RTIApplicationsDTOs model);
+        Task<bool> UpdateRTIStatus(UpdateRTIStatusDTO model);
+        Task<RTIApplicationsGetDTOs> GetRTIByTraickId(string id);
+        Task<string> DeleteRTI(int Id);
 
     }
 }

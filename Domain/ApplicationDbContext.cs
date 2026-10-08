@@ -12,6 +12,8 @@ namespace Domain
         {
         }
 
+        public DbSet<RTIApplications> RTIApplications { get; set; }
+        public DbSet<RTIDocuments> RTIDocuments { get; set; }
         public DbSet<MasterType> MasterType { get; set; }
         public DbSet<CommissionAmount> CommissionAmount { get; set; }
         public DbSet<Lecture> Lecture { get; set; }
