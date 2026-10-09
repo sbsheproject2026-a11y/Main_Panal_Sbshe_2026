@@ -61,4 +61,29 @@
 
 
     }
+
+    public class OrderList
+    {
+        public string SrNo { get; set; }
+        public int EId { get; set; }
+        public int OId { get; set; }
+        public string FeeName { get; set; }
+        public string Name { get; set; }
+        public string MobileNo { get; set; }
+        public string EmailId { get; set; }
+        public string OrderId { get; set; }
+        public string ReferenceId { get; set; }
+        public decimal Amount { get; set; }
+        public string PayStatus { get; set; }
+        public string ODate { get; set; }
+        public string Address { get; set; }
+        public string PrintDate { get; set; }
+        public string PrintPayDate { get; set; }
+        public string AmountW { get; set; }
+
+        public int ProductId { get; set; }
+        public string GetwayPrm { get; set; }
+
+    }
+
 }

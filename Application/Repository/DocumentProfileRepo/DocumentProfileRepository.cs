@@ -24,11 +24,11 @@ namespace Application.Repository
         // Authority Letter Print Data
         // ---------------------------------------------
 
-        public async Task<StudentGetDTOs?> GetAuthorityLetterPrintData(int id)
+        public async Task<AuthorityLetterPrintGetDTOs?> GetAuthorityLetterPrintData(int id)
         {
             try
             {
-                StudentGetDTOs? data = null;
+                AuthorityLetterPrintGetDTOs? data = null;
 
                 using (var connection = new SqlConnection(_connectionString))
                 using (var command = new SqlCommand("GetAuthorityLetterPrintData", connection))
@@ -43,7 +43,7 @@ namespace Application.Repository
                     {
                         if (await reader.ReadAsync())
                         {
-                            data = new StudentGetDTOs
+                            data = new AuthorityLetterPrintGetDTOs
                             {
                                 Id = GetInt(reader, "Id"),
                                 EntityTypeId = GetInt(reader, "EntityTypeId"),
@@ -65,6 +65,16 @@ namespace Application.Repository
                                 InstituteName = reader["InstituteName"]?.ToString(),
                                 Relacition = reader["Relacition"]?.ToString(),
                                 EntityType = reader["EntityType"]?.ToString(),
+                                RegistrationLine = reader["RegistrationLine"]?.ToString(),
+                                CertificateTitle = reader["CertificateTitle"]?.ToString(),
+                                CertifyLine = reader["CertifyLine"]?.ToString(),
+                                CentreAddress = reader["CentreAddress"]?.ToString(),
+                                AppointedLine = reader["AppointedLine"]?.ToString(),
+                                SignatoryLine = reader["SignatoryLine"]?.ToString(),
+                                OfficeAddress = reader["OfficeAddress"]?.ToString(),
+                                CorporateOffice = reader["CorporateOffice"]?.ToString(),
+                                EmailLine = reader["EmailLine"]?.ToString(),
+                                WebsiteLine = reader["WebsiteLine"]?.ToString(),
                             };
                         }
                     }
@@ -79,6 +89,7 @@ namespace Application.Repository
                     ex);
             }
         }
+        
 
         // ---------------------------------------------
         // Diploma Print Data

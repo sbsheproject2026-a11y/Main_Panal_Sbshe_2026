@@ -262,6 +262,8 @@ namespace Application.Repository
                 throw new Exception("Error while fetching Frenchise by id.", ex);
             }
         }
+        
+        
         public async Task<FrenchiseGetDTOs> GetDetaiId(int id)
         {
             try

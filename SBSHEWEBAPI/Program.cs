@@ -7,11 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
 var builder = Microsoft.AspNetCore.Builder.WebApplication.CreateBuilder(args);
-
-// =====================================================
-// CORS
-// =====================================================
-builder.Services.AddCors(options =>
+ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
@@ -25,36 +21,20 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod();
     });
 });
-
-// =====================================================
-// Controllers
-// =====================================================
+ 
 builder.Services.AddControllers();
-
-// =====================================================
-// Database
-// =====================================================
+ 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection")
     )
 );
-
-// =====================================================
-// Swagger
-// =====================================================
+ 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
-// =====================================================
-// Dependency Injection
-// =====================================================
+ 
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-
-// =====================================================
-// JWT Configuration
-// =====================================================
 var jwtKey = builder.Configuration["Jwt:Key"];
 
 if (string.IsNullOrWhiteSpace(jwtKey))
@@ -85,60 +65,29 @@ builder.Services
             ClockSkew = TimeSpan.Zero
         };
     });
-
-// =====================================================
-// Build Application
-// =====================================================
+ 
 var app = builder.Build();
-
-// =====================================================
-// HTTPS
-// =====================================================
+ 
 app.UseHttpsRedirection();
-
-// =====================================================
-// Swagger
-// =====================================================
+ 
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-// =====================================================
-// Static Files
-// =====================================================
+ 
 app.UseStaticFiles();
-
-// =====================================================
-// Routing
-// =====================================================
+ 
 app.UseRouting();
-
-// =====================================================
-// CORS
-// IMPORTANT:
-// Must be after Routing
-// Must be before Authentication/Authorization
-// =====================================================
+ 
 app.UseCors("AllowFrontend");
-
-// =====================================================
-// Authentication
-// =====================================================
+ 
 app.UseAuthentication();
-
-// =====================================================
-// Authorization
-// =====================================================
+ 
 app.UseAuthorization();
-
-// =====================================================
-// Controllers
-// =====================================================
+//app.UseSession();
+ 
 app.MapControllers();
 
-// =====================================================
-// Run
-// =====================================================
+ 
 app.Run();

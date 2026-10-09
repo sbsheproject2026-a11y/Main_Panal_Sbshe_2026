@@ -46,7 +46,7 @@ namespace Application.Repository
                                   from mtddep in mtddep1.DefaultIfEmpty()
                                   join mtdcat in _context.MasterTypeDetail on p1.CategoryId equals mtdcat.Id into mtdcat1
                                   from mtdcat in mtdcat1.DefaultIfEmpty()
-                                  where pa.IsDelete == 0 && pa.ProductTypeId == null
+                                  where p.IsDelete == 0 && pa.ProductTypeId == null
 
                                   orderby p.Id descending
 

@@ -5,7 +5,8 @@ namespace Application.Repository
     public interface IDocumentProfileRepository
     {
 
-        Task<StudentGetDTOs?> GetAuthorityLetterPrintData(int id);
+        Task<AuthorityLetterPrintGetDTOs?> GetAuthorityLetterPrintData(int id);
+       
         Task<StudentGetDTOs> GetDiplomaPrintData(int id);
         Task<StudentGetDTOs> GetMarksheetPrintData(string id);
         Task<List<GetStudentSubjectMarksGetDTOs>> PrintStudentSubjectMarks(string id);

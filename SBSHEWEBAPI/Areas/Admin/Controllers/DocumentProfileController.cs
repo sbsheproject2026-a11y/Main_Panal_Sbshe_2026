@@ -1429,6 +1429,19 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                     endDate = data.EndDate ?? "",
                     startDate = data.StartDate ?? "",
                     address = data.Address ?? "",
+                    //data
+                    registrationLine = data.RegistrationLine ?? "",
+                    certificateTitle = data.CertificateTitle ?? "",
+                    certifyLine = data.CertifyLine ?? "",
+                    centreAddress = data.CentreAddress ?? "",
+                    appointedLine = data.AppointedLine ?? "",
+                    signatoryLine = data.SignatoryLine ?? "",
+                    officeAddress = data.OfficeAddress ?? "",
+
+                    corporateOffice = data.CorporateOffice ?? "",
+                    emailLine = data.EmailLine ?? "",
+                    websiteLine = data.WebsiteLine ?? "",
+                    //image
                     selfImage = selfImageBase64,
                     stempImage = stempImageBase64,
                     singhImage = sighImageBase64,
@@ -1454,7 +1467,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                 );
             }
         }
-
+        
 
     }
 }
