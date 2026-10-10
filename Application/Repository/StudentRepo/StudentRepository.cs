@@ -312,6 +312,60 @@ namespace Application.Repository
                 return "Something went wrong: " + ex.Message;
             }
         }
+        public async Task<string> CreateNew(StudentPostDTOs model)
+        {
+            try
+            {
+                var connectionString = _context.Database.GetConnectionString();
+
+                using (var connection = new SqlConnection(connectionString))
+                using (var command = new SqlCommand("InsStudentNew", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    command.Parameters.Add(new SqlParameter("@Code", model.Code));
+                    command.Parameters.Add(new SqlParameter("@Name", model.Name));
+                    command.Parameters.Add(new SqlParameter("@StudentNameHindi", model.StudentNameHindi));
+                    command.Parameters.Add(new SqlParameter("@FatherName", model.FatherName));
+                    command.Parameters.Add(new SqlParameter("@FatherNameHindi", model.FatherNameHindi));
+                    command.Parameters.Add(new SqlParameter("@MotherName", model.MotherName));
+                    command.Parameters.Add(new SqlParameter("@MotherNameHindi", model.MotherNameHindi));
+                    command.Parameters.Add(new SqlParameter("@LocationId", model.LocationId));
+                    command.Parameters.Add(new SqlParameter("@Address", model.Address));
+                    command.Parameters.Add(new SqlParameter("@Pincode", model.Pincode));
+                    command.Parameters.Add(new SqlParameter("@MobileNo", model.MobileNo));
+                    command.Parameters.Add(new SqlParameter("@Email", model.Email));
+                    command.Parameters.Add(new SqlParameter("@UserName", model.UserName));
+                    command.Parameters.Add(new SqlParameter("@Password", model.Password));
+                    command.Parameters.Add(new SqlParameter("@ReferenceId", model.ReferenceId));
+                    command.Parameters.Add(new SqlParameter("@PasswordHash", model.PasswordHash));
+                    command.Parameters.Add(new SqlParameter("@GenderId", model.GenderId));
+                    command.Parameters.Add(new SqlParameter("@IdNumber", model.IdNumber));
+                    command.Parameters.Add(new SqlParameter("@SelfImage", model.SelfImage));
+                    command.Parameters.Add(new SqlParameter("@SignatureImage", model.SignatureImage));
+                    command.Parameters.Add(new SqlParameter("@AadhaarCardFrant", model.AadhaarCardFrant));
+                    command.Parameters.Add(new SqlParameter("@AadhaarCardBack", model.AadhaarCardBack));
+                    command.Parameters.Add(new SqlParameter("@IsActive", model.IsActive));
+                    command.Parameters.Add(new SqlParameter("@AdmissionDate", model.AdmissionDate));
+                    command.Parameters.Add(new SqlParameter("@DOB", model.DOB));
+                    command.Parameters.Add(new SqlParameter("@CasteCategory", model.CasteCategory));
+                    command.Parameters.Add(new SqlParameter("@CourseId", model.CourseId));
+                    command.Parameters.Add(new SqlParameter("@ExamSessionId", model.ExamSessionId));
+                    command.Parameters.Add(new SqlParameter("@StudyModeId", model.StudyModeId));
+                    command.Parameters.Add(new SqlParameter("@EmployeeId", model.EmployeeId));
+
+                    await connection.OpenAsync();
+
+                    var result = await command.ExecuteScalarAsync();
+
+                    return result?.ToString() ?? "Student created successfully";
+                }
+            }
+            catch (Exception ex)
+            {
+                return "Something went wrong: " + ex.Message;
+            }
+        }
 
 
         public async Task<string> CreateAcademicDetail(int entityId, AcademicDetailDTO model)

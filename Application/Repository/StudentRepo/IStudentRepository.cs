@@ -10,6 +10,7 @@ namespace Application.Repository
         Task<List<StudentGetDTOs>> GetConfirmToAdmin( int pageNo, int pageSize, string? search);
         Task<(List<StudentGetDTOs> StudentList, int TotalCount)> GetConfirmAddmissions(int? referenceId, int? pageNo, int? pageSize, string? search, int? studyModeId);
         Task<string> Create(StudentPostDTOs model);
+        Task<string> CreateNew(StudentPostDTOs model);
         Task<string> CreateAcademicDetail(int entityId, AcademicDetailDTO model);
         Task<StudentGetDTOs> GetById(int id);
         Task<StudentGetDTOs> GetStudentDetailsPrint(int id);

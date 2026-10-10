@@ -191,16 +191,18 @@ namespace SBSHEWEBAPI
                 model.ReferenceId = model.ReferenceId == 0 ? 3 : model.ReferenceId;
                 model.EmployeeId =  null;
                 model.UserName = model.Email;
-              
+                model.GenderId = model.GenderId == 0 ? 43 : model.GenderId;
+                model.CasteCategory = model.CasteCategory == 0 ? 60 : model.CasteCategory;
                 model.Password = model.DOB?.ToString("ddMMyyyy") ?? "";
                 model.StudyModeId = model.StudyModeId == 0 ? 88 : model.StudyModeId;
 
 
                 model.PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password); // Hashed Password
 
-                var result = (await _unitOfWork.Student.Create(model)).Split(",");
+                var result = (await _unitOfWork.Student.CreateNew(model)).Split(",");
                 var msg = result[0];
                 var entityId = result[1];
+                var oId = result[2];
 
                 if (msg == "Successfully")
                 {
@@ -212,27 +214,21 @@ namespace SBSHEWEBAPI
                             await _unitOfWork.Student.CreateAcademicDetail(Convert.ToInt32(entityId), academic);
                         }
                     }
+                    // ✅✅✅ SESSION SET KARO (zaroori hai!)
+                    HttpContext.Session.SetString("User", entityId);
+                    HttpContext.Session.SetString("Key", oId);
                 }
                 // Default message
-                string printmsg1 = string.Empty;
-
-                if (msg == "Successfully")
-                {
-                    printmsg1 =
-                      $"Dear {model.Name},\n" +
-                      $"Congratulations! Your student registration has been submitted successfully.\n" +
-                      $"Our team will review your registration details and contact you shortly regarding the next steps.\n" +
-                      $"Thank you for registering with us. We look forward to supporting you in your academic journey.";
-
-                }
+               
 
                 return Ok(new
                 {
                     success = true,
                     message = msg,
                     data = model,
-                    userid= entityId,
-                    printmsg = printmsg1
+                    userid = entityId,
+                    paymentid = oId
+
                 });
             }
             catch (Exception ex)
@@ -246,7 +242,111 @@ namespace SBSHEWEBAPI
             }
         }
 
+        // ✅ Request Model
+       
+ 
+        [HttpPost("amount-detail")]
+        public async Task<IActionResult> PaymentAmountDetails([FromBody] AmountDetailRequest request)
+        {
+            try
+            {
+                // ✅ Validation
+                if (request == null || request.UserId <= 0 || request.OId <= 0)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "userId and oId are required"
+                    });
+                }
 
+                // ✅ Order details fetch karo
+                var list = _unitOfWork.GetWayWorking
+                            .OrderListAll("Print", request.OId, request.UserId);
+
+                if (list == null || list.Count == 0)
+                {
+                    return NotFound(new
+                    {
+                        success = false,
+                        message = "Order not found"
+                    });
+                }
+
+                string order_id = list[0].OrderId;
+                decimal totalAmountWithGst = list[0].Amount;   // 👈 DB se (already with GST)
+                string productId = Convert.ToString(list[0].ProductId);
+
+                // ✅ GST Percent (aapke hisaab se)
+                decimal cgstPercent = 9;
+                decimal sgstPercent = 9;
+                decimal totalGstPercent = cgstPercent + sgstPercent;  // 18%
+
+                // ✅ GST ko alag karo (Reverse Calculation)
+                // Total = Base + GST
+                // Total = Base × (1 + GST%/100)
+                // Base = Total / (1 + GST%/100) = Total × 100 / (100 + GST%)
+
+                decimal divisor = 100 + totalGstPercent;   // 118
+
+                decimal baseAmount = Math.Round(
+                    totalAmountWithGst * 100 / divisor, 2
+                );
+
+                decimal totalGst = Math.Round(
+                    totalAmountWithGst - baseAmount, 2
+                );
+
+                // ✅ CGST aur SGST alag karo
+                decimal cgst = Math.Round(
+                    totalAmountWithGst * cgstPercent / divisor, 2
+                );
+
+                decimal sgst = Math.Round(
+                    totalAmountWithGst * sgstPercent / divisor, 2
+                );
+
+                // ✅ Final total (DB se jo aaya wahi hai)
+                decimal total = totalAmountWithGst;
+
+                return Ok(new
+                {
+                    success = true,
+                    data = new
+                    {
+                        orderId = order_id,
+                        productId = productId,
+
+                        // Base Amount (bina GST)
+                        courseFee = baseAmount,
+
+                        // CGST
+                        cgstPercent = cgstPercent,
+                        cgst = cgst,
+
+                        // SGST
+                        sgstPercent = sgstPercent,
+                        sgst = sgst,
+
+                        // Total GST
+                        totalGstPercent = totalGstPercent,
+                        totalGst = totalGst,
+
+                        // Final Total (with GST)
+                        total = total
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Please try again!",
+                    error = ex.Message
+                });
+            }
+        }
         [HttpPost("study-center-create")]
         public async Task<IActionResult> Create([FromForm] FrenchisePostDTOs model)
         {

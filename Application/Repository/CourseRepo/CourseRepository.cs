@@ -425,7 +425,7 @@ namespace Application.Repository
 
             try
             {
-                var product = await _context.Product.FirstOrDefaultAsync(x => x.ProductCategoryId == model.Id);
+                var product = await _context.Product.FirstOrDefaultAsync(x => x.Id == model.Id);
                 var productcategory = await _context.ProductCategory.FirstOrDefaultAsync(x => x.Id == product.ProductCategoryId);
 
                 if (product == null)

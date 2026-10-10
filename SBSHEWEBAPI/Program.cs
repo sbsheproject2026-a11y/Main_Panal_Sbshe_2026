@@ -1,4 +1,4 @@
-using Application.Helper;
+﻿using Application.Helper;
 using Application.Repository.LoginRepo;
 using Domain;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -7,7 +7,22 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
 var builder = Microsoft.AspNetCore.Builder.WebApplication.CreateBuilder(args);
- builder.Services.AddCors(options =>
+
+
+// ✅ 1. Session Services Add Karein
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+    options.Cookie.SameSite = SameSiteMode.None;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+});
+
+builder.Services.AddControllers();
+
+builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
@@ -22,7 +37,7 @@ var builder = Microsoft.AspNetCore.Builder.WebApplication.CreateBuilder(args);
     });
 });
  
-builder.Services.AddControllers();
+
  
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(
@@ -85,7 +100,7 @@ app.UseCors("AllowFrontend");
 app.UseAuthentication();
  
 app.UseAuthorization();
-//app.UseSession();
+app.UseSession();
  
 app.MapControllers();
 

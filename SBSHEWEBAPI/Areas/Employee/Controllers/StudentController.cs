@@ -138,8 +138,8 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
                 model.Password = model.DOB?.ToString("ddMMyyyy") ?? "";
 
                 model.StudyModeId = model.StudyModeId == 0 ? 89 : model.StudyModeId;
-                model.GenderId = model.GenderId == 0 ? null : model.GenderId;
-                model.CasteCategory = model.CasteCategory == 0 ? null : model.CasteCategory;
+                model.GenderId = model.GenderId == 0 ? 43 : model.GenderId;
+                model.CasteCategory = model.CasteCategory == 0 ? 60 : model.CasteCategory;
                 
 
 
