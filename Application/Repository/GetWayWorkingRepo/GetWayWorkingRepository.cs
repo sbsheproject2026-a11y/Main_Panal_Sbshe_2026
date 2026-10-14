@@ -210,6 +210,8 @@ namespace Application.Repository
                             OrderId = Dr["OrderId"].ToString(),
                             ReferenceId = Dr["ReferenceId"].ToString(),
                             Amount = Convert.ToDecimal(Dr["Amount"]),
+                            PaidAmount = Convert.ToDecimal(Dr["PaidAmount"]),
+                            PendingAmount = Convert.ToDecimal(Dr["PendingAmount"]),
                             PayStatus = Dr["PayStatus"].ToString(),
                             ODate = Dr["ODate"].ToString(),
                             Address = Dr["Address"].ToString(),
