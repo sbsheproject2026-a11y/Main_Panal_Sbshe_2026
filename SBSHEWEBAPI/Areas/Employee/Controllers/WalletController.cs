@@ -2,6 +2,8 @@
 using Application.DTOs.MasterTypeDTOs;
 using Application.Helper;
 using Microsoft.AspNetCore.Mvc;
+using Razorpay.Api;
+using System.Security.Cryptography;
 
 namespace SBSHEWEBAPI.Areas.Employee.Controllers
 {
@@ -122,6 +124,67 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
                 {
                     success = true,
                     message = result
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Something went wrong.",
+                    error = ex.Message
+                });
+            }
+        }
+        [HttpPost("emp-online-wallet-create")]
+
+     
+        public async Task<IActionResult> Createonline([FromForm] WalletPostDTOs model)
+        {
+            try
+            {
+
+                if (model == null)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Request data is required."
+                    });
+                }
+
+
+                if (!model.FranchiseId.HasValue || model.FranchiseId.Value <= 0)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Franchise is required."
+                    });
+                }
+                if (!model.TotalAmount.HasValue || model.TotalAmount.Value <= 0)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Amount is required."
+                    });
+                }
+                
+
+                 var result = (await _unitOfWork.GetWayWorking.GenrateOrder((int)model.FranchiseId,Convert.ToDecimal(model.TotalAmount),4)).Split(",");
+                var msg = result[0];
+                var entityId = result[1];
+                var oId = result[2];
+                HttpContext.Session.SetString("User", entityId);
+                HttpContext.Session.SetString("Key", oId);
+                // ✅ IDs frontend ko bhi bhejo
+                return Ok(new
+                {
+                    success = true,
+                    message = msg,
+                    userid = entityId,      // ← Ye frontend bhejega payment pe
+                    paymentid = oId         // ← Ye bhi
                 });
             }
             catch (Exception ex)

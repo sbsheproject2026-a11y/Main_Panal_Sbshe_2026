@@ -265,12 +265,35 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
                 });
             }
         }
+       
         [HttpGet("dropdown-emp-getCourse/{id}")]
-        public async Task<IActionResult> GetCourse(int id)
+        public async Task<IActionResult> GetCourse(int id,int courseTypeId)
         {
             try
             {
-                var data = await _unitOfWork.DropDown.getCourseStudent(id);
+                var data = await _unitOfWork.DropDown.getCourseStudent(id, courseTypeId);
+
+                return Ok(new
+                {
+                    Success = true,
+                    Data = data
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = ex.Message
+                });
+            }
+        }
+        [HttpGet("dropdown-emp-onlinecourse/{id}")]
+        public async Task<IActionResult> GetOnlineCourse(int id,int courseTypeId)
+        {
+            try
+            {
+                var data = await _unitOfWork.DropDown.getCourseOnlineStudent(id, courseTypeId);
 
                 return Ok(new
                 {
@@ -318,6 +341,28 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
             try
             {
                 var data = await _unitOfWork.DropDown.GetMasterSession();
+
+                return Ok(new
+                {
+                    Success = true,
+                    Data = data
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = ex.Message
+                });
+            }
+        }
+        [HttpGet("dropdown-emp-online-session")]
+        public async Task<IActionResult> GetOnlineSession()
+        {
+            try
+            {
+                var data = await _unitOfWork.DropDown.GetOnlineSession();
 
                 return Ok(new
                 {

@@ -48,10 +48,16 @@ namespace Application.Repository
                 .FromSqlRaw("EXEC dbo.getCourseCategory @Id = {0}", Id)
                 .ToListAsync();
         }
-        public async Task<List<EntityUserResult>> getCourseStudent(int Id)
+        public async Task<List<EntityUserResult>> getCourseStudent(int Id,int courseTypeId)
         {
             return await _context.EntityUserResult
-                .FromSqlRaw("EXEC dbo.getCourseStudent @Id = {0}", Id)
+                .FromSqlRaw("EXEC dbo.getCourseStudent @Id = {0},@courseTypeId = {1}", Id, courseTypeId)
+                .ToListAsync();
+        }
+        public async Task<List<EntityUserResult>> getCourseOnlineStudent(int Id,int courseTypeId)
+        {
+            return await _context.EntityUserResult
+                .FromSqlRaw("EXEC dbo.getCourseStudentonline @Id = {0},@courseTypeId = {1}", Id, courseTypeId)
                 .ToListAsync();
         }
         public async Task<List<CommissionAmount>> SetFranchiseCourseAmount(int Id,int FId)
@@ -114,6 +120,29 @@ namespace Application.Repository
             try
             {
                 var data = await _context.MasterSession.Where(x => x.IsActive == 1 && x.Status == 1)
+                    .OrderByDescending(x => x.Id)
+                    .Select(x => new DropDownDTOs
+                    {
+                        Id = x.Id,
+                        Name = x.Name
+
+
+                    })
+                    .ToListAsync();
+
+                return data;
+            }
+            catch (Exception ex)
+            {
+
+                throw new Exception("Error while fetching MasterType data.", ex);
+            }
+        }
+        public async Task<List<DropDownDTOs>> GetOnlineSession()
+        {
+            try
+            {
+                var data = await _context.MasterSession.Where(x => x.IsActive == 1 && x.Status == 1 && x.MasterSessionId== 141)
                     .OrderByDescending(x => x.Id)
                     .Select(x => new DropDownDTOs
                     {

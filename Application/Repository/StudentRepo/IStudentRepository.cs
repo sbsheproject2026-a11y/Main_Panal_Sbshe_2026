@@ -30,6 +30,7 @@ namespace Application.Repository
         Task<string> AddClassStudent(StudentClassDto model);
         Task<List<AcademicDetailGetDTO>> GetAcademicDetailsById(int id);
         Task<string> viewbalview(int FranchiseId, int aa);
+        Task<List<StudentGetDTOs>> GetStudentProfileData(int? referenceId);
 
     }
 }

@@ -177,6 +177,40 @@ namespace Application.Repository
                 return "Something went wrong: " + ex.Message;
             }
         }
+        public async Task<string> CreateOnline(int eId, decimal amount)
+        {
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                using var command = new SqlCommand("InsWalletRecharage", connection);
+
+                command.CommandType = CommandType.StoredProcedure;
+
+                command.Parameters.Add(new SqlParameter("@EntityId", 112));
+                command.Parameters.Add(new SqlParameter("@TotalAmount", amount));
+                command.Parameters.Add(new SqlParameter("@Remark", "Wallet Recharge"));
+                command.Parameters.Add(new SqlParameter("@EntryDate", DateTime.Now));
+                command.Parameters.Add(new SqlParameter("@FranchiseId", eId));
+                command.Parameters.Add(new SqlParameter("@ParentFranchiseId", 1));
+                command.Parameters.Add(new SqlParameter("@PayMode", 144));
+                command.Parameters.Add(new SqlParameter("@Status", 116));
+                command.Parameters.Add(new SqlParameter("@AccountId", 117));
+                command.Parameters.Add(new SqlParameter("@VoucherType", 106));
+                 
+
+
+
+                await connection.OpenAsync();
+
+                var result = await command.ExecuteScalarAsync();
+
+                return result?.ToString() ?? "Wallet created successfully";
+            }
+            catch (Exception ex)
+            {
+                return "Something went wrong: " + ex.Message;
+            }
+        }
 
 
 

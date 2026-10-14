@@ -60,7 +60,28 @@ namespace SBSHEWEBAPI
             }
         }
 
+        [HttpGet("website-content/{id}")]
+        public async Task<IActionResult> GetMaster(int id)
+        {
+            var data = await _unitOfWork.WebsiteContent.GetWebsiteMaster(id);
 
+            if (data == null || !data.Any())
+
+                return NotFound("data not found");
+
+            return Ok(data);
+        }
+
+        [HttpGet("website-course/{id:int}")]
+        public async Task<IActionResult> GetCourse(int id)
+        {
+            var data = await _unitOfWork.WebsiteContent.GetCourseData(id);
+
+            if (data == null || !data.Any())
+                return NotFound("Data not found");
+
+            return Ok(data);
+        }
 
 
     }

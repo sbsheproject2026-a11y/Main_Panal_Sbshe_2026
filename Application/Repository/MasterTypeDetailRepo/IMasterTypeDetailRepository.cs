@@ -12,8 +12,10 @@ namespace Application.Repository
         Task<MasterTypeDetailGetDTOs> GetById(int id);
         Task<string> Update(MasterTypeDetailPostDTOs model);
         Task<string> Delete(int Id);
+ 
 
-      
+
+
 
     }
 }

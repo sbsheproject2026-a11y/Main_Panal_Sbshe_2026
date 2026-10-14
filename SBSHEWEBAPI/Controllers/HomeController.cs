@@ -1,5 +1,6 @@
 ﻿using Application.DTOs;
 using Application.Helper;
+using Application.Repository;
 using ClosedXML.Excel;
 using Microsoft.AspNetCore.Mvc;
 using QRCoder;
@@ -18,13 +19,16 @@ namespace SBSHEWEBAPI
         private readonly IConfiguration _configuration;
         private readonly IWebHostEnvironment _environment;
         private readonly Microsoft.AspNetCore.Hosting.IHostingEnvironment _appEnvironment;
+        private readonly ILogger<HomeController> _logger;
+        private static readonly SemaphoreSlim _fileLock = new(50, 50);
 
-        public HomeController(IUnitOfWork unitOfWork, IConfiguration configuration, IWebHostEnvironment environment, Microsoft.AspNetCore.Hosting.IHostingEnvironment appEnvironment)
+        public HomeController(IUnitOfWork unitOfWork, IConfiguration configuration, IWebHostEnvironment environment, Microsoft.AspNetCore.Hosting.IHostingEnvironment appEnvironment, ILogger<HomeController> logger)
         {
             _unitOfWork = unitOfWork;
             _configuration = configuration;
             _environment = environment;
             _appEnvironment = appEnvironment;
+            _logger = logger;
         }
 
         [HttpPost("acc-create")]
@@ -84,30 +88,103 @@ namespace SBSHEWEBAPI
                 // Default message
                 string printmsg1 = string.Empty;
 
-                // Only generate success message when registration is successful
+                // ===== Success Case =====
                 if (msg == "Successfully")
                 {
                     printmsg1 =
-                        $"Dear {model.Name},\n" +
-                        $"Congratulations! Your Admission Consultant registration has been submitted successfully.\n" +
+                        $"Dear {model.Name},\n\n" +
+                        $"Congratulations! Your Admission Consultant registration has been submitted successfully.\n\n" +
                         $"Login Details:\n" +
                         $"Username: {model.UserName}\n" +
-                        $"Password: {model.Password}\n" +
-                        $"Please keep your login credentials safe. " +
-                        $"Our team will review your registration details and contact you shortly regarding the next steps.\n" +
-                        $"Thank you for registering with us.";
+                        $"Password: {model.Password}\n\n" +
+                        $"Please keep your login credentials safe and do not share them with anyone.\n" +
+                        $"You can now log in to your Admission Consultant dashboard to access your referred students, commissions, and reports.\n" +
+                        $"Our team will review your registration details and contact you shortly regarding the next steps.\n\n" +
+                        $"Thank you for registering with us.\n" +
+                        $"Regards,\n" +
+                        $"Team Shaheed Bhagat Singh Health & Education";
+
+                    // ===== Email Bhejo =====
+                    // Local variables copy karo — Task.Run safe ke liye
+                    string emailTo = model.Email;
+                    string emailName = model.Name;
+                    string emailUserName = model.UserName;
+                    string emailPassword = model.Password;
+                    string emailMobile = model.MobileNo;
+
+                    string subject = "Welcome – Admission Consultant Registration Successful 🤝";
+
+                    string emailBody = $@"
+<div style='font-family:Arial,sans-serif;max-width:600px;margin:auto;
+            border:1px solid #e5e7eb;border-radius:12px;overflow:hidden'>
+  <div style='background:#2563eb;color:#fff;padding:20px;text-align:center'>
+    <h2 style='margin:0'>Welcome to Shaheed Bhagat Singh Health &amp; Education 🎓</h2>
+    <p style='margin:6px 0 0 0;font-size:14px'>Admission Consultant Registration</p>
+  </div>
+  <div style='padding:24px;color:#111827'>
+    <p>Dear <b>{emailName}</b>,</p>
+    <p>Congratulations! Your <b>Admission Consultant</b> registration has been submitted successfully. 🎉</p>
+    <p><b>Login Details:</b></p>
+    <table style='border-collapse:collapse;margin:10px 0'>
+      <tr>
+        <td style='padding:8px 14px;background:#f3f4f6;border:1px solid #e5e7eb'><b>Username</b></td>
+        <td style='padding:8px 14px;border:1px solid #e5e7eb'>{emailUserName}</td>
+      </tr>
+      <tr>
+        <td style='padding:8px 14px;background:#f3f4f6;border:1px solid #e5e7eb'><b>Password</b></td>
+        <td style='padding:8px 14px;border:1px solid #e5e7eb'>{emailPassword}</td>
+      </tr>
+    </table>
+    <p>You can now log in to your <b>Admission Consultant</b> dashboard to access your referred students, commissions, and reports.</p>
+    <p style='background:#fef3c7;padding:12px;border-radius:8px;border-left:4px solid #f59e0b'>
+      ⚠️ <b>Important:</b> Please keep your login credentials safe and do not share them with anyone.
+    </p>
+    <p>Our team will review your registration details and contact you shortly regarding the next steps.</p>
+    <p style='text-align:center;margin:28px 0'>
+      <a href='https://shaheedbhagatsinghhealthandeducation.com/'
+         style='background:#2563eb;color:#fff;padding:12px 24px;
+                text-decoration:none;border-radius:8px;display:inline-block'>
+        Login Now
+      </a>
+    </p>
+    <p>If you face any issues, please contact us at contact@shaheedbhagatsinghhealthandeducation.com.</p>
+    <p>Thank you for registering with us.</p>
+    <p>Regards,<br/><b>Team Shaheed Bhagat Singh Health &amp; Education</b></p>
+  </div>
+  <div style='background:#f3f4f6;padding:14px;text-align:center;
+              font-size:12px;color:#6b7280'>
+    © 2026 Shaheed Bhagat Singh Health &amp; Education. All rights reserved.
+  </div>
+</div>";
+
+                    // Background me bhejo — response slow na ho
+                    _ = Task.Run(async () =>
+                    {
+                        try
+                        {
+                            Email_sms obj = new Email_sms();
+                            await obj.SendEmailAsync(emailTo, subject, emailBody, isHtml: true);
+                        }
+                        catch (Exception emailEx)
+                        {
+                            _logger.LogError(emailEx, "Email failed to {Email}", emailTo);
+                        }
+                    });
                 }
 
+                // ===== Response =====
                 return Ok(new
                 {
                     success = msg == "Successfully",
                     data = model,
                     message = msg,
                     printmsg = printmsg1
+
                 });
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Registration error");
                 return BadRequest(new
                 {
                     success = false,
@@ -118,108 +195,174 @@ namespace SBSHEWEBAPI
         }
 
 
-
-
-
         [HttpPost("new-student-create")]
         public async Task<IActionResult> Create([FromForm] StudentPostDTOs model)
         {
+            // ✅ Static folder — har request pe create nahi hoga
+            string folderPath = Path.Combine(_environment.WebRootPath, "Uploads");
+
+            // ✅ Static semaphore — disk IO throttle (max 50 parallel writes)
+            // Class level pe rakho (neeche bataya hai)
+            // private static readonly SemaphoreSlim _fileLock = new(50, 50);
+
+            var uploadedFiles = new List<string>();
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+
             try
             {
-
-                if (model == null)
+                // =========================
+                // 1. Validation
+                // =========================
+                if (model == null || string.IsNullOrWhiteSpace(model.Name))
                 {
-                    return BadRequest(new
-                    {
-                        Success = false,
-                        Message = "data is required"
-                    });
-                }
-                if (model.Name == null)
-                {
-                    return BadRequest(new
-                    {
-                        Success = false,
-                        Message = "data is required"
-                    });
+                    return BadRequest(new { success = false, message = "Data is required" });
                 }
 
+                if (string.IsNullOrWhiteSpace(model.Email))
+                {
+                    return BadRequest(new { success = false, message = "Email is required" });
+                }
 
-                string folderPath = Path.Combine(_environment.WebRootPath, "Uploads");
-                Directory.CreateDirectory(folderPath);
+                // =========================
+                // 2. Folder Create (once)
+                // =========================
+                if (!Directory.Exists(folderPath))
+                {
+                    Directory.CreateDirectory(folderPath);
+                }
 
+                // =========================
+                // 3. File Upload Helper (Local)
+                // =========================
                 async Task<string> UploadFile(IFormFile file)
                 {
-                    string fileName = $"{Guid.NewGuid():N}"[..8] + "_" +
-                                      Path.GetFileName(file.FileName);
-
+                    // ✅ Full Guid — no collision
+                    string fileName = $"{Guid.NewGuid():N}_{Path.GetFileName(file.FileName)}";
                     string filePath = Path.Combine(folderPath, fileName);
 
-                    using var stream = new FileStream(filePath, FileMode.Create);
-                    await file.CopyToAsync(stream);
+                    // ✅ Semaphore — disk IO throttle
+                    await _fileLock.WaitAsync();
+                    try
+                    {
+                        using var stream = new FileStream(
+                            filePath,
+                            FileMode.CreateNew,
+                            FileAccess.Write,
+                            FileShare.None,
+                            bufferSize: 81920,
+                            useAsync: true);
 
+                        await file.CopyToAsync(stream);
+                    }
+                    finally
+                    {
+                        _fileLock.Release();
+                    }
+
+                    lock (uploadedFiles) { uploadedFiles.Add(fileName); }
                     return fileName;
                 }
 
+                // =========================
+                // 4. ✅ PARALLEL File Uploads
+                // =========================
+                var uploadTasks = new List<Task>();
+
                 if (model.SelfImage1 != null && model.SelfImage1.Length > 0)
-                    model.SelfImage = await UploadFile(model.SelfImage1);
+                    uploadTasks.Add(Task.Run(async () =>
+                        model.SelfImage = await UploadFile(model.SelfImage1)));
 
                 if (model.SignatureImage1 != null && model.SignatureImage1.Length > 0)
-                    model.SignatureImage = await UploadFile(model.SignatureImage1);
+                    uploadTasks.Add(Task.Run(async () =>
+                        model.SignatureImage = await UploadFile(model.SignatureImage1)));
 
                 if (model.AadhaarCardFrant1 != null && model.AadhaarCardFrant1.Length > 0)
-                    model.AadhaarCardFrant = await UploadFile(model.AadhaarCardFrant1);
+                    uploadTasks.Add(Task.Run(async () =>
+                        model.AadhaarCardFrant = await UploadFile(model.AadhaarCardFrant1)));
 
                 if (model.AadhaarCardBack1 != null && model.AadhaarCardBack1.Length > 0)
-                    model.AadhaarCardBack = await UploadFile(model.AadhaarCardBack1);
+                    uploadTasks.Add(Task.Run(async () =>
+                        model.AadhaarCardBack = await UploadFile(model.AadhaarCardBack1)));
 
-
+                // ✅ Academic files — parallel
                 if (model.AcademicDetails != null && model.AcademicDetails.Count > 0)
                 {
                     foreach (var academic in model.AcademicDetails)
                     {
-                        if (academic.File != null &&
-                            academic.File.Length > 0)
+                        if (academic.File != null && academic.File.Length > 0)
                         {
-                            academic.FileName = await UploadFile(academic.File);
+                            var acad = academic;
+                            uploadTasks.Add(Task.Run(async () =>
+                                acad.FileName = await UploadFile(acad.File)));
                         }
                     }
                 }
 
+                // ✅ Sab files ek saath upload
+                if (uploadTasks.Count > 0)
+                {
+                    await Task.WhenAll(uploadTasks);
+                }
+
+                // =========================
+                // 5. Defaults
+                // =========================
                 int num = RandomNumberGenerator.GetInt32(10000, 99999);
 
                 model.ReferenceId = model.ReferenceId == 0 ? 3 : model.ReferenceId;
-                model.EmployeeId =  null;
+                model.EmployeeId = null;
                 model.UserName = model.Email;
                 model.GenderId = model.GenderId == 0 ? 43 : model.GenderId;
                 model.CasteCategory = model.CasteCategory == 0 ? 60 : model.CasteCategory;
                 model.Password = model.DOB?.ToString("ddMMyyyy") ?? "";
                 model.StudyModeId = model.StudyModeId == 0 ? 88 : model.StudyModeId;
 
+                // ✅ BCrypt workFactor: 10 (default 11 se tez, same security level)
+                model.PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password, workFactor: 10);
 
-                model.PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password); // Hashed Password
-
+                // =========================
+                // 6. DB Insert
+                // =========================
                 var result = (await _unitOfWork.Student.CreateNew(model)).Split(",");
                 var msg = result[0];
                 var entityId = result[1];
                 var oId = result[2];
 
-                if (msg == "Successfully")
+                if (msg != "Successfully")
                 {
+                    // ✅ Failed → orphan files delete karo
+                    await CleanupFilesAsync(folderPath, uploadedFiles);
 
-                    if (model.AcademicDetails != null && model.AcademicDetails.Count > 0)
+                    return BadRequest(new
                     {
-                        foreach (var academic in model.AcademicDetails)
-                        {
-                            await _unitOfWork.Student.CreateAcademicDetail(Convert.ToInt32(entityId), academic);
-                        }
-                    }
-                    // ✅✅✅ SESSION SET KARO (zaroori hai!)
-                    HttpContext.Session.SetString("User", entityId);
-                    HttpContext.Session.SetString("Key", oId);
+                        success = false,
+                        message = msg
+                    });
                 }
-                // Default message
-               
+
+                // =========================
+                // 7. Academic Details Insert
+                // =========================
+                if (model.AcademicDetails != null && model.AcademicDetails.Count > 0)
+                {
+                    foreach (var academic in model.AcademicDetails)
+                    {
+                        await _unitOfWork.Student.CreateAcademicDetail(
+                            Convert.ToInt32(entityId), academic);
+                    }
+                }
+
+                // =========================
+                // 8. Session Set
+                // =========================
+                HttpContext.Session.SetString("User", entityId);
+                HttpContext.Session.SetString("Key", oId);
+
+                sw.Stop();
+
+                // ✅ Logging (agar _logger inject hai to)
+                // _logger.LogInformation("Student created: {Email} in {Ms}ms",
+                //     model.Email, sw.ElapsedMilliseconds);
 
                 return Ok(new
                 {
@@ -228,23 +371,175 @@ namespace SBSHEWEBAPI
                     data = model,
                     userid = entityId,
                     paymentid = oId
-
                 });
             }
             catch (Exception ex)
             {
-                return BadRequest(new
+                sw.Stop();
+
+                // ✅ Orphan files cleanup
+                await CleanupFilesAsync(folderPath, uploadedFiles);
+
+                // ✅ Console log — full error visible for debugging
+                Console.WriteLine($"[StudentCreate ERROR] Email: {model?.Email} | {ex.Message}");
+                Console.WriteLine(ex.StackTrace);
+
+                // ❌ Client ko sirf safe message — stack trace nahi
+                return StatusCode(500, new
                 {
                     success = false,
-                    message = "Something went wrong",
-                    error = ex.Message
+                    message = "Something went wrong. Please try again."
                 });
             }
         }
 
+        // =============================================
+        // ✅ Helper — File Cleanup (Controller ke andar)
+        // =============================================
+        private static async Task CleanupFilesAsync(string folderPath, List<string> fileNames)
+        {
+            if (fileNames == null || fileNames.Count == 0) return;
+
+            await Task.Run(() =>
+            {
+                foreach (var name in fileNames)
+                {
+                    try
+                    {
+                        var path = Path.Combine(folderPath, name);
+                        if (System.IO.File.Exists(path))
+                            System.IO.File.Delete(path);
+                    }
+                    catch { /* ignore cleanup errors */ }
+                }
+            });
+        }
+
+
+        //[HttpPost("new-student-create")]
+        //public async Task<IActionResult> Create([FromForm] StudentPostDTOs model)
+        //{
+        //    try
+        //    {
+
+        //        if (model == null)
+        //        {
+        //            return BadRequest(new
+        //            {
+        //                Success = false,
+        //                Message = "data is required"
+        //            });
+        //        }
+        //        if (model.Name == null)
+        //        {
+        //            return BadRequest(new
+        //            {
+        //                Success = false,
+        //                Message = "data is required"
+        //            });
+        //        }
+
+
+        //        string folderPath = Path.Combine(_environment.WebRootPath, "Uploads");
+        //        Directory.CreateDirectory(folderPath);
+
+        //        async Task<string> UploadFile(IFormFile file)
+        //        {
+        //            string fileName = $"{Guid.NewGuid():N}"[..8] + "_" +
+        //                              Path.GetFileName(file.FileName);
+
+        //            string filePath = Path.Combine(folderPath, fileName);
+
+        //            using var stream = new FileStream(filePath, FileMode.Create);
+        //            await file.CopyToAsync(stream);
+
+        //            return fileName;
+        //        }
+
+        //        if (model.SelfImage1 != null && model.SelfImage1.Length > 0)
+        //            model.SelfImage = await UploadFile(model.SelfImage1);
+
+        //        if (model.SignatureImage1 != null && model.SignatureImage1.Length > 0)
+        //            model.SignatureImage = await UploadFile(model.SignatureImage1);
+
+        //        if (model.AadhaarCardFrant1 != null && model.AadhaarCardFrant1.Length > 0)
+        //            model.AadhaarCardFrant = await UploadFile(model.AadhaarCardFrant1);
+
+        //        if (model.AadhaarCardBack1 != null && model.AadhaarCardBack1.Length > 0)
+        //            model.AadhaarCardBack = await UploadFile(model.AadhaarCardBack1);
+
+
+        //        if (model.AcademicDetails != null && model.AcademicDetails.Count > 0)
+        //        {
+        //            foreach (var academic in model.AcademicDetails)
+        //            {
+        //                if (academic.File != null &&
+        //                    academic.File.Length > 0)
+        //                {
+        //                    academic.FileName = await UploadFile(academic.File);
+        //                }
+        //            }
+        //        }
+
+        //        int num = RandomNumberGenerator.GetInt32(10000, 99999);
+
+        //        model.ReferenceId = model.ReferenceId == 0 ? 3 : model.ReferenceId;
+        //        model.EmployeeId = null;
+        //        model.UserName = model.Email;
+        //        model.GenderId = model.GenderId == 0 ? 43 : model.GenderId;
+        //        model.CasteCategory = model.CasteCategory == 0 ? 60 : model.CasteCategory;
+        //        model.Password = model.DOB?.ToString("ddMMyyyy") ?? "";
+        //        model.StudyModeId = model.StudyModeId == 0 ? 88 : model.StudyModeId;
+
+
+        //        model.PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password); // Hashed Password
+
+        //        var result = (await _unitOfWork.Student.CreateNew(model)).Split(",");
+        //        var msg = result[0];
+        //        var entityId = result[1];
+        //        var oId = result[2];
+
+        //        if (msg == "Successfully")
+        //        {
+
+        //            if (model.AcademicDetails != null && model.AcademicDetails.Count > 0)
+        //            {
+        //                foreach (var academic in model.AcademicDetails)
+        //                {
+        //                    await _unitOfWork.Student.CreateAcademicDetail(Convert.ToInt32(entityId), academic);
+        //                }
+        //            }
+        //            // ✅✅✅ SESSION SET KARO (zaroori hai!)
+        //            HttpContext.Session.SetString("User", entityId);
+        //            HttpContext.Session.SetString("Key", oId);
+        //        }
+        //        // Default message
+
+
+        //        return Ok(new
+        //        {
+        //            success = true,
+        //            message = msg,
+        //            data = model,
+        //            userid = entityId,
+        //            paymentid = oId
+
+        //        });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(new
+        //        {
+        //            success = false,
+        //            message = "Something went wrong",
+        //            error = ex.Message
+        //        });
+        //    }
+        //}
+
         // ✅ Request Model
-       
- 
+
+
         [HttpPost("amount-detail")]
         public async Task<IActionResult> PaymentAmountDetails([FromBody] AmountDetailRequest request)
         {
@@ -347,6 +642,7 @@ namespace SBSHEWEBAPI
                 });
             }
         }
+
         [HttpPost("study-center-create")]
         public async Task<IActionResult> Create([FromForm] FrenchisePostDTOs model)
         {
@@ -425,7 +721,7 @@ namespace SBSHEWEBAPI
                 var result = (await _unitOfWork.Frenchise.Create(model)).Split(",");
                 var msg = result[0];
                 var entityId = result[1];
-
+                string printmsg1 = string.Empty;
                 if (msg == "Successfully")
                 {
 
@@ -436,26 +732,113 @@ namespace SBSHEWEBAPI
                             await _unitOfWork.Frenchise.CreateInstituteDepartmentDetails(Convert.ToInt32(entityId), academic);
                         }
                     }
-                }
-                // Default message
-                string printmsg1 = string.Empty;
-
-                // Only generate success message when registration is successful
-                if (msg == "Successfully")
-                {
+                    // ============================================================
+                    // ✅ PLAIN TEXT MESSAGE (frontend ke liye)
+                    // ============================================================
                     printmsg1 =
-                    $"Dear {model.FatherName},\n" +
-                    $"Congratulations! Your Study Centre registration has been submitted successfully.\n" +
-                    $"Registration Details:\n" +
-                    $"Centre Name: {model.Name}\n" +
-                    $"Login Details:\n" +
-                    $"Username: {model.UserName}\n" +
-                    $"Password: {model.Password}\n" +
-                    $"Your registration details and submitted documents will now be reviewed by our team. " +
-                    $"Once the verification process is completed, our team will contact you regarding the approval and further onboarding process.\n" +
-                    $"Please keep your login credentials safe and do not share them with anyone.\n" +
-                    $"Thank you for choosing to register as an authorized Study Centre with us.";
+                        $"Dear {model.FatherName},\n\n" +
+                        $"Congratulations! Your Study Centre registration has been submitted successfully.\n\n" +
+                        $"Registration Details:\n" +
+                        $"Centre Name: {model.Name}\n\n" +
+                        $"Login Details:\n" +
+                        $"Username: {model.UserName}\n" +
+                        $"Password: {model.Password}\n\n" +
+                        $"Your registration details and submitted documents will now be reviewed by our team.\n" +
+                        $"Once the verification process is completed, our team will contact you regarding the approval and further onboarding process.\n\n" +
+                        $"Please keep your login credentials safe and do not share them with anyone.\n\n" +
+                        $"Thank you for choosing to register as an authorized Study Centre with us.\n" +
+                        $"Regards,\n" +
+                        $"Team Shaheed Bhagat Singh Health & Education";
+
+                    // ============================================================
+                    // ✅ EMAIL BHEJO (background me)
+                    // ============================================================
+                    string emailTo = model.Email;
+                    string emailFatherName = model.FatherName ?? "Sir/Madam";
+                    string emailCentreName = model.Name ?? "Study Centre";
+                    string emailUserName = model.UserName ?? "";
+                    string emailPassword = model.Password ?? "";
+
+                    string subject = "Welcome – Study Centre Registration Successful 🏫";
+
+                    string emailBody = $@"
+<div style='font-family:Arial,sans-serif;max-width:600px;margin:auto;
+            border:1px solid #e5e7eb;border-radius:12px;overflow:hidden'>
+  <div style='background:#2563eb;color:#fff;padding:20px;text-align:center'>
+    <h2 style='margin:0'>Welcome to Shaheed Bhagat Singh Health &amp; Education 🎓</h2>
+    <p style='margin:6px 0 0 0;font-size:14px'>Study Centre Registration</p>
+  </div>
+
+  <div style='padding:24px;color:#111827'>
+    <p>Dear <b>{emailFatherName}</b>,</p>
+
+    <p>Congratulations! Your <b>Study Centre</b> registration has been submitted successfully. 🎉</p>
+
+    <p><b>Registration Details:</b></p>
+    <table style='border-collapse:collapse;margin:10px 0'>
+      <tr>
+        <td style='padding:8px 14px;background:#f3f4f6;border:1px solid #e5e7eb'><b>Centre Name</b></td>
+        <td style='padding:8px 14px;border:1px solid #e5e7eb'>{emailCentreName}</td>
+      </tr>
+    </table>
+
+    <p><b>Login Details:</b></p>
+    <table style='border-collapse:collapse;margin:10px 0'>
+      <tr>
+        <td style='padding:8px 14px;background:#f3f4f6;border:1px solid #e5e7eb'><b>Username</b></td>
+        <td style='padding:8px 14px;border:1px solid #e5e7eb'>{emailUserName}</td>
+      </tr>
+      <tr>
+        <td style='padding:8px 14px;background:#f3f4f6;border:1px solid #e5e7eb'><b>Password</b></td>
+        <td style='padding:8px 14px;border:1px solid #e5e7eb'>{emailPassword}</td>
+      </tr>
+    </table>
+
+    <p>You can now log in to your <b>Study Centre</b> dashboard to manage your institute, students, and other activities.</p>
+
+    <p style='background:#fef3c7;padding:12px;border-radius:8px;border-left:4px solid #f59e0b'>
+      ⚠️ <b>Important:</b> Please keep your login credentials safe and do not share them with anyone.
+    </p>
+
+    <p>Your registration details and submitted documents will now be reviewed by our team. Once the verification process is completed, our team will contact you regarding the approval and further onboarding process.</p>
+
+    <p style='text-align:center;margin:28px 0'>
+      <a href='https://shaheedbhagatsinghhealthandeducation.com/'
+         style='background:#2563eb;color:#fff;padding:12px 24px;
+                text-decoration:none;border-radius:8px;display:inline-block'>
+        Login Now
+      </a>
+    </p>
+
+    <p>If you face any issues, please contact us at contact@shaheedbhagatsinghhealthandeducation.com.</p>
+
+    <p>Thank you for choosing to register as an authorized Study Centre with us.</p>
+
+    <p>Regards,<br/>
+       <b>Team Shaheed Bhagat Singh Health &amp; Education</b></p>
+  </div>
+
+  <div style='background:#f3f4f6;padding:14px;text-align:center;
+              font-size:12px;color:#6b7280'>
+    © 2026 Shaheed Bhagat Singh Health &amp; Education. All rights reserved.
+  </div>
+</div>";
+
+                    // Background me bhejo — response slow na ho
+                    _ = Task.Run(async () =>
+                    {
+                        try
+                        {
+                            Email_sms obj = new Email_sms();
+                            await obj.SendEmailAsync(emailTo, subject, emailBody, isHtml: true);
+                        }
+                        catch (Exception emailEx)
+                        {
+                            _logger.LogError(emailEx, "Study Centre email failed to {Email}", emailTo);
+                        }
+                    });
                 }
+
                 return Ok(new
                 {
                     success = msg == "Successfully",
@@ -466,6 +849,7 @@ namespace SBSHEWEBAPI
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Study Centre registration error");
                 return BadRequest(new
                 {
                     success = false,
@@ -765,6 +1149,20 @@ namespace SBSHEWEBAPI
                     endDate = data.EndDate ?? "",
                     startDate = data.StartDate ?? "",
                     address = data.Address ?? "",
+
+                    //data
+                    registrationLine = data.RegistrationLine ?? "",
+                    certificateTitle = data.CertificateTitle ?? "",
+                    certifyLine = data.CertifyLine ?? "",
+                    centreAddress = data.CentreAddress ?? "",
+                    appointedLine = data.AppointedLine ?? "",
+                    signatoryLine = data.SignatoryLine ?? "",
+                    officeAddress = data.OfficeAddress ?? "",
+                    corporateOffice = data.CorporateOffice ?? "",
+                    emailLine = data.EmailLine ?? "",
+                    websiteLine = data.WebsiteLine ?? "",
+
+                    //image
                     selfImage = selfImageBase64,
                     stempImage = stempImageBase64,
                     singhImage = sighImageBase64,
@@ -951,7 +1349,7 @@ namespace SBSHEWEBAPI
 
                                 if (msg == "Successfully")
                                 {
-                                     
+
 
                                     successList.Add(new
                                     {
@@ -964,7 +1362,7 @@ namespace SBSHEWEBAPI
                                         Email = rowModel.Email,
                                         UserName = rowModel.UserName,
                                         Password = rowModel.Password,
-                                        EntityId = entityId 
+                                        EntityId = entityId
                                     });
                                 }
                                 else
@@ -1039,7 +1437,7 @@ namespace SBSHEWEBAPI
                     foreach (var ac in academicDetailsData)
                     {
                         var levelMaster = await _unitOfWork.DropDown.GetMasterDetail(Convert.ToInt32(ac.LevelTypeId));
-                       
+
                         academicWithLevel.Add(new
                         {
                             id = ac.Id,
@@ -1050,7 +1448,7 @@ namespace SBSHEWEBAPI
                             rollNo = ac.RollNo,
                             boardUniversity = ac.BoardUniversity,
                             percentageCgpa = ac.PercentageCgpa,
-                       
+
                             fileName = ac.FileName
                         });
                     }
@@ -1122,6 +1520,49 @@ namespace SBSHEWEBAPI
                 );
             }
         }
+
+
+        [HttpPost("new-student")]
+        public async Task<IActionResult> CreateRegiste([FromForm] StudentPostDTOs model)
+        {
+            try
+            {
+
+
+                var msg = "Successfully";
+                model.Name = "Ajay Kumar";
+                model.Email = "kashniaajay73@gmail.com";
+
+                if (msg == "Successfully")
+                {
+
+
+
+
+
+
+                }
+
+                return Ok(new
+                {
+                    success = true,
+                    message = msg,
+                    data = model
+
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = "Something went wrong",
+                    error = ex.Message
+                });
+            }
+        }
+
+
     }
 
 

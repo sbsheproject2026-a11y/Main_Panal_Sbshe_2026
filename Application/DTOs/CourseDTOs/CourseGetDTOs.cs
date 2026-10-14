@@ -35,4 +35,28 @@ namespace Application.DTOs
         public List<ProductAmountDtos>? ProductAmounts { get; set; }
 
     }
+
+
+    public class WebsiteCourseGetDTOs
+    {
+        public int? Id { get; set; }
+        public string? Code { get; set; }
+
+        public string? ShortName { get; set; }
+        public string? Name { get; set; }
+        public string? NameHindi { get; set; }
+
+        public string? ShortDescription { get; set; }
+        public string? Descrption { get; set; }
+        public string? Eligbilty { get; set; }
+        public string? DurationName { get; set; }
+        public int? IsActive { get; set; }
+        public int? IsHighlight { get; set; }
+        public int? StudyModeId { get; set; }
+      
+        public List<ProductMaterialDtos>? ProductCategoryDocuments { get; set; }
+        public List<ProductAmountDtos>? ProductAmounts { get; set; }
+
+    }
+
 }

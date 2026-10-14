@@ -11,6 +11,7 @@ namespace Application.DTOs
         public string? StudentNameHindi { get; set; }
 
         public int? ReferenceId { get; set; }
+        public int? courseMetrialID { get; set; }
         public int? StudyModeId { get; set; }
         public int? EmployeeId { get; set; }
 

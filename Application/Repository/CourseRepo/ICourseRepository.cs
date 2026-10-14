@@ -30,7 +30,9 @@ namespace Application.Repository
         Task<string> CreateCourseMaterial(ProductMaterialDtos model);
 
         Task<List<ProductMaterialGetDtos>> getCourseMaterial(int id);
-      
+        Task<string> DeleteCourseMaterial(int Id);
+
+
 
 
 

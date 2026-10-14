@@ -149,7 +149,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                 });
             }
 
-            var result = await _unitOfWork.MasterType.Delete(Id);
+            var result = await _unitOfWork.WebsiteContent.Delete(Id);
 
             return Ok(new
             {
@@ -159,6 +159,8 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
         }
 
 
+ 
+        
 
 
     }

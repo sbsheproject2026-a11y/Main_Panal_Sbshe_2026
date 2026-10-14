@@ -15,5 +15,6 @@ namespace Application.DTOs.MasterTypeDTOs
         public int? ParentId { get; set; }
         public int? IsActive { get; set; }
         public int? IsDelete { get; set; }
+        public string? Slug { get; set; }   // 👈 add kiya
     }
 }

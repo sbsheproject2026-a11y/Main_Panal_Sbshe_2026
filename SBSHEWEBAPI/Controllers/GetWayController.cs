@@ -42,7 +42,7 @@ namespace SBSHEWEBAPI
 
 
                 // ✅ 'List' ki jagah 'data' naam rakha
-                var data = _unitOfWork.GetWayWorking.OrderListAll("Print", request.OId, request.UserId); 
+                var data = _unitOfWork.GetWayWorking.OrderListAll("Print", request.OId, request.UserId);
 
                 if (data == null || data.Count == 0)
                     return NotFound(new { message = "Order not found" });
@@ -103,8 +103,8 @@ namespace SBSHEWEBAPI
                 return StatusCode(500, new { message = "Please try again ! ", error = ex.Message });
             }
         }
-       
-        
+
+
         // CreateOrder — clean version
         private string CreateOrder(int userId, int oId)
         {
@@ -131,7 +131,7 @@ namespace SBSHEWEBAPI
                 options.Add("currency", "INR");
                 options.Add("notes", notes);
 
-                 Order order = client.Order.Create(options);
+                Order order = client.Order.Create(options);
                 var R_orderId = order.Attributes["id"].ToString();
 
                 var rsp = _unitOfWork.GetWayWorking.InsgetwayPrm(tid, R_orderId);
@@ -144,7 +144,7 @@ namespace SBSHEWEBAPI
             }
         }
 
-       
+
         [HttpPost("after-payment")]
         public async Task<IActionResult> Afterpayment([FromForm] AfterPaymentRequest request)
         {
@@ -191,16 +191,11 @@ namespace SBSHEWEBAPI
                                  " and ReferenceNo Is " + paymentId +
                                  " and Status Is " + paymentstatus;
 
-                    if (productId == "20411")
+                    if (productId == "4")
                     {
-                        return Ok(new
-                        {
-                            success = true,
-                            status = "Success",
-                            message = msg,
-                            redirect = "StudentPaymentPrint",
-                            OId = List[0].OId
-                        });
+                        string Insertmsg = await _unitOfWork.Wallet.CreateOnline(
+                            request.UserId,
+                            Convert.ToDecimal(amount));
                     }
 
                     return Ok(new
@@ -330,6 +325,6 @@ namespace SBSHEWEBAPI
         }
 
 
-       
+
     }
 }

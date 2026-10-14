@@ -12,7 +12,7 @@ namespace Application.Repository
         Task<List<EntityUserResult>> getEntityUser(int Id);
         Task<List<EntityUserResult>> getEmployeeFranchiselist(int Id);
         Task<List<EntityUserResult>> getCourseCategory(int Id);
-        Task<List<EntityUserResult>> getCourseStudent(int Id);
+        Task<List<EntityUserResult>> getCourseStudent(int Id, int courseTypeId);
         Task<List<CommissionAmount>> SetFranchiseCourseAmount(int Id,int FId);
         Task<List<CommissionAmount>> SetCourseCommission(int Id);
         Task<List<EntityUserResult>> getEmployeedropList(int Id);
@@ -29,6 +29,8 @@ namespace Application.Repository
         Task<List<DropDownDTOs>> GetMasterSession();
         Task<List<DropDownDTOs>> GetDistrict(int Id);
         Task<List<DropDownDTOs>> GetCity(int Id);
+        Task<List<DropDownDTOs>> GetOnlineSession();
+        Task<List<EntityUserResult>> getCourseOnlineStudent(int Id, int courseTypeId);
 
 
     }

@@ -1,4 +1,5 @@
 ﻿using Application;
+using Application.DTOs;
 using Application.DTOs.MasterTypeDTOs;
 using Application.Helper;
 using Microsoft.AspNetCore.Mvc;
@@ -49,8 +50,72 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                 });
             }
         }
+        [HttpGet("student-payment-detail")]
+        public async Task<IActionResult> GetStudentFee(int Id)
+        {
+            try
+            {
+                var data = await _unitOfWork.GetWayWorking.GetStudentFee(Id);
 
-         
+                return Ok(new
+                {
+                    Success = true,
+                    Data = data
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = ex.Message
+                });
+            }
+        }
+
+
+      
+        [HttpPost("student-payment-add")]
+        public async Task<IActionResult> CreateOfflinePayment([FromForm] OfflinePaymentRequest request)
+        {
+            try
+            {
+                if (request == null)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Request data is required."
+                    });
+                }
+
+                var result = (await _unitOfWork.GetWayWorking.OfflinePayPayment(request)).Split(",");
+
+                var msg = result[0];
+                var entityId = result[1];
+                var oId = result[2];
+
+              
+
+                return Ok(new
+                {
+                    success = true,
+                    message = msg,
+                    userid = entityId,
+                    paymentid = oId
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Something went wrong.",
+                    error = ex.Message
+                });
+            }
+        }
+
     }
 }
 

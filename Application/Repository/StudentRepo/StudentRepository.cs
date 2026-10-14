@@ -257,6 +257,63 @@ namespace Application.Repository
             }
         }
         
+        public async  Task<List<StudentGetDTOs>> GetStudentProfileData(int? referenceId)
+        {
+            try
+            {
+                var data = new List<StudentGetDTOs>();
+               
+                var connectionString = _context.Database.GetConnectionString();
+
+                using (var connection = new SqlConnection(connectionString))
+                using (var command = new SqlCommand("GetStudentProfileData", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    command.Parameters.Add(new SqlParameter("@ReferenceId", referenceId));
+                     
+
+                    await connection.OpenAsync();
+
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            data.Add(new StudentGetDTOs
+                            {
+                                Id = Convert.ToInt32(reader["Id"]),
+                                ReferenceId = Convert.ToInt32(reader["ReferenceId"]),
+                                Code = reader["Code"]?.ToString(),
+                                EnrollmentNo = reader["EnrollmentNo"]?.ToString(),
+                                Rollno = reader["Rollno"]?.ToString(),
+                                RollNo1 = reader["RollNo1"]?.ToString(),
+                                Name = reader["Name"]?.ToString(),
+                                FatherName = reader["FatherName"]?.ToString(),
+                                MotherName = reader["MotherName"]?.ToString(),
+                                Address = reader["Address"]?.ToString(),
+                                MobileNo = reader["MobileNo"]?.ToString(),
+                                Email = reader["Email"]?.ToString(),
+                                
+                                CityName = reader["CityName"]?.ToString(),
+                                DistrictName = reader["DistrictName"]?.ToString(),
+                                StateName = reader["StateName"]?.ToString(),
+                                SelfImage =   reader["SelfImage"]?.ToString(),
+                                CourseName = reader["CourseName"]?.ToString(),
+                                InstituteName = reader["CentreName"]?.ToString(),
+                            });
+                            
+                        }
+                    }
+                }
+
+                return (data);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error while fetching  data !", ex);
+            }
+        }
+        
 
         public async Task<string> Create(StudentPostDTOs model)
         {
@@ -353,6 +410,7 @@ namespace Application.Repository
                     command.Parameters.Add(new SqlParameter("@ExamSessionId", model.ExamSessionId));
                     command.Parameters.Add(new SqlParameter("@StudyModeId", model.StudyModeId));
                     command.Parameters.Add(new SqlParameter("@EmployeeId", model.EmployeeId));
+                    command.Parameters.Add(new SqlParameter("@courseMetrialID", model.courseMetrialID));
 
                     await connection.OpenAsync();
 

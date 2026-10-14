@@ -74,6 +74,8 @@
         public string OrderId { get; set; }
         public string ReferenceId { get; set; }
         public decimal Amount { get; set; }
+        public decimal? PaidAmount { get; set; }
+        public decimal? PendingAmount { get; set; }
         public string PayStatus { get; set; }
         public string ODate { get; set; }
         public string Address { get; set; }
@@ -84,6 +86,32 @@
         public int ProductId { get; set; }
         public string GetwayPrm { get; set; }
 
+    }
+    public class OfflinePayPaymentDTOs
+    {
+      
+        public int EId { get; set; }
+         
+        public decimal Amount { get; set; }
+        public string PayStatus { get; set; }
+        public string ODate { get; set; }
+        public string Address { get; set; }
+        public string PrintDate { get; set; }
+        public string PrintPayDate { get; set; }
+        public string AmountW { get; set; }
+
+        public int ProductId { get; set; }
+        public string GetwayPrm { get; set; }
+
+    }
+
+    public class OfflinePaymentRequest
+    {
+        public int UserId { get; set; }
+        public decimal Amount { get; set; }
+        public string remark { get; set; }
+        public DateTime? PaidDate { get; set; }
+        public int courseid { get; set; }
     }
 
 }

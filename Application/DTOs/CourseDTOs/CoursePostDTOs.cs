@@ -74,6 +74,7 @@ namespace Application.DTOs
 
         public int? ProductId { get; set; }
         public int? DocumentTypeId { get; set; }
+        public int? DocExtensionId { get; set; }
         public int? SrNo { get; set; }
       
         public string? AltTag { get; set; }

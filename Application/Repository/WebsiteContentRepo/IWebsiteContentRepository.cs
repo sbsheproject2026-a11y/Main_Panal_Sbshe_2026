@@ -1,5 +1,6 @@
-﻿using Application.DTOs; 
- 
+﻿using Application.DTOs;
+using Application.DTOs.MasterTypeDTOs;
+
 
 namespace Application.Repository 
 {
@@ -13,6 +14,9 @@ namespace Application.Repository
         Task<string> Create(WebsiteContentPostDTOs model);
         Task<WebsiteContentGetDTOs?> GetbyId(int Id);
         Task<string> Update(WebsiteContentPostDTOs model);
+        Task<string> Delete(int Id);
+        Task<List<MasterTypeDetailGetDTOs>> GetWebsiteMaster(int id);
+        Task<List<WebsiteCourseGetDTOs>> GetCourseData(int id);
 
 
 

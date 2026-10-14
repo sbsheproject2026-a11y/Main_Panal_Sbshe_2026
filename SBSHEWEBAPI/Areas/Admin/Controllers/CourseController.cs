@@ -286,6 +286,27 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
             });
         }
 
+        [HttpDelete("course-material-delete/{id}")]
+        public async Task<IActionResult> DeleteCourseMaterial(int Id)
+        {
+            if (Id <= 0)
+            {
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = "Id is required"
+                });
+            }
+
+            var result = await _unitOfWork.Course.DeleteCourseMaterial(Id);
+
+            return Ok(new
+            {
+                Success = true,
+                Message = result
+            });
+        }
+
 
 
 

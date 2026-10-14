@@ -1,10 +1,11 @@
 ﻿using Application.DTOs;
-
+using Application.DTOs.MasterTypeDTOs;
 using Domain;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Model;
 using System.Data;
+using System.Text.RegularExpressions;
 
 
 
@@ -367,6 +368,164 @@ namespace Application.Repository
                 return "Something went wrong: " + ex.Message;
             }
         }
+
+
+        public async Task<string> Delete(int Id)
+        {
+            try
+            {
+                var data = await _context.ProductCategory
+                    .FirstOrDefaultAsync(x => x.Id == Id);
+
+                if (data == null)
+                {
+                    return "MasterTypeDetail not found";
+                }
+
+                data.IsDelete = 1;
+
+
+                await _context.SaveChangesAsync();
+
+                return "delete successfully";
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error while delete MasterTypeDetail", ex);
+            }
+        }
+
+
+       
+        public async Task<List<MasterTypeDetailGetDTOs>> GetWebsiteMaster(int id)
+        {
+            try
+            {
+
+                var data = await (from pa in _context.MasterTypeDetail
+                                 
+
+                                  where pa.IsDelete == 0 && pa.MasterTypeId==id
+
+                                  orderby pa.Id descending
+                                  select new MasterTypeDetailGetDTOs
+                                  {
+                                      Id = pa.Id,
+                                      SrNo = pa.SrNo,
+                                      Name = pa.Name,
+                                      Code = pa.Code,
+                                   
+                                      FilePath = pa.FilePath,
+                                      IsActive = pa.IsActive
+
+                                  })
+
+                                  .ToListAsync();
+
+                // Slug compute karo (client side, kyunki EF mein custom function translate nahi hota)
+                foreach (var item in data)
+                {
+                    item.Slug = GenerateSlug(item.Name);
+                }
+
+                return data;
+            }
+            catch (Exception ex)
+            {
+
+                throw new Exception("Error while fetching MasterTypeDetail data.", ex);
+            }
+        }
+
+        private static string GenerateSlug(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                return string.Empty;
+
+            var slug = name.Trim().ToLowerInvariant();
+            slug = Regex.Replace(slug, @"[^a-z0-9\s-]", "");       // special chars hatao
+            slug = Regex.Replace(slug, @"\s+", "-");                // spaces ko - karo
+            slug = Regex.Replace(slug, @"-+", "-");                 // multiple -- ko single -
+            return slug.Trim('-');
+        }
+
+
+        public async Task<List<WebsiteCourseGetDTOs>> GetCourseData(int id)
+        {
+            try
+            {
+                var data = await (from p in _context.Product
+                                  join pa in _context.ProductCategory on p.ProductCategoryId equals pa.Id into productGroup1
+                                  from pa in productGroup1.DefaultIfEmpty()
+                                  join ppd in _context.ProductPersonalDetail on p.Id equals ppd.ProductId into productGroup2
+                                  from p1 in productGroup2.DefaultIfEmpty()
+                                  join ppl in _context.ProductLink on p.Id equals ppl.ProductId into productGroup3
+                                  from p4 in productGroup3.DefaultIfEmpty()
+                                  join pcd in _context.ProductCategoryDetail on p.Id equals pcd.ProductCategoryId into productGroup4
+                                  from p3 in productGroup4.DefaultIfEmpty()
+                                  join mtd in _context.MasterTypeDetail on p.Duration equals mtd.Id into mtdd
+                                  from mtd in mtdd.DefaultIfEmpty()
+                                  join mtd1 in _context.MasterTypeDetail on p.DurationTypeId equals mtd1.Id into mtdd1
+                                  from mtd1 in mtdd1.DefaultIfEmpty()
+                                  join mtddep in _context.MasterTypeDetail on p1.DepartmentId equals mtddep.Id into mtddep1
+                                  from mtddep in mtddep1.DefaultIfEmpty()
+                                  where p.IsDelete == 0 && pa.ProductTypeId == null &&  p1.DepartmentId==id  && p.ParentId==null
+
+                                  orderby p.Id descending
+
+
+
+                                  select new WebsiteCourseGetDTOs
+                                  {
+                                      Id = p.Id,
+                                      Name = p.Name,
+                                      Code=p.Code,
+                                      NameHindi = p.CourseNameHindi,
+                                    
+                                      Eligbilty=p.Eligbilty,
+
+                                      StudyModeId=p1.StudyModeId,
+
+
+                                      DurationName = mtd.Name + ' ' + mtd1.Name,
+                                      ShortDescription = p3 != null ? p3.ShortDescription : null,
+                                      Descrption = p3 != null ? p3.Descrption : null,
+                                      IsActive = pa.IsActive,
+
+                                      ProductCategoryDocuments = _context.ProductCategoryDocument
+                                          .Where(x => x.ProductCategoryId == pa.Id && x.IsActive == 1)
+                                          .Select(x => new ProductMaterialDtos
+                                          {
+                                              Id = x.Id,
+                                              SrNo = x.SrNo,
+                                              Name = x.Title,
+                                              Fileupload = x.Path,
+                                              AltTag = x.AltTag,
+                                          })
+                                          .ToList(),
+
+                                      ProductAmounts = _context.ProductAmount
+                                          .Where(x => x.ProductId == p.Id && x.IsActive == 1)
+                                          .Select(x => new ProductAmountDtos
+                                          {
+                                              Id = x.Id,
+                                              Name = x.Name,
+                                              Amount = x.Amount,
+                                              AmountTypeId = x.AmountTypeId,
+                                          })
+                                          .ToList()
+                                  })
+                                  .ToListAsync();
+
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error while fetching MasterTypeDetail data.", ex);
+            }
+        }
+
+
 
     }
 }

@@ -239,6 +239,19 @@ namespace Application.Repository
                         Experience = reader["Experience"]?.ToString(),
                         InstituteName =  reader["InstituteName"]?.ToString(),
                         Dob = Convert.ToDateTime(reader["DOB"]),
+                        PassportPhoto =  reader["SelfImage"]?.ToString(),
+
+                        AuthorizedSignature =  reader["SignatureImage"]?.ToString(),
+
+                        AadhaarCardimage =  reader["AadhaarCardFrant"]?.ToString(),
+
+                        PanCardimage =  reader["Pancardimage"]?.ToString(),
+
+                        InstituteCertificate =  reader["InstituteCertificateimage"]?.ToString(),
+
+                        BuildingPhoto1 =  reader["BuildingPhoto1image"]?.ToString(),
+
+                        BuildingPhoto2 =   reader["BuildingPhoto2image"]?.ToString()
 
                     };
                     if (data != null)

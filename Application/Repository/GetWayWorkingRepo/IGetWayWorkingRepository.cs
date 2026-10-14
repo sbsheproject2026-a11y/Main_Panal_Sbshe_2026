@@ -10,6 +10,10 @@ namespace Application.Repository
         Task<string> InsgetwayPrm(int OrderId, string GetwayPrm);
         Task<string> InsertOrderStstus(string order_id, string paymentId, string paymentstatus, string R_orderId, decimal amount, int oid, string paymode);
         Task<List<OrderList>> offlinepayment(string viewtype);
+        Task<List<OrderList>> GetStudentFee(int Id);
+
+        Task<string> GenrateOrder(int Eid, decimal amount, int productid);
+        Task<string> OfflinePayPayment(OfflinePaymentRequest request);
 
     }
 }

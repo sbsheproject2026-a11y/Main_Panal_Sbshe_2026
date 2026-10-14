@@ -1,7 +1,6 @@
 ﻿using Application.DTOs;
-using Application.DTOs.MasterTypeDTOs;
 
-namespace Application.Repository 
+namespace Application.Repository
 {
     public interface IWalletRepository
     {
@@ -10,9 +9,11 @@ namespace Application.Repository
         Task<List<WalletGetDTOs>> GetAllPending(int UserId, int Amountid);
 
         Task<string> Create(WalletPostDTOs model);
-       
+
         Task<string> WalletPaymentConfirm(int Id, int Status);
-        
+        Task<string> CreateOnline(int eId, decimal amount);
+
+
 
     }
 }
