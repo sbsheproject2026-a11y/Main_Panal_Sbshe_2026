@@ -7,7 +7,7 @@ namespace Application.Repository
 
         Task<List<StudentGetDTOs>> GetAll(int ReferenceId, int pageNo, int pageSize, string? search);
         Task<List<StudentGetDTOs>> GetSendToConfirm(int ReferenceId, int pageNo, int pageSize, string? search);
-        Task<List<StudentGetDTOs>> GetConfirmToAdmin( int pageNo, int pageSize, string? search);
+        Task<List<StudentGetDTOs>> GetConfirmToAdmin( int pageNo, int pageSize, string? search, int studyModeId);
         Task<(List<StudentGetDTOs> StudentList, int TotalCount)> GetConfirmAddmissions(int? referenceId, int? pageNo, int? pageSize, string? search, int? studyModeId);
         Task<string> Create(StudentPostDTOs model);
         Task<string> CreateNew(StudentPostDTOs model);

@@ -3,6 +3,7 @@ using Domain;
 using Microsoft.EntityFrameworkCore;
 using Model;
 using System.Data;
+using System.Data.SqlClient;
 
 
 
@@ -12,10 +13,13 @@ namespace Application.Repository
     public class DropDownRepository : IDropDownRepository
     {
         private readonly ApplicationDbContext _context;
+        private readonly string _connectionString;
 
         public DropDownRepository(ApplicationDbContext context)
         {
             _context = context;
+            _connectionString = _context.Database.GetConnectionString()
+                ?? throw new InvalidOperationException("Database connection string not found.");
         }
 
         //---------------------------------------Frenchise Start------------------------------
@@ -105,15 +109,7 @@ namespace Application.Repository
                 )
                 .ToListAsync();
         }
-        //public async Task<List<DashboardStatsDTO>> getDashboard(int? Id)
-        //{
-        //    return await _context.DashboardStatsDTO
-        //        .FromSqlRaw(
-        //            "EXEC dbo.getDashboard @Id = {0}", Id
-
-        //        )
-        //        .ToListAsync();
-        //}
+        
 
         public async Task<List<DropDownDTOs>> GetMasterSession()
         {
@@ -349,8 +345,68 @@ namespace Application.Repository
         }
 
 
+        public async Task<DashboardStatsDTO> GetDashboard(int id)
+        {
+            try
+            {
+                DashboardStatsDTO data = null;
 
+                using (var connection = new SqlConnection(_connectionString))
+                using (var command = new SqlCommand("getDashboard", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
 
+                    command.Parameters.Add(new SqlParameter("@Id", id));
+
+                    await connection.OpenAsync();
+
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        if (await reader.ReadAsync())
+                        {
+                            data = new DashboardStatsDTO
+                            {
+                                TotalStudent = Convert.ToInt32(reader["TotalStudent"]),
+                                TotalFranchise = Convert.ToInt32(reader["TotalFranchise"]),
+                                TotalAccFranchise = Convert.ToInt32(reader["TotalAccFranchise"]),
+                                TotalEmployee = Convert.ToInt32(reader["TotalEmployee"]),
+                                TotalCourse = Convert.ToInt32(reader["TotalCourse"]),
+                                   
+                            };
+
+                            
+                        }
+                    }
+                }
+
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(
+                    "Error while fetching Employee by id.",  ex);
+            }
+        }
+
+        public async Task<List<EntityUserResult>> GetStudyCentreCourse(int Id)
+        {
+            return await _context.EntityUserResult
+                .FromSqlRaw("EXEC dbo.GetStudyCentreCourse @Id = {0}", Id)
+                .ToListAsync();
+        }
+        public async Task<List<EntityUserResult>> GetStudyCentreDepartment(int Id)
+        {
+            return await _context.EntityUserResult
+                .FromSqlRaw("EXEC dbo.GetStudyCentreDepartment @Id = {0}", Id)
+                .ToListAsync();
+        }
+
+        public async Task<List<EntityUserResult>> getCourseStudyCentreStudent(int Id, int courseTypeId)
+        {
+            return await _context.EntityUserResult
+                .FromSqlRaw("EXEC dbo.getCourseStudyCentreStudent @Id = {0},@courseTypeId = {1}", Id, courseTypeId)
+                .ToListAsync();
+        }
 
 
     }

@@ -24,7 +24,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
             _configuration = configuration;
             _environment = environment;
         }
-        
+
         [HttpGet("frenchise-getall")]
         public async Task<IActionResult> Get(int? referenceId = 1, int? pageNo = null, int? pageSize = null, string? search = null)
         {
@@ -53,7 +53,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                 });
             }
         }
-         
+
 
         [HttpPost("frenchise-create")]
         public async Task<IActionResult> Create(FrenchisePostDTOs model)
@@ -83,7 +83,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
 
                 model.PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password); // Hashed Password
 
-               // var result = await _unitOfWork.Frenchise.Create(model);
+                // var result = await _unitOfWork.Frenchise.Create(model);
                 var result = (await _unitOfWork.Frenchise.Create(model)).Split(",");
                 var msg = result[0];
                 var entityId = result[1];
@@ -116,6 +116,27 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
             }
 
             return Ok(data);
+        }
+        [HttpGet("frenchise-get-study-centre-department/{id}")]
+        public async Task<IActionResult> GetFranchiseDepartmentDetail(int id)
+        {
+            var data = await _unitOfWork.Frenchise.GetFranchiseDepartmentDetail(id);
+
+
+            if (data == null)
+            {
+                return NotFound("data not found");
+            }
+            // ✅ Sirf 4 fields select karo
+            var result = data.Select(x => new
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Address = x.Address,
+                Pincode = x.Pincode
+            }).ToList();
+
+            return Ok(result);
         }
 
         [HttpPut("frenchise-update")]
@@ -174,8 +195,8 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                 Message = result
             });
         }
-       
-        
+
+
         [HttpDelete("frenchise-delete/{id}")]
         public async Task<IActionResult> Delete(int Id)
         {
@@ -197,6 +218,83 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
             });
         }
 
+        [HttpDelete("frenchise-delete-department/{id}")]
+        public async Task<IActionResult> DeleteDepartment(int Id)
+        {
+            if (Id <= 0)
+            {
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = "Id is required"
+                });
+            }
+
+            var result = await _unitOfWork.Frenchise.DeleteDepartment(Id);
+
+            return Ok(new
+            {
+                Success = true,
+                Message = result
+            });
+        }
+
+
+        [HttpPost("study-center-create-department")]
+        public async Task<IActionResult> CreateDepartment([FromForm] FrenchisePostDTOs model)
+        {
+            try
+            {
+                // ✅ Validation
+                if (model == null)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Data is required"
+                    });
+                }
+
+                if (model.ReferenceId == null || model.ReferenceId <= 0)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "ReferenceId is required"
+                    });
+                }
+
+                // ✅ Save departments/courses
+                if (model.DepartmentIds != null && model.DepartmentIds.Count > 0)
+                {
+                    foreach (var dept in model.DepartmentIds)
+                    {
+                        await _unitOfWork.Frenchise.CreateInstituteDepartmentDetails(
+                            Convert.ToInt32(model.ReferenceId),
+                            dept
+                        );
+                    }
+                }
+
+                // ✅ Return success
+                return Ok(new
+                {
+                    success = true,
+                    data = model,
+                    message = "Successfully",
+                    printmsg = ""
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = "Something went wrong",
+                    error = ex.Message
+                });
+            }
+        }
 
     }
 }

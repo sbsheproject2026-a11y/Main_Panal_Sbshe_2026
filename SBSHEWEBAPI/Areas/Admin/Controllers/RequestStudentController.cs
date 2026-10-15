@@ -25,13 +25,13 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
 
         [HttpGet("request-student-confirm-to-admin")]
 
-        public async Task<IActionResult> GetConfirmToAdmin(int pageNo = 1, int pageSize = 100, string? search = null)
+        public async Task<IActionResult> GetConfirmToAdmin(int pageNo = 1, int pageSize = 100, string? search = null, int studyModeId=0)
         {
             try
             {
 
 
-                var data = await _unitOfWork.Student.GetConfirmToAdmin(pageNo, pageSize, search);
+                var data = await _unitOfWork.Student.GetConfirmToAdmin(pageNo, pageSize, search, studyModeId);
 
                 return Ok(new
                 {

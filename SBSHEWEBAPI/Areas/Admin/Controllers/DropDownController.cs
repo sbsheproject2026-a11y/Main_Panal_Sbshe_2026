@@ -70,32 +70,33 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
                 });
             }
         }
-        //[HttpGet("dashboard")]
-        //public async Task<IActionResult> getDashboard()
-        //{
-        //    try
-        //    {
-                 
+      
+        [HttpGet("dashboard")]
+        public async Task<IActionResult> getDashboard()
+        {
+            try
+            {
 
-        //        var data = await _unitOfWork.DropDown.getDashboard(0);
 
-        //        return Ok(new
-        //        {
-        //            Success = true,
-        //            Data = data
-        //        });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return BadRequest(new
-        //        {
-        //            Success = false,
-        //            Message = ex.Message
-        //        });
-        //    }
-        //}
-        
-        
+                var data = await _unitOfWork.DropDown.GetDashboard(0);
+
+                return Ok(new
+                {
+                    Success = true,
+                    Data = data
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = ex.Message
+                });
+            }
+        }
+
+
         [HttpGet("dropdown-employee-list/{id}")]
         public async Task<IActionResult> getEmployeedropList(int Id)
         {
@@ -321,6 +322,7 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
                 return BadRequest(new { Success = false, Message = ex.Message });
             }
         }
+        
         [HttpGet("dropdown-set-commission-amount/{id}")]
         public async Task<IActionResult> SetFranchiseCourseAmount(int id)
         {
@@ -335,6 +337,10 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
                 return BadRequest(new { Success = false, Message = ex.Message });
             }
         }
+    
+    
+    
+    
     }
 }
 

@@ -159,6 +159,7 @@ namespace Application.Repository
 
                     command.Parameters.Add(new SqlParameter("@EntityId", entityId));
                     command.Parameters.Add(new SqlParameter("@DepartmentId", model.DepartmentId));
+                    command.Parameters.Add(new SqlParameter("@CourseId", model.CourseId));
 
 
                     await connection.OpenAsync();
@@ -444,6 +445,75 @@ namespace Application.Repository
 
                     command.Parameters.Add(new SqlParameter("@Id", Id));
                     command.Parameters.Add(new SqlParameter("@Code", 1));
+
+                    await connection.OpenAsync();
+
+                    var result = await command.ExecuteScalarAsync();
+
+                    return result?.ToString() ?? "Frenchise Delete successfully";
+                }
+            }
+            catch (Exception ex)
+            {
+                return "Something went wrong: " + ex.Message;
+            }
+        }
+
+
+        public async Task<List<FrenchiseGetDTOs>> GetFranchiseDepartmentDetail(int id)
+        {
+            try
+            {
+                var data = new List<FrenchiseGetDTOs>();
+
+                var connectionString = _context.Database.GetConnectionString();
+
+                using (var connection = new SqlConnection(connectionString))
+                using (var command = new SqlCommand("GetFranchiseDepartmentDetail", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    command.Parameters.Add(new SqlParameter("@Id", id));
+
+                    await connection.OpenAsync();
+
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        // ✅ if → while (saari rows ke liye)
+                        while (await reader.ReadAsync())
+                        {
+                            data.Add(new FrenchiseGetDTOs
+                            {
+                                Id = Convert.ToInt32(reader["Id"]),
+                                Name = reader["Name"]?.ToString(),
+                                Address = reader["Address"]?.ToString(),
+                                Pincode = reader["PinCode"]?.ToString()
+                            });
+                        }
+                    }
+                }
+
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error while fetching Frenchise by id.", ex);
+            }
+        }
+
+        public async Task<string> DeleteDepartment(int Id)
+        {
+            try
+            {
+                var connectionString = _context.Database.GetConnectionString();
+
+                using (var connection = new SqlConnection(connectionString))
+                using (var command = new SqlCommand("DeleteDepartment", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    command.Parameters.Add(new SqlParameter("@Id", Id));
+                    
 
                     await connection.OpenAsync();
 

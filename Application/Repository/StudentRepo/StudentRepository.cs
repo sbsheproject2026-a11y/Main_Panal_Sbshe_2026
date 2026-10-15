@@ -138,7 +138,7 @@ namespace Application.Repository
             }
         }
 
-        public async Task<List<StudentGetDTOs>> GetConfirmToAdmin(int pageNo, int pageSize, string? search)
+        public async Task<List<StudentGetDTOs>> GetConfirmToAdmin(int pageNo, int pageSize, string? search, int studyModeId)
         {
             try
             {
@@ -153,6 +153,7 @@ namespace Application.Repository
 
                     command.Parameters.Add(new SqlParameter("@PageNo", pageNo));
                     command.Parameters.Add(new SqlParameter("@PageSize", pageSize));
+                    command.Parameters.Add(new SqlParameter("@studyModeId", studyModeId));
                     command.Parameters.Add(new SqlParameter("@Search", search ?? (object)DBNull.Value));
 
                     await connection.OpenAsync();

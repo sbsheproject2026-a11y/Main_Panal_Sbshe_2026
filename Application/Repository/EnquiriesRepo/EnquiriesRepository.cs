@@ -27,6 +27,7 @@ namespace Application.Repository
                         Id = x.Id,
                         Name = x.Name,
                         MobileNo = x.MobileNo,
+                        EnquiryDate = x.EnquiryDate.Value.ToString("dd/MM/yyyy hh:mm tt"),
                         Email = x.Email,
                         Course = x.Course,
                         Address = x.Address,

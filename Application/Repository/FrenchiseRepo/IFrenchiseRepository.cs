@@ -16,7 +16,10 @@ namespace Application.Repository
         Task<string> UpdateDocument(FrenchisePostDTOs model);
         Task<string> UpdatePassword(FranchiseUpdatePasswordDTOs model);
         Task<string> Delete(int Id);
-        
-         
+        Task<List<FrenchiseGetDTOs>> GetFranchiseDepartmentDetail(int id);
+        Task<string> DeleteDepartment(int Id);
+
+
+
     }
 }

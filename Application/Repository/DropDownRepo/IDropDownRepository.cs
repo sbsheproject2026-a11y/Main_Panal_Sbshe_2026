@@ -31,6 +31,10 @@ namespace Application.Repository
         Task<List<DropDownDTOs>> GetCity(int Id);
         Task<List<DropDownDTOs>> GetOnlineSession();
         Task<List<EntityUserResult>> getCourseOnlineStudent(int Id, int courseTypeId);
+        Task<DashboardStatsDTO> GetDashboard(int id);
+        Task<List<EntityUserResult>> GetStudyCentreCourse(int Id);
+        Task<List<EntityUserResult>> GetStudyCentreDepartment(int Id);
+        Task<List<EntityUserResult>> getCourseStudyCentreStudent(int Id, int courseTypeId);
 
 
     }

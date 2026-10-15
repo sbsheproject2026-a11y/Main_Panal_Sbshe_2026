@@ -70,6 +70,7 @@ namespace Application.DTOs
     public class FranchiseDepartmentDTOs
     {
         public int? DepartmentId { get; set; }
+        public int? CourseId { get; set; }
      
     }
     public class FranchiseUpdatePasswordDTOs

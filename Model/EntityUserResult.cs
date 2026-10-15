@@ -27,6 +27,7 @@ namespace Model
     {
         public int TotalStudent { get; set; }
         public int TotalFranchise { get; set; }
+        public int TotalAccFranchise { get; set; }
         public int TotalEmployee { get; set; }
         public int TotalCourse { get; set; }
     }
