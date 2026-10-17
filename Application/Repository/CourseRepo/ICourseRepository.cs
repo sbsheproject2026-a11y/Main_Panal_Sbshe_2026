@@ -31,6 +31,7 @@ namespace Application.Repository
 
         Task<List<ProductMaterialGetDtos>> getCourseMaterial(int id);
         Task<string> DeleteCourseMaterial(int Id);
+        Task<CourseGetDTOs?> GetStudentCourseDetailById(int id);
 
 
 

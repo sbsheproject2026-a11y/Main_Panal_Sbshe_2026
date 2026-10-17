@@ -35,6 +35,7 @@ namespace Application.Repository
         Task<List<EntityUserResult>> GetStudyCentreCourse(int Id);
         Task<List<EntityUserResult>> GetStudyCentreDepartment(int Id);
         Task<List<EntityUserResult>> getCourseStudyCentreStudent(int Id, int courseTypeId);
+        Task<List<EntityUserResult>> GetStudyCentreState(int Id);
 
 
     }

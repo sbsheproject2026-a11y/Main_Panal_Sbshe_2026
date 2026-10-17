@@ -41,6 +41,7 @@ namespace SBSHEWEBAPI
                     mobileNo = x.MobileNo,
                     email = x.Email,
                     pincode = x.Pincode,
+                    selfImage = x.PassportPhoto,
                      code = x.Code
                 }).ToList();
 

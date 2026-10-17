@@ -1483,10 +1483,10 @@ namespace SBSHEWEBAPI
                         duration = data.Duration,
                         examSessionId = data.ExamSessionId,
                         casteCategoryId = data.CasteCategoryId,
-                        selfImageShow = data.SelfImageShow,
-                        signatureImageShow = data.SignatureImageShow,
-                        aadhaarCardFrantShow = data.AadhaarCardFrantShow,
-                        aadhaarCardBackShow = data.AadhaarCardBackShow
+                        selfImageShow = data.SelfImage,
+                        signatureImageShow = data.SignatureImage,
+                        aadhaarCardFrantShow = data.AadhaarCardFrant,
+                        aadhaarCardBackShow = data.AadhaarCardBack
                     },
                     academicDetails = academicWithLevel,   // 👈 yahan bhej do
                     franchise = franchisedata == null ? null : new

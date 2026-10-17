@@ -26,6 +26,8 @@ namespace Application.Repository
                 var data = await (from pa in _context.MasterTypeDetail
                                   join p in _context.MasterType on pa.MasterTypeId equals p.Id into productGroup
                                   from p in productGroup.DefaultIfEmpty()
+                                  join parent in _context.MasterTypeDetail on pa.ParentId equals parent.Id into parentgroup
+                                  from parent in parentgroup.DefaultIfEmpty()
 
                                   where pa.IsDelete == 0
 
@@ -35,7 +37,9 @@ namespace Application.Repository
                                       Id = pa.Id,
                                       SrNo = pa.SrNo,
                                       Name = pa.Name,
+                                      ParentName= parent.Name,
                                       Code = pa.Code,
+                                      ParentId = pa.ParentId,
                                       MasterTypeId = pa.MasterTypeId,
                                       FilePath = pa.FilePath,
                                       IsActive = pa.IsActive
@@ -95,6 +99,7 @@ namespace Application.Repository
                         Code = x.Code,
                         FilePath = x.FilePath,
                         IsActive = x.IsActive,
+                        ParentId = x.ParentId,
                         MasterTypeId = x.MasterTypeId
                     })
                     .FirstOrDefaultAsync();

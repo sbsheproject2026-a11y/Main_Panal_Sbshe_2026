@@ -948,6 +948,78 @@ namespace Application.Repository
 
         //Course  Material  Working End//
 
+
+        public async Task<CourseGetDTOs?> GetStudentCourseDetailById(int id)
+        {
+            try
+            {
+                var data = await (from pa in _context.ProductCategory
+                                  join p in _context.Product on pa.Id equals p.ProductCategoryId into product
+                                  from p in product.DefaultIfEmpty()
+                                  join ppd in _context.ProductPersonalDetail on p.Id equals ppd.ProductId into productppd
+                                  from p1 in productppd.DefaultIfEmpty()
+                                  join ppl in _context.ProductLink on p.Id equals ppl.ProductId into productppl
+                                  from p4 in productppl.DefaultIfEmpty()
+                                  join pcd in _context.ProductCategoryDetail on p.Id equals pcd.ProductCategoryId into productGroup
+                                  from p3 in productGroup.DefaultIfEmpty()
+                                  join mtd in _context.MasterTypeDetail on p.Duration equals mtd.Id into mtdd
+                                  from mtd in mtdd.DefaultIfEmpty()
+                                  join mtd1 in _context.MasterTypeDetail on p.DurationTypeId equals mtd1.Id into mtdd1
+                                  from mtd1 in mtdd1.DefaultIfEmpty()
+                                  where p.Id == id
+                                  orderby pa.Id descending
+                                  select new CourseGetDTOs
+                                  {
+                                      Id = p.Id,
+                                      Code = p.Code ?? "",
+                                      Name = p.Name,
+                                      Eligbilty = p.Eligbilty ?? "",
+                                      DurationName = mtd.Name + ' ' + mtd1.Name,
+                                      ParentId = p.ParentId,
+                                      TotalClass = p1.TotalClass,
+                                      ClassNo = p1.ClassNo,
+                                      StudyModeId = p1.StudyModeId,
+                                      ShortDescription = p3.ShortDescription,
+                                      Descrption = p3.Descrption,
+                                      IsActive = pa.IsActive,
+
+                                      // ✅ FIX: IsActive filter hata diya, SrNo se sort kiya
+                                      ProductCategoryDocuments = _context.ProductCategoryDocument
+                                          .Where(x => x.ProductCategoryId == pa.Id
+                                                  && (x.IsActive == 1 || x.IsActive == null))
+                                          .OrderBy(x => x.SrNo)
+                                          .Select(x => new ProductMaterialDtos
+                                          {
+                                              Id = x.Id,
+                                              SrNo = x.SrNo,
+                                              Name = x.Title,
+                                              Fileupload = x.Path,
+                                              AltTag = x.AltTag,
+                                          })
+                                          .ToList(),
+
+                                      ProductAmounts = _context.ProductAmount
+                                          .Where(x => x.ProductId == p.Id
+                                                  && (x.IsActive == 1 || x.IsActive == null))
+                                          .Select(x => new ProductAmountDtos
+                                          {
+                                              Id = x.Id,
+                                              Name = x.Name,
+                                              Amount = x.Amount,
+                                              AmountTypeId = x.AmountTypeId,
+                                          })
+                                          .ToList()
+                                  })
+                                  .FirstOrDefaultAsync();
+
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error while fetching data.", ex);
+            }
+        }
+
         // --------------------------------------- Course End ---------------------------------------
     }
 }

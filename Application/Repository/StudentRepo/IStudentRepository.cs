@@ -5,7 +5,7 @@ namespace Application.Repository
     public interface IStudentRepository
     {
 
-        Task<List<StudentGetDTOs>> GetAll(int ReferenceId, int pageNo, int pageSize, string? search);
+        Task<(List<StudentGetDTOs> StudentList, int TotalCount)> GetAll(int referenceId, int? pageNo, int? pageSize, string? search, int? studyModeId);
         Task<List<StudentGetDTOs>> GetSendToConfirm(int ReferenceId, int pageNo, int pageSize, string? search);
         Task<List<StudentGetDTOs>> GetConfirmToAdmin( int pageNo, int pageSize, string? search, int studyModeId);
         Task<(List<StudentGetDTOs> StudentList, int TotalCount)> GetConfirmAddmissions(int? referenceId, int? pageNo, int? pageSize, string? search, int? studyModeId);

@@ -407,6 +407,12 @@ namespace Application.Repository
                 .FromSqlRaw("EXEC dbo.getCourseStudyCentreStudent @Id = {0},@courseTypeId = {1}", Id, courseTypeId)
                 .ToListAsync();
         }
+        public async Task<List<EntityUserResult>> GetStudyCentreState(int Id)
+        {
+            return await _context.EntityUserResult
+                .FromSqlRaw("EXEC dbo.GetStudyCentreState @Id = {0}", Id)
+                .ToListAsync();
+        }
 
 
     }

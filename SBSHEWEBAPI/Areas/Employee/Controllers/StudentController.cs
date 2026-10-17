@@ -27,7 +27,7 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
         [Authorize]
         [HttpGet("student-getall")]
 
-        public async Task<IActionResult> Get(int? referenceId, int pageNo = 1, int pageSize = 100, string? search = null)
+        public async Task<IActionResult> Get(int? referenceId, int? pageNo = null, int? pageSize = null, string? search = null, int studyModeId = 0)
         {
             try
             {
@@ -53,14 +53,17 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
 
                     finalUserId = Convert.ToInt32(tokenUserId);
                 }
-                var data = await _unitOfWork.Student.GetAll(finalUserId, pageNo, pageSize, search);
+                pageNo ??= 1;
+                pageSize ??= 100;
+
+                var (data, totalCount) = await _unitOfWork.Student.GetAll(finalUserId, pageNo, pageSize, search, studyModeId);
 
                 return Ok(new
                 {
                     Success = true,
                     PageNo = pageNo,
                     PageSize = pageSize,
-                    TotalRecords = data.Count,
+                    TotalRecords = totalCount,
                     Data = data
                 });
             }

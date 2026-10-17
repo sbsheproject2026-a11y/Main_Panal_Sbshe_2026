@@ -26,7 +26,7 @@ namespace SBSHEWEBAPI.Areas.Student.Controllers
         }
 
 
-        [HttpGet("student-prifile/{id}")]
+        [HttpGet("student-profile/{id}")]
         public async Task<IActionResult> StudentDetails(int id)
         {
             var data = await _unitOfWork.Student.GetStudentProfileData(id);

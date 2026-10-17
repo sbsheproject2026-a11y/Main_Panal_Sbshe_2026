@@ -58,7 +58,8 @@ namespace Application.Repository
 
                                 CityName = reader["CityName"]?.ToString(),
                                 DistrictName = reader["DistrictName"]?.ToString(),
-                                StateName = reader["StateName"]?.ToString()
+                                StateName = reader["StateName"]?.ToString(),
+                                PassportPhoto = reader["SelfImage"]?.ToString()
                             });
                         }
                     }
@@ -97,15 +98,15 @@ namespace Application.Repository
                                       IsActive = pa.IsActive,
                                       ProductCategoryDocuments = _context.ProductCategoryDocument.Where(x => x.ProductCategoryId == pa.Id && x.IsActive == 1)
                                         .Select(x => new ProductCategoryDocumentDTOs
-                                           {
-                            Id = x.Id,
- 
-                            SrNo = x.SrNo,
-                            Title = x.Title,
-                            Path = x.Path,
-                            AltTag = x.AltTag,
-                            IsActive = x.IsActive
-                        })
+                                        {
+                                            Id = x.Id,
+
+                                            SrNo = x.SrNo,
+                                            Title = x.Title,
+                                            Path = x.Path,
+                                            AltTag = x.AltTag,
+                                            IsActive = x.IsActive
+                                        })
                         .ToList()
 
 
@@ -132,7 +133,7 @@ namespace Application.Repository
                                   join p in _context.ProductCategoryDetail on pa.Id equals p.ProductCategoryId into productGroup
                                   from p in productGroup.DefaultIfEmpty()
 
-                                  where pa.IsDelete == 1 && pa.ProductTypeId != null && pa.Id==Id
+                                  where pa.IsDelete == 1 && pa.ProductTypeId != null && pa.Id == Id
 
                                   orderby pa.Id descending
                                   select new WebsiteContentGetDTOs
@@ -396,16 +397,16 @@ namespace Application.Repository
         }
 
 
-       
+
         public async Task<List<MasterTypeDetailGetDTOs>> GetWebsiteMaster(int id)
         {
             try
             {
 
                 var data = await (from pa in _context.MasterTypeDetail
-                                 
 
-                                  where pa.IsDelete == 0 && pa.MasterTypeId==id
+
+                                  where pa.IsDelete == 0 && pa.MasterTypeId == id
 
                                   orderby pa.Id descending
                                   select new MasterTypeDetailGetDTOs
@@ -414,7 +415,7 @@ namespace Application.Repository
                                       SrNo = pa.SrNo,
                                       Name = pa.Name,
                                       Code = pa.Code,
-                                   
+                                      ParentId = pa.ParentId,
                                       FilePath = pa.FilePath,
                                       IsActive = pa.IsActive
 
@@ -469,7 +470,7 @@ namespace Application.Repository
                                   from mtd1 in mtdd1.DefaultIfEmpty()
                                   join mtddep in _context.MasterTypeDetail on p1.DepartmentId equals mtddep.Id into mtddep1
                                   from mtddep in mtddep1.DefaultIfEmpty()
-                                  where p.IsDelete == 0 && pa.ProductTypeId == null &&  p1.DepartmentId==id  && p.ParentId==null
+                                  where p.IsDelete == 0 && pa.ProductTypeId == null && p1.DepartmentId == id && p.ParentId == null
 
                                   orderby p.Id descending
 
@@ -479,12 +480,12 @@ namespace Application.Repository
                                   {
                                       Id = p.Id,
                                       Name = p.Name,
-                                      Code=p.Code,
+                                      Code = p.Code,
                                       NameHindi = p.CourseNameHindi,
-                                    
-                                      Eligbilty=p.Eligbilty,
 
-                                      StudyModeId=p1.StudyModeId,
+                                      Eligbilty = p.Eligbilty,
+
+                                      StudyModeId = p1.StudyModeId,
 
 
                                       DurationName = mtd.Name + ' ' + mtd1.Name,

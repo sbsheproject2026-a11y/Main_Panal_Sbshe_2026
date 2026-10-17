@@ -24,12 +24,12 @@ namespace Application.Repository
 
         //---------------------------------------Frenchise Start------------------------------
 
-        public async Task<List<StudentGetDTOs>> GetAll(int referenceId, int pageNo, int pageSize, string? search)
+        public async Task<(List<StudentGetDTOs> StudentList, int TotalCount)> GetAll(int referenceId, int? pageNo, int? pageSize, string? search, int? studyModeId)
         {
             try
             {
                 var data = new List<StudentGetDTOs>();
-
+                int totalCount = 0;
                 var connectionString = _context.Database.GetConnectionString();
 
                 using (var connection = new SqlConnection(connectionString))
@@ -40,6 +40,7 @@ namespace Application.Repository
                     command.Parameters.Add(new SqlParameter("@ReferenceId", referenceId));
                     command.Parameters.Add(new SqlParameter("@PageNo", pageNo));
                     command.Parameters.Add(new SqlParameter("@PageSize", pageSize));
+                    command.Parameters.Add(new SqlParameter("@studyModeId", studyModeId));
                     command.Parameters.Add(new SqlParameter("@Search", search ?? (object)DBNull.Value));
 
                     await connection.OpenAsync();
@@ -68,11 +69,15 @@ namespace Application.Repository
                                 CourseName = reader["CourseName"]?.ToString(),
                                 InstituteName = reader["CentreName"]?.ToString(),
                             });
+                            if (reader["TotalRows"] != DBNull.Value)
+                            {
+                                totalCount = Convert.ToInt32(reader["TotalRows"]);
+                            }
                         }
                     }
                 }
 
-                return data;
+                return (data, totalCount);
             }
             catch (Exception ex)
             {
@@ -284,6 +289,7 @@ namespace Application.Repository
                             {
                                 Id = Convert.ToInt32(reader["Id"]),
                                 ReferenceId = Convert.ToInt32(reader["ReferenceId"]),
+                                CourseId = Convert.ToInt32(reader["CourseId"]),
                                 Code = reader["Code"]?.ToString(),
                                 EnrollmentNo = reader["EnrollmentNo"]?.ToString(),
                                 Rollno = reader["Rollno"]?.ToString(),
@@ -512,10 +518,7 @@ namespace Application.Repository
                                 AadhaarCardFrant = reader["AadhaarCardFrant"]?.ToString(),
                                 AadhaarCardBack = reader["AadhaarCardBack"]?.ToString(),
 
-                                SelfImageShow =   reader["SelfImage"]?.ToString(),
-                                SignatureImageShow =  reader["SignatureImage"]?.ToString(),
-                                AadhaarCardFrantShow =   reader["AadhaarCardFrant"]?.ToString(),
-                                AadhaarCardBackShow =   reader["AadhaarCardBack"]?.ToString(),
+                                 
 
                                 IdNumber = reader["IdNumber"]?.ToString()
                             };

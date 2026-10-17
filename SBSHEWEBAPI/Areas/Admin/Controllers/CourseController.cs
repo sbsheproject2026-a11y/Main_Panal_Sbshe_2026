@@ -493,6 +493,18 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
         }
 
 
+        [HttpGet("course-getstudent-details-all/{id}")]
+        public async Task<IActionResult> GetStudentCourseDetailById(int id)
+        {
+            var data = await _unitOfWork.Course.GetStudentCourseDetailById(id);
+
+            if (data == null)
+            {
+                return NotFound("data not found");
+            }
+
+            return Ok(data);
+        }
 
 
 
