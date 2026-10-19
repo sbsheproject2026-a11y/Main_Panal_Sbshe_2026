@@ -195,15 +195,11 @@ namespace SBSHEWEBAPI
         }
 
 
+
         [HttpPost("new-student-create")]
         public async Task<IActionResult> Create([FromForm] StudentPostDTOs model)
         {
-            // ✅ Static folder — har request pe create nahi hoga
             string folderPath = Path.Combine(_environment.WebRootPath, "Uploads");
-
-            // ✅ Static semaphore — disk IO throttle (max 50 parallel writes)
-            // Class level pe rakho (neeche bataya hai)
-            // private static readonly SemaphoreSlim _fileLock = new(50, 50);
 
             var uploadedFiles = new List<string>();
             var sw = System.Diagnostics.Stopwatch.StartNew();
@@ -214,33 +210,25 @@ namespace SBSHEWEBAPI
                 // 1. Validation
                 // =========================
                 if (model == null || string.IsNullOrWhiteSpace(model.Name))
-                {
                     return BadRequest(new { success = false, message = "Data is required" });
-                }
 
                 if (string.IsNullOrWhiteSpace(model.Email))
-                {
                     return BadRequest(new { success = false, message = "Email is required" });
-                }
 
                 // =========================
                 // 2. Folder Create (once)
                 // =========================
                 if (!Directory.Exists(folderPath))
-                {
                     Directory.CreateDirectory(folderPath);
-                }
 
                 // =========================
-                // 3. File Upload Helper (Local)
+                // 3. File Upload Helper
                 // =========================
                 async Task<string> UploadFile(IFormFile file)
                 {
-                    // ✅ Full Guid — no collision
                     string fileName = $"{Guid.NewGuid():N}_{Path.GetFileName(file.FileName)}";
                     string filePath = Path.Combine(folderPath, fileName);
 
-                    // ✅ Semaphore — disk IO throttle
                     await _fileLock.WaitAsync();
                     try
                     {
@@ -264,7 +252,7 @@ namespace SBSHEWEBAPI
                 }
 
                 // =========================
-                // 4. ✅ PARALLEL File Uploads
+                // 4. Parallel File Uploads
                 // =========================
                 var uploadTasks = new List<Task>();
 
@@ -284,7 +272,6 @@ namespace SBSHEWEBAPI
                     uploadTasks.Add(Task.Run(async () =>
                         model.AadhaarCardBack = await UploadFile(model.AadhaarCardBack1)));
 
-                // ✅ Academic files — parallel
                 if (model.AcademicDetails != null && model.AcademicDetails.Count > 0)
                 {
                     foreach (var academic in model.AcademicDetails)
@@ -298,11 +285,8 @@ namespace SBSHEWEBAPI
                     }
                 }
 
-                // ✅ Sab files ek saath upload
                 if (uploadTasks.Count > 0)
-                {
                     await Task.WhenAll(uploadTasks);
-                }
 
                 // =========================
                 // 5. Defaults
@@ -317,7 +301,6 @@ namespace SBSHEWEBAPI
                 model.Password = model.DOB?.ToString("ddMMyyyy") ?? "";
                 model.StudyModeId = model.StudyModeId == 0 ? 88 : model.StudyModeId;
 
-                // ✅ BCrypt workFactor: 10 (default 11 se tez, same security level)
                 model.PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password, workFactor: 10);
 
                 // =========================
@@ -330,14 +313,8 @@ namespace SBSHEWEBAPI
 
                 if (msg != "Successfully")
                 {
-                    // ✅ Failed → orphan files delete karo
                     await CleanupFilesAsync(folderPath, uploadedFiles);
-
-                    return BadRequest(new
-                    {
-                        success = false,
-                        message = msg
-                    });
+                    return BadRequest(new { success = false, message = msg });
                 }
 
                 // =========================
@@ -359,11 +336,83 @@ namespace SBSHEWEBAPI
                 HttpContext.Session.SetString("Key", oId);
 
                 sw.Stop();
+                _logger.LogInformation("Student created: {Email} in {Ms}ms",
+                    model.Email, sw.ElapsedMilliseconds);
 
-                // ✅ Logging (agar _logger inject hai to)
-                // _logger.LogInformation("Student created: {Email} in {Ms}ms",
-                //     model.Email, sw.ElapsedMilliseconds);
+                // ============================================================
+                // ✅ 9. EMAIL BHEJO (Study Centre wale pattern se — same Email_sms)
+                // ============================================================
 
+                string emailTo = model.Email;
+                string emailName = model.Name ?? "Student";
+                string emailUserName = model.UserName ?? "";
+                string emailPassword = model.Password ?? "";
+
+                DateTime emailRegTime = DateTime.Now;
+
+                string subject = "Registration Successful – Login Details Inside";
+
+                string emailBody = $@"
+<div style='font-family:Arial,Helvetica,sans-serif;font-size:15px;color:#222;
+            line-height:1.7;max-width:600px;margin:0 auto;padding:24px;'>
+
+  <p>Dear <b>{emailName}</b>,</p>
+
+  <p>Your registration has been <b>successfully submitted</b>. ✅</p>
+
+  <p>Below are your login details:</p>
+
+  <ul style='margin:10px 0 20px 20px;padding:0;'>
+    <li style='margin-bottom:8px;'>
+      <b>Username:</b> {emailUserName}
+      <span style='color:#666;font-size:13px;'>(your email address)</span>
+    </li>
+    <li style='margin-bottom:8px;'>
+      <b>Password:</b> {emailPassword}
+      <span style='color:#666;font-size:13px;'>(your date of birth in DDMMYYYY format)</span>
+    </li>
+  </ul>
+
+  <p>You can now log in to your dashboard using the credentials above.</p>
+
+  <p>Please keep your login details safe and do not share them with anyone.</p>
+
+  <p>If you face any issues, feel free to contact us at
+     <a href='mailto:contact@shaheedbhagatsinghhealthandeducation.com'
+        style='color:#1a73e8;text-decoration:none;'>
+       contact@shaheedbhagatsinghhealthandeducation.com
+     </a>.
+  </p>
+
+  <p style='margin-top:24px;'>Regards,<br/>
+     <b>Team Shaheed Bhagat Singh Health &amp; Education</b>
+  </p>
+
+  <hr style='border:none;border-top:1px solid #e5e5e5;margin:24px 0 12px 0;' />
+
+  <p style='font-size:12px;color:#888;margin:0;'>
+    This is an automated email. Please do not reply to this message.
+  </p>
+
+</div>";
+
+                // ✅ Background me bhejo — exactly Study Centre jaisa
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        Email_sms obj = new Email_sms();
+                        await obj.SendEmailAsync(emailTo, subject, emailBody, isHtml: true);
+                    }
+                    catch (Exception emailEx)
+                    {
+                        _logger.LogError(emailEx, "Student email failed to {Email}", emailTo);
+                    }
+                });
+
+                // =========================
+                // 10. Response
+                // =========================
                 return Ok(new
                 {
                     success = true,
@@ -377,14 +426,10 @@ namespace SBSHEWEBAPI
             {
                 sw.Stop();
 
-                // ✅ Orphan files cleanup
                 await CleanupFilesAsync(folderPath, uploadedFiles);
 
-                // ✅ Console log — full error visible for debugging
-                Console.WriteLine($"[StudentCreate ERROR] Email: {model?.Email} | {ex.Message}");
-                Console.WriteLine(ex.StackTrace);
+                _logger.LogError(ex, "[StudentCreate ERROR] Email: {Email}", model?.Email);
 
-                // ❌ Client ko sirf safe message — stack trace nahi
                 return StatusCode(500, new
                 {
                     success = false,
@@ -392,7 +437,6 @@ namespace SBSHEWEBAPI
                 });
             }
         }
-
         // =============================================
         // ✅ Helper — File Cleanup (Controller ke andar)
         // =============================================

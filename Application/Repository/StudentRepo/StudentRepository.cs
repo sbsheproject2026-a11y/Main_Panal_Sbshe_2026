@@ -376,6 +376,7 @@ namespace Application.Repository
                 return "Something went wrong: " + ex.Message;
             }
         }
+      
         public async Task<string> CreateNew(StudentPostDTOs model)
         {
             try
@@ -717,7 +718,7 @@ namespace Application.Repository
 
                     var result = await command.ExecuteScalarAsync();
 
-                    return result?.ToString() ?? "Employee Delete successfully";
+                    return result?.ToString() ?? "Not Send for Confirmed!";
                 }
             }
             catch (Exception ex)
