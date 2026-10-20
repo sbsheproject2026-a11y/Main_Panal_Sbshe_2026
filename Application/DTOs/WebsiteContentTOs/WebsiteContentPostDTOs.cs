@@ -8,6 +8,7 @@ namespace Application.DTOs
  
         public int? ProductTypeId { get; set; }
         public int? SrNo { get; set; }
+        public DateTime? Date { get; set; }
 
       
        

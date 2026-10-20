@@ -1,4 +1,5 @@
-﻿using Application.Helper;
+﻿using Application.DTOs.MasterTypeDTOs;
+using Application.Helper;
 using Microsoft.AspNetCore.Mvc;
 
 namespace SBSHEWEBAPI
@@ -84,7 +85,48 @@ namespace SBSHEWEBAPI
             return Ok(data);
         }
 
+        [HttpGet("website-menu")] // ✅ {id?} lagaya taaki id optional ho
+        public async Task<IActionResult> GetMenu(int? id, int? pid)
+        {
+            try
+            {
+                id = id ?? 0;
+                pid = pid ?? 0;
+                var data = await _unitOfWork.WebsiteContent.GetWebsiteMenu(id, pid);
+
+                // ✅ Agar data nahi hai, toh error dene ki jagah empty list bhejo
+                // Isse frontend crash nahi hoga
+                if (data == null)
+                {
+                    return Ok(new List<MasterTypeDetailGetDTOs>());
+                }
+
+                return Ok(data);
+            }
+            catch (Exception ex)
+            {
+                // ✅ Proper 500 error handling
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Server error",
+                    error = ex.Message
+                });
+            }
+        }
+
+        [HttpGet("all-website-content/{id:int}")]
+        public async Task<IActionResult> GetWebsiteContent(int id)
+        {
+            var data = await _unitOfWork.WebsiteContent.GetWebsiteData(id);
+
+            if (data == null || !data.Any())
+                return NotFound("Data not found");
+
+            return Ok(data);
+        }
+
 
     }
 }
-
+    

@@ -1,5 +1,6 @@
 ﻿using Application.DTOs.MasterTypeDTOs;
 using Application.Helper;
+using Application.Repository;
 using Microsoft.AspNetCore.Mvc;
 
 namespace SBSHEWEBAPI
@@ -45,6 +46,7 @@ namespace SBSHEWEBAPI
         }
 
 
+
         [HttpPost("student-Enquiries")]
         public async Task<IActionResult> CreateStudent(EnquiriesPostDTOs model)
         {
@@ -58,8 +60,70 @@ namespace SBSHEWEBAPI
                         message = "Enquiry data is required."
                     });
                 }
+
                 model.TypeId = 1;
                 var result = await _unitOfWork.Enquiries.Create(model);
+
+                // ============================================================
+                // ✅ EMAIL BHEJO (Exactly same as your Student Creation code)
+                // ============================================================
+
+                string emailTo = model.Email;
+                string emailName = model.Name ?? "Student";
+
+                // ✅ Subject line sahi kar diya hai
+                string subject = "Enquiry Submitted Successfully – Shaheed Bhagat Singh Health & Education";
+
+                string emailBody = $@"
+<div style='font-family:Arial,Helvetica,sans-serif;font-size:15px;color:#222;
+            line-height:1.7;max-width:600px;margin:0 auto;padding:24px;'>
+
+  <p>Dear <b>{emailName}</b>,</p>
+
+  <p>Your Enquiry has been <b>successfully submitted</b>. ✅</p>
+
+  <p>Our team has received your details and will get back to you shortly.</p>
+  
+  <div style='background-color:#f9f9f9;padding:15px;border-radius:8px;margin:20px 0;border-left:4px solid #ff6600;'>
+      <h4 style='margin-top:0;color:#111;'>Your Enquiry Summary:</h4>
+      <ul style='margin:10px 0 0 20px;padding:0;'>
+        <li style='margin-bottom:8px;'><b>Name:</b> {model.Name}</li>
+        <li style='margin-bottom:8px;'><b>Email:</b> {model.Email}</li>
+        <li style='margin-bottom:8px;'><b>Course:</b> {model.Course}</li>
+      </ul>
+  </div>
+
+  <p>If you face any issues, feel free to contact us at
+     <a href='mailto:contact@shaheedbhagatsinghhealthandeducation.com'
+        style='color:#1a73e8;text-decoration:none;'>
+       contact@shaheedbhagatsinghhealthandeducation.com
+     </a>.
+  </p>
+
+  <p style='margin-top:24px;'>Regards,<br/>
+     <b>Team Shaheed Bhagat Singh Health &amp; Education</b>
+  </p>
+
+  <hr style='border:none;border-top:1px solid #e5e5e5;margin:24px 0 12px 0;' />
+
+  <p style='font-size:12px;color:#888;margin:0;'>
+    This is an automated email. Please do not reply to this message.
+  </p>
+
+</div>";
+
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        Email_sms obj = new Email_sms();
+                        await obj.SendEmailAsync(emailTo, subject, emailBody, isHtml: true);
+                    }
+                    catch (Exception emailEx)
+                    {
+                        Console.WriteLine($"Enquiry email failed to {emailTo}: {emailEx.Message}");
+                    }
+                });
 
                 return Ok(new
                 {
@@ -81,9 +145,9 @@ namespace SBSHEWEBAPI
                 );
             }
         }
-       
-        
-        
+
+
+
         [HttpPost("franchise-Enquiries")]
         public async Task<IActionResult> CreateFranchise(EnquiriesPostDTOs model)
         {
@@ -97,8 +161,70 @@ namespace SBSHEWEBAPI
                         message = "Enquiry data is required."
                     });
                 }
+
                 model.TypeId = 2;
                 var result = await _unitOfWork.Enquiries.Create(model);
+
+                // ============================================================
+                // ✅ EMAIL BHEJO (Franchise Enquiry)
+                // ============================================================
+
+                string emailTo = model.Email;
+                string emailName = model.Name ?? "Partner";
+
+                // ✅ Franchise ke liye Subject line
+                string subject = "Franchise Enquiry Submitted Successfully – Shaheed Bhagat Singh Health & Education";
+
+                string emailBody = $@"
+<div style='font-family:Arial,Helvetica,sans-serif;font-size:15px;color:#222;
+            line-height:1.7;max-width:600px;margin:0 auto;padding:24px;'>
+
+  <p>Dear <b>{emailName}</b>,</p>
+
+  <p>Your Franchise Enquiry has been <b>successfully submitted</b>. ✅</p>
+
+  <p>Thank you for your interest in partnering with us. Our team has received your details and will get back to you shortly to discuss the next steps.</p>
+  
+  <div style='background-color:#f9f9f9;padding:15px;border-radius:8px;margin:20px 0;border-left:4px solid #ff6600;'>
+      <h4 style='margin-top:0;color:#111;'>Your Enquiry Summary:</h4>
+      <ul style='margin:10px 0 0 20px;padding:0;'>
+        <li style='margin-bottom:8px;'><b>Institute Name:</b> {model.Course}</li>
+        <li style='margin-bottom:8px;'><b>Name:</b> {model.Name}</li>
+        <li style='margin-bottom:8px;'><b>Email:</b> {model.Email}</li>
+      </ul>
+  </div>
+
+  <p>If you face any issues, feel free to contact us at
+     <a href='mailto:contact@shaheedbhagatsinghhealthandeducation.com'
+        style='color:#1a73e8;text-decoration:none;'>
+       contact@shaheedbhagatsinghhealthandeducation.com
+     </a>.
+  </p>
+
+  <p style='margin-top:24px;'>Regards,<br/>
+     <b>Team Shaheed Bhagat Singh Health &amp; Education</b>
+  </p>
+
+  <hr style='border:none;border-top:1px solid #e5e5e5;margin:24px 0 12px 0;' />
+
+  <p style='font-size:12px;color:#888;margin:0;'>
+    This is an automated email. Please do not reply to this message.
+  </p>
+
+</div>";
+
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        Email_sms obj = new Email_sms();
+                        await obj.SendEmailAsync(emailTo, subject, emailBody, isHtml: true);
+                    }
+                    catch (Exception emailEx)
+                    {
+                        Console.WriteLine($"Franchise Enquiry email failed to {emailTo}: {emailEx.Message}");
+                    }
+                });
 
                 return Ok(new
                 {
@@ -120,7 +246,6 @@ namespace SBSHEWEBAPI
                 );
             }
         }
-
 
         [HttpDelete("Enquiries-delete/{id}")]
         public async Task<IActionResult> Delete(int Id)
@@ -169,7 +294,7 @@ namespace SBSHEWEBAPI
         }
 
         [HttpPost("rti-apply")]
-        public async Task<IActionResult> CreateRTI([FromForm]RTIApplicationsDTOs model)
+        public async Task<IActionResult> CreateRTI([FromForm] RTIApplicationsDTOs model)
         {
             try
             {
@@ -228,8 +353,8 @@ namespace SBSHEWEBAPI
                 );
             }
         }
-   
-        
+
+
         [HttpPost("update-rti-status")]
         public async Task<IActionResult> UpdateStatus([FromBody] UpdateRTIStatusDTO model)
         {

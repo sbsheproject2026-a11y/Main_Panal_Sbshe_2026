@@ -42,10 +42,13 @@ namespace Application.Repository
                                   from mtd in mtdd.DefaultIfEmpty()
                                   join mtd1 in _context.MasterTypeDetail on p.DurationTypeId equals mtd1.Id into mtdd1
                                   from mtd1 in mtdd1.DefaultIfEmpty()
+                                  
                                   join mtddep in _context.MasterTypeDetail on p1.DepartmentId equals mtddep.Id into mtddep1
                                   from mtddep in mtddep1.DefaultIfEmpty()
                                   join mtdcat in _context.MasterTypeDetail on p1.CategoryId equals mtdcat.Id into mtdcat1
                                   from mtdcat in mtdcat1.DefaultIfEmpty()
+                                  join mtd2 in _context.MasterTypeDetail on p1.StudyModeId equals mtd2.Id into mtds1
+                                  from mtd2 in mtds1.DefaultIfEmpty()
                                   where p.IsDelete == 0 && pa.ProductTypeId == null
 
                                   orderby p.Id descending
@@ -63,6 +66,7 @@ namespace Application.Repository
                                       DurationName = mtd.Name + ' ' + mtd1.Name,
                                       ShortDescription = p3 != null ? p3.ShortDescription : null,
                                       Descrption = p3 != null ? p3.Descrption : null,
+                                      StudyMode = mtd2.Name,
                                       IsActive = pa.IsActive,
 
                                       ProductCategoryDocuments = _context.ProductCategoryDocument

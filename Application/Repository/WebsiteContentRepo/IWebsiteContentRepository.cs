@@ -17,6 +17,8 @@ namespace Application.Repository
         Task<string> Delete(int Id);
         Task<List<MasterTypeDetailGetDTOs>> GetWebsiteMaster(int id);
         Task<List<WebsiteCourseGetDTOs>> GetCourseData(int id);
+        Task<List<MasterTypeDetailGetDTOs>> GetWebsiteMenu(int? id,int? pid);
+        Task<List<WebsiteCourseGetDTOs>> GetWebsiteData(int id);
 
 
 

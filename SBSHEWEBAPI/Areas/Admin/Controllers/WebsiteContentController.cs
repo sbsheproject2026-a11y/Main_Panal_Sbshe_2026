@@ -128,16 +128,49 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                     Message = "Id is required"
                 });
             }
+            string folderPath = Path.Combine(_environment.WebRootPath, "Uploads");
+            Directory.CreateDirectory(folderPath);
 
+            async Task<string> UploadFile(IFormFile file)
+            {
+                string fileName = $"{Guid.NewGuid():N}"[..8] + "_" +
+                                  Path.GetFileName(file.FileName);
+
+                string filePath = Path.Combine(folderPath, fileName);
+
+                using var stream = new FileStream(filePath, FileMode.Create);
+                await file.CopyToAsync(stream);
+
+                return fileName;
+            }
+            if (model.ProductCategoryDocuments != null && model.ProductCategoryDocuments.Count > 0)
+            {
+                foreach (var academic in model.ProductCategoryDocuments)
+                {
+                    if (academic.File != null &&
+                        academic.File.Length > 0)
+                    {
+                        academic.Path = await UploadFile(academic.File);
+                    }
+                }
+            }
             var result = await _unitOfWork.WebsiteContent.Update(model);
-
+            if (string.IsNullOrEmpty(result) ||
+                result.StartsWith("Something went wrong"))
+            {
+                return BadRequest(new
+                {
+                    success = false,
+                    message = result ?? "Something went wrong."
+                });
+            }
             return Ok(new
             {
                 Success = true,
                 Message = result
             });
         }
-        [HttpDelete("mastertype-delete/{id}")]
+        [HttpDelete("delete/{id}")]
         public async Task<IActionResult> Delete(int Id)
         {
             if (Id <= 0)

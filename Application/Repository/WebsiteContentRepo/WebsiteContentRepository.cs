@@ -4,6 +4,7 @@ using Domain;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Model;
+using Org.BouncyCastle.Asn1.Pkcs;
 using System.Data;
 using System.Text.RegularExpressions;
 
@@ -82,14 +83,17 @@ namespace Application.Repository
                 var data = await (from pa in _context.ProductCategory
                                   join p in _context.ProductCategoryDetail on pa.Id equals p.ProductCategoryId into productGroup
                                   from p in productGroup.DefaultIfEmpty()
+                                  join mtd in _context.MasterTypeDetail on pa.ProductTypeId equals mtd.Id into mtdd
+                                  from mtd in mtdd.DefaultIfEmpty()
 
-                                  where pa.IsDelete == 1 && pa.ProductTypeId != null
+                                  where pa.IsDelete == 0 && pa.ProductTypeId != null
 
                                   orderby pa.Id descending
                                   select new WebsiteContentGetDTOs
                                   {
                                       Id = pa.Id,
                                       Title = pa.Name,
+                                      ProductType= mtd.Name,
                                       ProductTypeId = pa.ProductTypeId,
                                       IsHighlight = pa.IsHighlight,
                                       ShortDescription = p.ShortDescription,
@@ -133,13 +137,14 @@ namespace Application.Repository
                                   join p in _context.ProductCategoryDetail on pa.Id equals p.ProductCategoryId into productGroup
                                   from p in productGroup.DefaultIfEmpty()
 
-                                  where pa.IsDelete == 1 && pa.ProductTypeId != null && pa.Id == Id
+                                  where  pa.ProductTypeId != null && pa.Id == Id
 
                                   orderby pa.Id descending
                                   select new WebsiteContentGetDTOs
                                   {
                                       Id = pa.Id,
                                       Title = pa.Name,
+                                      Date = pa.Date,
                                       ProductTypeId = pa.ProductTypeId,
                                       IsHighlight = pa.IsHighlight,
                                       ShortDescription = p.ShortDescription,
@@ -158,7 +163,7 @@ namespace Application.Repository
                                             IsActive = x.IsActive
                                         })
                         .ToList()
-
+                       
 
                                   })
 
@@ -185,8 +190,9 @@ namespace Application.Repository
                     SrNo = model.SrNo,
                     Name = model.Title,
                     ProductTypeId = model.ProductTypeId,
-                    Date = DateTime.Now,
+                    Date =  model.Date ?? DateTime.Now,
                     IsActive = model.IsActive,
+                    IsHighlight = model.IsHighlight,
                     IsDelete = 0
                 };
 
@@ -215,18 +221,22 @@ namespace Application.Repository
                 {
                     foreach (var item in model.ProductCategoryDocuments)
                     {
-                        var productcategorydocument = new ProductCategoryDocument
-                        {
-                            ProductCategoryId = productcategory.Id,
-                            SrNo = item.SrNo,
-                            Title = item.Title,
-                            AltTag = item.AltTag,
-                            Path = item.Path,
-                            Date = DateTime.Now,
-                            IsActive = item.IsActive
-                        };
-
+                        if (!string.IsNullOrWhiteSpace(item.Title) )
+                        
+                            {
+                            var productcategorydocument = new ProductCategoryDocument
+                            {
+                                ProductCategoryId = productcategory.Id,
+                                SrNo = item.SrNo,
+                                Title = item.Title,
+                                AltTag = item.AltTag,
+                                Path = item.Path,
+                                Date = DateTime.Now,
+                                IsActive = item.IsActive
+                            };
                         await _context.ProductCategoryDocument.AddAsync(productcategorydocument);
+                        }
+
                     }
                 }
 
@@ -251,8 +261,7 @@ namespace Application.Repository
 
         public async Task<string> Update(WebsiteContentPostDTOs model)
         {
-            await using var transaction =
-                await _context.Database.BeginTransactionAsync();
+            await using var transaction =  await _context.Database.BeginTransactionAsync();
 
             try
             {
@@ -267,6 +276,7 @@ namespace Application.Repository
                 {
                     productcategory.SrNo = model.SrNo;
                     productcategory.Name = model.Title;
+                    productcategory.Date = model.Date  ?? DateTime.Now;
                     productcategory.ProductTypeId = model.ProductTypeId;
                     productcategory.IsActive = model.IsActive;
 
@@ -278,26 +288,17 @@ namespace Application.Repository
                 // 2. Product Category Detail
                 // ==========================================
 
-                var productcategorydetail =
-                    await _context.ProductCategoryDetail
-                        .FirstOrDefaultAsync(x =>
-                            x.ProductCategoryId == model.Id);
+                var productcategorydetail =  await _context.ProductCategoryDetail.FirstOrDefaultAsync(x => x.ProductCategoryId == model.Id);
 
                 if (productcategorydetail != null)
                 {
                     productcategorydetail.Title = model.Title;
-                    productcategorydetail.ShortDescription =
-                        model.ShortDescription;
-                    productcategorydetail.Descrption =
-                        model.Descrption;
-                    productcategorydetail.SEOTitle =
-                        model.SEOTitle;
-                    productcategorydetail.IsActive =
-                        model.IsActive;
+                    productcategorydetail.ShortDescription = model.ShortDescription;
+                    productcategorydetail.Descrption = model.Descrption;
+                    productcategorydetail.SEOTitle = model.SEOTitle;
+                    productcategorydetail.IsActive =  model.IsActive;
 
-                    _context.ProductCategoryDetail.Update(
-                        productcategorydetail
-                    );
+                    _context.ProductCategoryDetail.Update( productcategorydetail);
                 }
 
 
@@ -322,25 +323,26 @@ namespace Application.Repository
                 // 4. Add New Documents
                 // ==========================================
 
-                if (model.ProductCategoryDocuments != null &&
-                    model.ProductCategoryDocuments.Any())
+                if (model.ProductCategoryDocuments != null && model.ProductCategoryDocuments.Any())
                 {
                     foreach (var item in model.ProductCategoryDocuments)
                     {
-                        var productcategorydocument =
-                            new ProductCategoryDocument
+                        if (!string.IsNullOrWhiteSpace(item.Title))
+
+                        {
+                            var productcategorydocument = new ProductCategoryDocument
                             {
                                 ProductCategoryId = model.Id,
                                 Title = item.Title,
                                 AltTag = item.AltTag,
+                                SrNo = item.SrNo,
                                 Path = item.Path,
                                 Date = DateTime.Now,
                                 IsActive = item.IsActive
                             };
 
-                        await _context.ProductCategoryDocument.AddAsync(
-                            productcategorydocument
-                        );
+                            await _context.ProductCategoryDocument.AddAsync(productcategorydocument);
+                        }
                     }
                 }
 
@@ -407,6 +409,45 @@ namespace Application.Repository
 
 
                                   where pa.IsDelete == 0 && pa.MasterTypeId == id
+
+                                  orderby pa.Id descending
+                                  select new MasterTypeDetailGetDTOs
+                                  {
+                                      Id = pa.Id,
+                                      SrNo = pa.SrNo,
+                                      Name = pa.Name,
+                                      Code = pa.Code,
+                                      ParentId = pa.ParentId,
+                                      FilePath = pa.FilePath,
+                                      IsActive = pa.IsActive
+
+                                  })
+
+                                  .ToListAsync();
+
+                // Slug compute karo (client side, kyunki EF mein custom function translate nahi hota)
+                foreach (var item in data)
+                {
+                    item.Slug = GenerateSlug(item.Name);
+                }
+
+                return data;
+            }
+            catch (Exception ex)
+            {
+
+                throw new Exception("Error while fetching MasterTypeDetail data.", ex);
+            }
+        }
+        public async Task<List<MasterTypeDetailGetDTOs>> GetWebsiteMenu(int? id,int? pid)
+        {
+            try
+            {
+
+                var data = await (from pa in _context.MasterTypeDetail
+
+
+                                  where pa.IsDelete == 0 && ( pid == 0 || pa.ParentId == pid ) &&   (id == 0 || pa.MasterTypeId == id)
 
                                   orderby pa.Id descending
                                   select new MasterTypeDetailGetDTOs
@@ -523,6 +564,62 @@ namespace Application.Repository
             catch (Exception ex)
             {
                 throw new Exception("Error while fetching MasterTypeDetail data.", ex);
+            }
+        }
+        public async Task<List<WebsiteCourseGetDTOs>> GetWebsiteData(int id)
+        {
+            try
+            {
+                var data = await (from p in _context.ProductCategory
+                                   
+                                  join pcd in _context.ProductCategoryDetail on p.Id equals pcd.ProductCategoryId into productGroup4
+                                  from p3 in productGroup4.DefaultIfEmpty()
+                                  join mtd in _context.MasterTypeDetail on p.ProductTypeId equals mtd.Id into mtdd
+                                  from mtd in mtdd.DefaultIfEmpty()
+                                  where p.IsDelete == 0 && p.ProductTypeId == id  
+
+                                  orderby p.Id descending
+
+
+
+                                  select new WebsiteCourseGetDTOs
+                                  {
+                                      Id = p.Id,
+                                      Name = p.Name,
+                                      Code = p.Code,
+                                      ProductType = mtd.Name,
+                                      ProductTypeId = p.ProductTypeId,
+                                      ShortName = p.ShortName,
+                                      SrNo=p.SrNo,
+                                      Date=p.Date,
+                                  
+
+                                       ShortDescription = p3 != null ? p3.ShortDescription : null,
+                                      Descrption = p3 != null ? p3.Descrption : null,
+                                      IsActive = p.IsActive,
+                                      IsHighlight = p.IsHighlight,
+
+                                      ProductCategoryDocuments = _context.ProductCategoryDocument
+                                          .Where(x => x.ProductCategoryId == p.Id && x.IsActive == 1)
+                                          .Select(x => new ProductMaterialDtos
+                                          {
+                                              Id = x.Id,
+                                              SrNo = x.SrNo,
+                                              Name = x.Title,
+                                              Fileupload = x.Path,
+                                              AltTag = x.AltTag,
+                                          })
+                                          .ToList(),
+
+                                       
+                                  })
+                                  .ToListAsync();
+
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error while fetching  data.", ex);
             }
         }
 

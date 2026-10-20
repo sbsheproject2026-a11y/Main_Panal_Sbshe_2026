@@ -13,13 +13,14 @@ namespace Application.DTOs
         public int? ProductTypeId { get; set; }
         public int? SrNo { get; set; }
 
-         
+        public DateTime? Date { get; set; }
         public int? IsActive { get; set; }
         public int? IsHighlight { get; set; }
         public int? IsDelete { get; set; }
 
 
         public string? Title { get; set; }
+        public string? ProductType { get; set; }
         public string? ShortDescription { get; set; }
         public string? Descrption { get; set; }
 

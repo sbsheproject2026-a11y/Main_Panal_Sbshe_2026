@@ -21,6 +21,7 @@ namespace Application.DTOs
         public string? DurationName { get; set; }
         public string? CategoryName { get; set; }
         public string? DepartmentName { get; set; }
+        public string? StudyMode { get; set; }
         public int? Duration { get; set; }
         public int? DurationTypeId { get; set; }
         public int? ParentId { get; set; }
@@ -49,9 +50,14 @@ namespace Application.DTOs
         public string? ShortDescription { get; set; }
         public string? Descrption { get; set; }
         public string? Eligbilty { get; set; }
+        public string? ProductType { get; set; }
         public string? DurationName { get; set; }
+       
+        public int? SrNo { get; set; }
         public int? IsActive { get; set; }
+        public int? ProductTypeId { get; set; }
         public int? IsHighlight { get; set; }
+        public DateTime? Date { get; set; }
         public int? StudyModeId { get; set; }
       
         public List<ProductMaterialDtos>? ProductCategoryDocuments { get; set; }
