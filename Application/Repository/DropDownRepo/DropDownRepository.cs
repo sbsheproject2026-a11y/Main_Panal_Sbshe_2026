@@ -387,6 +387,48 @@ namespace Application.Repository
                     "Error while fetching Employee by id.",  ex);
             }
         }
+        public async Task<DashboardStatsDTO> GetDashboardEmployee(int id)
+        {
+            try
+            {
+                DashboardStatsDTO data = null;
+
+                using (var connection = new SqlConnection(_connectionString))
+                using (var command = new SqlCommand("getDashboardEmployee", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    command.Parameters.Add(new SqlParameter("@Id", id));
+
+                    await connection.OpenAsync();
+
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        if (await reader.ReadAsync())
+                        {
+                            data = new DashboardStatsDTO
+                            {
+                                TotalStudent = Convert.ToInt32(reader["TotalStudent"]),
+                                TotalFranchise = Convert.ToInt32(reader["TotalFranchise"]),
+                                TotalAccFranchise = Convert.ToInt32(reader["TotalAccFranchise"]),
+                                TotalEmployee = Convert.ToInt32(reader["TotalEmployee"]),
+                                TotalCourse = Convert.ToInt32(reader["TotalCourse"]),
+                                   
+                            };
+
+                            
+                        }
+                    }
+                }
+
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(
+                    "Error while fetching Employee by id.",  ex);
+            }
+        }
 
         public async Task<List<EntityUserResult>> GetStudyCentreCourse(int Id)
         {

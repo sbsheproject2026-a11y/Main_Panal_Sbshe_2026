@@ -76,14 +76,55 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
                 });
             }
         }
-        
-       
 
-     
+        [HttpGet("franchise-dashboard")]
+        public async Task<IActionResult> getDashboard()
+        {
+            try
+            {
+                // ✅ Agar query me userId aaya to wahi use karo
+                // ✅ Nahi to token se lo
+                int finalUserId;
 
-       
+                var claims = User.Claims.ToDictionary(x => x.Type, x => x.Value);
+                var tokenUserId = claims.GetValueOrDefault("UserId");
 
-      
+                if (string.IsNullOrEmpty(tokenUserId))
+                {
+                    return BadRequest(new
+                    {
+                        Success = false,
+                        Message = "UserId not found"
+                    });
+                }
+
+                finalUserId = Convert.ToInt32(tokenUserId);
+
+
+                var data = await _unitOfWork.DropDown.GetDashboard(finalUserId);
+
+                return Ok(new
+                {
+                    Success = true,
+                    Data = data
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = ex.Message
+                });
+            }
+        }
+
+
+
+
+
+
+
 
     }
 }

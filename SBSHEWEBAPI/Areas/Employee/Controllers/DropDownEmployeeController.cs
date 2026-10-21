@@ -124,7 +124,7 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
                     finalUserId = Convert.ToInt32(tokenUserId);
 
 
-                var data = await _unitOfWork.DropDown.GetDashboard(finalUserId);
+                var data = await _unitOfWork.DropDown.GetDashboardEmployee(finalUserId);
 
                 return Ok(new
                 {
@@ -141,6 +141,7 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
                 });
             }
         }
+     
         [HttpGet("dropdown-emp-wallet-balance1")]
         public async Task<IActionResult> getwalletbalance1(int userId)
         {

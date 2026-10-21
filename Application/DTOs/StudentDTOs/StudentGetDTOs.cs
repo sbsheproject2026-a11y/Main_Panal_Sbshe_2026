@@ -65,6 +65,7 @@
         public string? IssueYear { get; set; }
         public string? SrnoDiploma { get; set; }
         public string? MigrationSrno { get; set; }
+        public string? NOCSRNO { get; set; }
         public string? DepartmentName { get; set; }
         public string? CertificateName { get; set; }
         public DateTime? DOB { get; set; }

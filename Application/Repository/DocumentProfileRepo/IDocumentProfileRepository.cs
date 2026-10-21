@@ -11,6 +11,7 @@ namespace Application.Repository
         Task<StudentGetDTOs> GetMarksheetPrintData(string id);
         Task<List<GetStudentSubjectMarksGetDTOs>> PrintStudentSubjectMarks(string id);
         Task<List<GetStudentSubjectMarksGetDTOs>> PrintStudentSubjectAdmitCard(string id);
+        Task<StudentGetDTOs?> GetNOCPrintData(int id);
 
     }
 }

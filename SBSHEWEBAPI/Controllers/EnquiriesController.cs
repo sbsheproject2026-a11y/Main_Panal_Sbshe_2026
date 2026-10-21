@@ -423,7 +423,7 @@ namespace SBSHEWEBAPI
                 });
             }
 
-            var result = await _unitOfWork.Enquiries.Delete(Id);
+            var result = await _unitOfWork.Enquiries.DeleteRTI(Id);
 
             return Ok(new
             {

@@ -185,6 +185,96 @@ namespace Application.Repository
                     ex);
             }
         }
+        public async Task<StudentGetDTOs?> GetNOCPrintData(int id)
+        {
+            try
+            {
+                StudentGetDTOs? data = null;
+
+                using (var connection = new SqlConnection(_connectionString))
+                using (var command = new SqlCommand("GetNOCPrintData", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    command.Parameters.Add(
+                        new SqlParameter("@Id", id));
+
+                    await connection.OpenAsync();
+
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        if (await reader.ReadAsync())
+                        {
+                            data = new StudentGetDTOs
+                            {
+                                Id = GetInt(reader, "Id"),
+
+                                EnrollmentNo = GetString(reader, "EnrollmentNo"),
+                                
+
+                                Name = GetString(reader, "Name"),
+                                FirstName = GetString(reader, "FirstName"),
+
+                                StudentNameHindi =   GetString(reader, "StudentNameHindi"),
+
+                                FatherNameHindi =  GetString(reader, "FatherNameHindi"),
+
+                                CourseName =   GetString(reader, "CourseName"),
+
+                                CourseNameHindi =  GetString(reader, "CourseNameHindi"),
+
+                                DOB = GetDateTime(reader, "DOB"),
+                                DOB1 = GetString(reader, "DOB1"),
+
+                                FatherName =   GetString(reader, "FatherName"),
+
+                                MotherName =  GetString(reader, "MotherName"),
+
+                                Address =   GetString(reader, "Address"),
+
+                                Pincode =   GetString(reader, "PinCode"),
+
+                                MobileNo =   GetString(reader, "MobileNo"),
+
+                                Email =  GetString(reader, "Email"),
+
+                                SelfImage =  GetString(reader, "SelfImage"),
+
+                                IssueDate =  GetString(reader, "IssueDate"),
+
+                                StartDate =   GetString(reader, "StartDate"),
+
+                                EndDate =  GetString(reader, "EndDate"),
+
+                                IssueYear =  GetString(reader, "IssueYear"),
+
+                                AdmissionDate1 =  GetString(reader, "AdmissionDate"),
+
+                                SrnoDiploma = GetString(reader, "SrnoDiploma"),
+
+                                MigrationSrno =  GetString(reader, "MigrationSrno"),
+                                NOCSRNO =  GetString(reader, "NOCSRNO"),
+
+                                DepartmentName =  GetString(reader, "DepartmentName"),
+
+                                CertificateName =  GetString(reader, "CertificateName"),
+
+                                CentreName = GetString(reader, "CentreName"),
+                                BranchAddress = GetString(reader, "BranchAddress")
+                            };
+                        }
+                    }
+                }
+
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(
+                    "Error while fetching Student Diploma Print Data.",
+                    ex);
+            }
+        }
 
 
         // ---------------------------------------------
