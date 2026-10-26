@@ -1160,8 +1160,12 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
 
                     enrollmentNo = data.EnrollmentNo ?? "",
 
-                   
-                   
+                    rollnoa = data.Rollno ?? "",
+                    rollno1 = data.RollNo1 ?? "",
+                    rollno = !string.IsNullOrWhiteSpace(data.RollNo1)
+    ? $"{data.Rollno ?? ""} , {data.RollNo1}"
+    : data.Rollno ?? "",
+
                     srnoDiploma = data.SrnoDiploma ?? "",
                     nocSRNO = data.NOCSRNO ?? "",
 

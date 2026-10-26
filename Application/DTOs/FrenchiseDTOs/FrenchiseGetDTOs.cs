@@ -84,6 +84,8 @@
         public string AmountW { get; set; }
 
         public int ProductId { get; set; }
+        public int? ClassNo { get; set; }
+        public int? Quantity { get; set; }
         public string GetwayPrm { get; set; }
 
     }

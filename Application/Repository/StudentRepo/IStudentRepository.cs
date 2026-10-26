@@ -31,6 +31,8 @@ namespace Application.Repository
         Task<List<AcademicDetailGetDTO>> GetAcademicDetailsById(int id);
         Task<string> viewbalview(int FranchiseId, int aa);
         Task<List<StudentGetDTOs>> GetStudentProfileData(int? referenceId);
+        Task<string> CreateBookDeliveryAddress(ApplyStudentPostDTOs model);
+        Task<string> GetGenerateUserCode(int Id, int Code);
 
     }
 }

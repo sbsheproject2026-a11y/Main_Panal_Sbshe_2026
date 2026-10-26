@@ -39,6 +39,7 @@ namespace Domain
         public DbSet<ProductLink> ProductLink { get; set; }
         public DbSet<Commission> Commission { get; set; }
         public DbSet<FranchiseCommission> FranchiseCommission { get; set; }
+        public DbSet<AddressProfile> AddressProfile { get; set; }
 
     }
 }

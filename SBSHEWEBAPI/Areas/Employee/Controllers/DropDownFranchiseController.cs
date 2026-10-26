@@ -119,6 +119,28 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
             }
         }
 
+        [HttpGet("dropdown-course-amount/{id}")]
+        public async Task<IActionResult> getCourseAmount(int id)
+        {
+            try
+            {
+                var data = await _unitOfWork.DropDown.getCourseAmount(68);
+
+                return Ok(new
+                {
+                    Success = true,
+                    Data = data
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = ex.Message
+                });
+            }
+        }
 
 
 

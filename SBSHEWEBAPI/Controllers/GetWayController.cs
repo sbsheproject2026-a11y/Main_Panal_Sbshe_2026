@@ -52,6 +52,7 @@ namespace SBSHEWEBAPI
                 decimal amount = data[0].Amount * 100;   // ✅ Paise mein (Razorpay format)
                 string order_id = data[0].OrderId;
                 int productId = data[0].ProductId;
+                int classNo = Convert.ToInt32(data[0].ClassNo);
 
                 var R_orderId = CreateOrder(request.UserId, request.OId);
 

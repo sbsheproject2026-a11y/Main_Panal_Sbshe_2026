@@ -46,6 +46,7 @@ namespace Application.Repository
                 throw new Exception("Error while fetching MasterType data.", ex);
             }
         }
+       
         public async Task<List<EntityUserResult>> getCourseCategory(int Id)
         {
             return await _context.EntityUserResult
@@ -455,6 +456,33 @@ namespace Application.Repository
                 .FromSqlRaw("EXEC dbo.GetStudyCentreState @Id = {0}", Id)
                 .ToListAsync();
         }
+
+        public async Task<List<ProductAmountDtos>> getCourseAmount(int Id)
+        {
+            try
+            {
+                var data = await _context.ProductAmount.Where(x =>x.ProductId == Id && x.IsActive==1)
+
+                    .Select(x => new ProductAmountDtos
+                    {
+                        Id = x.Id,
+                        Name = x.Name,
+                        Amount = x.Amount,
+                        AmountTypeId = x.AmountTypeId
+
+
+                    })
+                    .ToListAsync();
+
+                return data;
+            }
+            catch (Exception ex)
+            {
+
+                throw new Exception("Error while fetching City data.", ex);
+            }
+        }
+
 
 
     }

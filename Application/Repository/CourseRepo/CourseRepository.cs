@@ -23,17 +23,16 @@ namespace Application.Repository
 
         // --------------------------------------- Course Start ---------------------------------------
 
-
-
-        public async Task<List<CourseGetDTOs>> GetAll()
+        public async Task<List<CourseGetDTOs>> GetAll(int? studyModeId, int? departmentId, int? categoryId, int? parentId, string? search)
         {
             try
             {
                 var data = await (from p in _context.Product
                                   join pa in _context.ProductCategory on p.ProductCategoryId equals pa.Id into productGroup1
                                   from pa in productGroup1.DefaultIfEmpty()
-                                  join ppd in _context.ProductPersonalDetail on p.Id equals ppd.ProductId into productGroup2
+                                   join ppd in _context.ProductPersonalDetail on p.Id equals ppd.ProductId into productGroup2
                                   from p1 in productGroup2.DefaultIfEmpty()
+
                                   join ppl in _context.ProductLink on p.Id equals ppl.ProductId into productGroup3
                                   from p4 in productGroup3.DefaultIfEmpty()
                                   join pcd in _context.ProductCategoryDetail on p.Id equals pcd.ProductCategoryId into productGroup4
@@ -42,14 +41,33 @@ namespace Application.Repository
                                   from mtd in mtdd.DefaultIfEmpty()
                                   join mtd1 in _context.MasterTypeDetail on p.DurationTypeId equals mtd1.Id into mtdd1
                                   from mtd1 in mtdd1.DefaultIfEmpty()
-                                  
+
                                   join mtddep in _context.MasterTypeDetail on p1.DepartmentId equals mtddep.Id into mtddep1
                                   from mtddep in mtddep1.DefaultIfEmpty()
                                   join mtdcat in _context.MasterTypeDetail on p1.CategoryId equals mtdcat.Id into mtdcat1
                                   from mtdcat in mtdcat1.DefaultIfEmpty()
                                   join mtd2 in _context.MasterTypeDetail on p1.StudyModeId equals mtd2.Id into mtds1
                                   from mtd2 in mtds1.DefaultIfEmpty()
+
+                                    
                                   where p.IsDelete == 0 && pa.ProductTypeId == null
+
+                               
+                                  && (studyModeId == null || studyModeId == 0 || p1.StudyModeId == studyModeId)
+
+                               
+                                  && (departmentId == null || departmentId == 0 || p1.DepartmentId == departmentId)
+
+                           
+                                  && (categoryId == null || categoryId == 0 || p1.CategoryId == categoryId)
+
+                                && (parentId == null || parentId == 0 || p.ParentId == parentId || p.Id == parentId)
+
+
+                                  && (string.IsNullOrEmpty(search) ||
+                                      p.Name.ToLower().Contains(search.ToLower()) ||
+                                      p.Code.ToLower().Contains(search.ToLower()) ||
+                                      (p.CourseNameHindi != null && p.CourseNameHindi.ToLower().Contains(search.ToLower())))
 
                                   orderby p.Id descending
 
@@ -101,6 +119,83 @@ namespace Application.Repository
                 throw new Exception("Error while fetching MasterTypeDetail data.", ex);
             }
         }
+
+        //public async Task<List<CourseGetDTOs>> GetAll()
+        //{
+        //    try
+        //    {
+        //        var data = await (from p in _context.Product
+        //                          join pa in _context.ProductCategory on p.ProductCategoryId equals pa.Id into productGroup1
+        //                          from pa in productGroup1.DefaultIfEmpty()
+        //                          join ppd in _context.ProductPersonalDetail on p.Id equals ppd.ProductId into productGroup2
+        //                          from p1 in productGroup2.DefaultIfEmpty()
+        //                          join ppl in _context.ProductLink on p.Id equals ppl.ProductId into productGroup3
+        //                          from p4 in productGroup3.DefaultIfEmpty()
+        //                          join pcd in _context.ProductCategoryDetail on p.Id equals pcd.ProductCategoryId into productGroup4
+        //                          from p3 in productGroup4.DefaultIfEmpty()
+        //                          join mtd in _context.MasterTypeDetail on p.Duration equals mtd.Id into mtdd
+        //                          from mtd in mtdd.DefaultIfEmpty()
+        //                          join mtd1 in _context.MasterTypeDetail on p.DurationTypeId equals mtd1.Id into mtdd1
+        //                          from mtd1 in mtdd1.DefaultIfEmpty()
+
+        //                          join mtddep in _context.MasterTypeDetail on p1.DepartmentId equals mtddep.Id into mtddep1
+        //                          from mtddep in mtddep1.DefaultIfEmpty()
+        //                          join mtdcat in _context.MasterTypeDetail on p1.CategoryId equals mtdcat.Id into mtdcat1
+        //                          from mtdcat in mtdcat1.DefaultIfEmpty()
+        //                          join mtd2 in _context.MasterTypeDetail on p1.StudyModeId equals mtd2.Id into mtds1
+        //                          from mtd2 in mtds1.DefaultIfEmpty()
+        //                          where p.IsDelete == 0 && pa.ProductTypeId == null
+
+        //                          orderby p.Id descending
+
+        //                          select new CourseGetDTOs
+        //                          {
+        //                              Id = p.Id,
+        //                              Code = p.Code,
+        //                              Name = p.Name,
+        //                              NameHindi = p.CourseNameHindi,
+        //                              DepartmentName = mtddep.Name,
+        //                              CategoryName = mtdcat.Name,
+        //                              ParentId = p.ParentId,
+        //                              IsHighlight = pa.IsHighlight,
+        //                              DurationName = mtd.Name + ' ' + mtd1.Name,
+        //                              ShortDescription = p3 != null ? p3.ShortDescription : null,
+        //                              Descrption = p3 != null ? p3.Descrption : null,
+        //                              StudyMode = mtd2.Name,
+        //                              IsActive = pa.IsActive,
+
+        //                              ProductCategoryDocuments = _context.ProductCategoryDocument
+        //                                  .Where(x => x.ProductCategoryId == pa.Id && x.IsActive == 1)
+        //                                  .Select(x => new ProductMaterialDtos
+        //                                  {
+        //                                      Id = x.Id,
+        //                                      SrNo = x.SrNo,
+        //                                      Name = x.Title,
+        //                                      Fileupload = x.Path,
+        //                                      AltTag = x.AltTag,
+        //                                  })
+        //                                  .ToList(),
+
+        //                              ProductAmounts = _context.ProductAmount
+        //                                  .Where(x => x.ProductId == p.Id && x.IsActive == 1)
+        //                                  .Select(x => new ProductAmountDtos
+        //                                  {
+        //                                      Id = x.Id,
+        //                                      Name = x.Name,
+        //                                      Amount = x.Amount,
+        //                                      AmountTypeId = x.AmountTypeId,
+        //                                  })
+        //                                  .ToList()
+        //                          })
+        //                          .ToListAsync();
+
+        //        return data;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw new Exception("Error while fetching MasterTypeDetail data.", ex);
+        //    }
+        //}
 
         public async Task<string> Create(CoursePostDTOs model)
         {
@@ -301,9 +396,24 @@ namespace Application.Repository
                     // ✅ Sirf EK entry banegi, aur ClassNo = TotalClass.Value hogi
                     int i = model.TotalClass.Value;   // e.g. 2 aaya to i = 2
 
+                    var classproductcategory = new ProductCategory
+                    {
+                        Code = $"{model.Code}-C{i}",
+                        Name = $"{model.Name} - Class {i}",
+                        ShortName = $"{model.ShortName}-C{i}",
+                        ProductTypeId = null,
+                        Date = DateTime.Now,
+                        IsActive = model.IsActive,
+                        IsHighlight = model.IsHighlight,
+                        IsDelete = 0
+                    };
+
+                    await _context.ProductCategory.AddAsync(classproductcategory);
+                    await _context.SaveChangesAsync();
+
                     Product classProduct = new Product()
                     {
-                        ProductCategoryId = productcategory.Id,
+                        ProductCategoryId = classproductcategory.Id,
                         Code = $"{model.Code}-C{i}",
                         Name = $"{model.Name} - Class {i}",
                         ShortName = $"{model.ShortName}-C{i}",
@@ -317,6 +427,17 @@ namespace Application.Repository
                     };
                     _context.Product.Add(classProduct);
                     _context.SaveChanges();
+
+                    var classproductlink = new ProductLink
+                    {
+                        ProductId = classProduct.Id,
+                        ProductCategoryId = classproductcategory.Id,
+
+                    };
+
+                    await _context.ProductLink.AddAsync(classproductlink);
+                    await _context.SaveChangesAsync();
+
 
                     ProductPersonalDetail classPersonal = new ProductPersonalDetail()
                     {
@@ -825,6 +946,75 @@ namespace Application.Repository
                     ex);
             }
         }
+  
+        public async Task<ProductMaterialGetDtos?> getEditCourseMaterial(int id)
+        {
+            try
+            {
+                ProductMaterialGetDtos data = null; // Single object variable
+
+                using var connection = new SqlConnection(_connectionString);
+                using var command = new SqlCommand("getEditCourseMaterial", connection);
+
+                command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.Add(new SqlParameter("@Id", id));
+
+                await connection.OpenAsync();
+                using var reader = await command.ExecuteReaderAsync();
+
+                // 👇 If condition use karein kyunki sirf ek hi record aayega 👇
+                if (await reader.ReadAsync())
+                {
+                    data = new ProductMaterialGetDtos
+                    {
+                        Id = Convert.ToInt32(reader["Id"]),
+                        SrNo = reader["SrNo"] != DBNull.Value ? Convert.ToInt32(reader["SrNo"]) : 0,
+                        DocumentTypeId = reader["DocumentTypeId"] != DBNull.Value ? Convert.ToInt32(reader["DocumentTypeId"]) : 0,
+                        Name = reader["Title"]?.ToString(),
+                        AltTag = reader["AltTag"]?.ToString(),
+                        Fileupload = reader["Path"]?.ToString(),
+                    };
+                }
+
+                return data; // Agar record mila toh object return hoga, nahi mila toh null
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error while fetching Course data.", ex);
+            }
+        }
+
+        public async Task<string> UpdateCourseMaterial(ProductMaterialDtos model)
+        {
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                using var command = new SqlCommand("UpdateCourseMaterial", connection);
+
+                command.CommandType = CommandType.StoredProcedure;
+
+
+                command.Parameters.Add(new SqlParameter("@Id", model.Id));
+                command.Parameters.Add(new SqlParameter("@Name", model.Name));
+                command.Parameters.Add(new SqlParameter("@ProductId", model.ProductId));
+                command.Parameters.Add(new SqlParameter("@AltTag", model.AltTag));
+                command.Parameters.Add(new SqlParameter("@DocumentTypeId", model.DocumentTypeId));
+                command.Parameters.Add(new SqlParameter("@SrNo", model.SrNo));
+                command.Parameters.Add(new SqlParameter("@Path", model.Fileupload));
+                command.Parameters.Add(new SqlParameter("@DocExtensionId", model.DocExtensionId));
+
+
+                await connection.OpenAsync();
+
+                var result = await command.ExecuteScalarAsync();
+
+                return result?.ToString() ?? "Course created successfully";
+            }
+            catch (Exception ex)
+            {
+                return "Something went wrong: " + ex.Message;
+            }
+        }
 
 
         public async Task<string> DeleteCourseMaterial(int Id)
@@ -953,7 +1143,7 @@ namespace Application.Repository
         //Course  Material  Working End//
 
 
-        public async Task<CourseGetDTOs?> GetStudentCourseDetailById(int id)
+        public async Task<List<CourseGetDTOs>> GetStudentCourseDetailById(int id)
         {
             try
             {
@@ -970,7 +1160,11 @@ namespace Application.Repository
                                   from mtd in mtdd.DefaultIfEmpty()
                                   join mtd1 in _context.MasterTypeDetail on p.DurationTypeId equals mtd1.Id into mtdd1
                                   from mtd1 in mtdd1.DefaultIfEmpty()
-                                  where p.Id == id
+
+                                      // 👇 Yahan OR condition laga di hai 👇
+                                  where (p.Id == id)
+                                 // where (p.Id == id || p.ParentId == id)
+
                                   orderby pa.Id descending
                                   select new CourseGetDTOs
                                   {
@@ -987,7 +1181,6 @@ namespace Application.Repository
                                       Descrption = p3.Descrption,
                                       IsActive = pa.IsActive,
 
-                                      // ✅ FIX: IsActive filter hata diya, SrNo se sort kiya
                                       ProductCategoryDocuments = _context.ProductCategoryDocument
                                           .Where(x => x.ProductCategoryId == pa.Id
                                                   && (x.IsActive == 1 || x.IsActive == null))
@@ -996,6 +1189,7 @@ namespace Application.Repository
                                           {
                                               Id = x.Id,
                                               SrNo = x.SrNo,
+                                              DocumentTypeId = x.DocumentTypeId,
                                               Name = x.Title,
                                               Fileupload = x.Path,
                                               AltTag = x.AltTag,
@@ -1014,16 +1208,16 @@ namespace Application.Repository
                                           })
                                           .ToList()
                                   })
-                                  .FirstOrDefaultAsync();
+                                  // 👇 Yahan ToListAsync() kar diya hai 👇
+                                  .ToListAsync();
 
-                return data;
+                return data; // Ab ye ek List return karega
             }
             catch (Exception ex)
             {
                 throw new Exception("Error while fetching data.", ex);
             }
         }
-
         // --------------------------------------- Course End ---------------------------------------
     }
 }

@@ -50,6 +50,31 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                 });
             }
         }
+       
+        [HttpGet("get-books-payment-detail")]
+        public async Task<IActionResult> offlinepaymentBook(string status)
+        {
+            try
+            {
+                var data = await _unitOfWork.GetWayWorking.offlinepaymentBook(status);
+
+                return Ok(new
+                {
+                    Success = true,
+                    Data = data
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = ex.Message
+                });
+            }
+        }
+       
+        
         [HttpGet("student-payment-detail")]
         public async Task<IActionResult> GetStudentFee(int Id)
         {

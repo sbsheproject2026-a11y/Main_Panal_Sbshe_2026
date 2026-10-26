@@ -210,7 +210,8 @@ namespace Application.Repository
                                 Id = GetInt(reader, "Id"),
 
                                 EnrollmentNo = GetString(reader, "EnrollmentNo"),
-                                
+                                Rollno = GetString(reader, "Rollno"),
+                                RollNo1 = GetString(reader, "RollNo1"),
 
                                 Name = GetString(reader, "Name"),
                                 FirstName = GetString(reader, "FirstName"),

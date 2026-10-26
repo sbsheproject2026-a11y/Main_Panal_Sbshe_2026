@@ -25,7 +25,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
 
         [HttpGet("request-student-confirm-to-admin")]
 
-        public async Task<IActionResult> GetConfirmToAdmin(int pageNo = 1, int pageSize = 100, string? search = null, int studyModeId=0)
+        public async Task<IActionResult> GetConfirmToAdmin(int pageNo = 1, int pageSize = 100, string? search = null, int studyModeId = 0)
         {
             try
             {
@@ -115,6 +115,31 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
         }
 
 
+        [HttpPut("request-student-usercode")]
+        public async Task<IActionResult> GetGenerateUserCode([FromBody] int Id, int code)
+        {
+            if (Id <= 0)
+            {
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = "Please provide at least one student ID."
+                });
+            }
+
+            var result = await _unitOfWork.Student.GetGenerateUserCode(Id, code);
+
+            return Ok(new
+            {
+                Success = true,
+                Message = result
+            });
+
+
+
+        }
+
+
 
         [HttpDelete("student-delete/{id}")]
         public async Task<IActionResult> Delete(int Id)
@@ -146,7 +171,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
             {
 
 
-                var data = await _unitOfWork.Student.UnSetMarksStudents(null,pageNo, pageSize, search);
+                var data = await _unitOfWork.Student.UnSetMarksStudents(null, pageNo, pageSize, search);
 
                 return Ok(new
                 {
@@ -246,7 +271,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
             }
         }
 
-        
+
         [HttpGet("request-upgrade-student-list")]
         public async Task<IActionResult> GetUpgradeStudentList(int pageNo = 1, int pageSize = 100, string? search = null)
         {
@@ -289,7 +314,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                     });
                 }
 
-                 
+
 
                 if (model.ExamSessionId <= 0)
                 {

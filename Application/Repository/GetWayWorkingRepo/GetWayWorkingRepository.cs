@@ -57,6 +57,7 @@ namespace Application.Repository
                             PrintPayDate = Dr["PrintPayDate"].ToString(),
                             AmountW = Dr["AmountW"].ToString(),
                             ProductId = Convert.ToInt32(Dr["ProductId"]),
+                            ClassNo = Convert.ToInt32(Dr["ClassNo"]),
                             GetwayPrm = Dr["GetwayPrm"].ToString()
                         };
 
@@ -92,6 +93,57 @@ namespace Application.Repository
                         {
                             EId = Convert.ToInt32(Dr["EId"]),
                             OId = Convert.ToInt32(Dr["OId"]),
+                            FeeName = Dr["FeeName"].ToString(),
+                            Name = Dr["Name"].ToString(),
+                            MobileNo = Dr["MobileNo"].ToString(),
+                            EmailId = Dr["EmailId"].ToString(),
+                            OrderId = Dr["OrderId"].ToString(),
+                            ReferenceId = Dr["ReferenceId"].ToString(),
+                            Amount = Convert.ToDecimal(Dr["Amount"]),
+                            PaidAmount = Convert.ToDecimal(Dr["PaidAmount"]),
+                            PendingAmount = Convert.ToDecimal(Dr["PendingAmount"]),
+                            PayStatus = Dr["PayStatus"].ToString(),
+                            ODate = Dr["ODate"].ToString(),
+                            Address = Dr["Address"].ToString(),
+                            PrintDate = Dr["PrintDate"].ToString(),
+                            PrintPayDate = Dr["PrintPayDate"].ToString(),
+                            AmountW = Dr["AmountW"].ToString(),
+                            ProductId = Convert.ToInt32(Dr["ProductId"]),
+                            GetwayPrm = Dr["GetwayPrm"].ToString()
+                        };
+
+                        list.Add(obj);
+                    }
+                }
+            }
+
+            return list;
+        }
+        public async Task<List<OrderList>> offlinepaymentBook(string viewtype)
+        {
+            List<OrderList> list = new List<OrderList>();
+            var connectionString = _context.Database.GetConnectionString();
+
+            using (SqlConnection con = new SqlConnection(connectionString))
+            using (SqlCommand cmd = new SqlCommand("offlinepaymentBook", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Status", viewtype);
+
+                // ✅ Async connection open
+                await con.OpenAsync();
+
+                // ✅ Async reader
+                using (SqlDataReader Dr = await cmd.ExecuteReaderAsync())
+                {
+                    // ✅ Async read
+                    while (await Dr.ReadAsync())
+                    {
+                        var obj = new OrderList
+                        {
+                            EId = Convert.ToInt32(Dr["EId"]),
+                            OId = Convert.ToInt32(Dr["OId"]),
+                            Quantity = Convert.ToInt32(Dr["Quantity"]),
                             FeeName = Dr["FeeName"].ToString(),
                             Name = Dr["Name"].ToString(),
                             MobileNo = Dr["MobileNo"].ToString(),
@@ -260,7 +312,8 @@ namespace Application.Repository
                 return "Something went wrong: " + ex.Message;
             }
         }
-        public async Task<string> GenrateOrder(int Eid, decimal amount, int productid)
+       
+        public async Task<string> GenrateOrder(int Eid, decimal amount, int productid,int quantity)
         {
             try
             {
@@ -274,6 +327,37 @@ namespace Application.Repository
                     command.Parameters.AddWithValue("@Eid", Eid);
                     command.Parameters.AddWithValue("@Amount", amount);
                     command.Parameters.AddWithValue("@ProductId", productid);
+                    command.Parameters.AddWithValue("@Quantity", quantity);
+                     
+
+                    await connection.OpenAsync();
+
+                    var result = await command.ExecuteScalarAsync();
+
+                    return result?.ToString();
+                }
+            }
+            catch (Exception ex)
+            {
+                return "Something went wrong: " + ex.Message;
+            }
+        }
+         
+        public async Task<string> GenrateOrderBook(int Eid, decimal amount, int productid,int quantity)
+        {
+            try
+            {
+                var connectionString = _context.Database.GetConnectionString();
+
+                using (var connection = new SqlConnection(connectionString))
+                using (var command = new SqlCommand("GenrateOrderBook", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    command.Parameters.AddWithValue("@Eid", Eid);
+                    command.Parameters.AddWithValue("@Amount", amount);
+                    command.Parameters.AddWithValue("@ProductId", productid);
+                    command.Parameters.AddWithValue("@Quantity", quantity);
                      
 
                     await connection.OpenAsync();

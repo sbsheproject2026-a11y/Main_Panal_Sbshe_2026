@@ -21,19 +21,24 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
             _configuration = configuration;
             _environment = environment;
         }
-        [HttpGet("course-getall")]
+        
 
-        public async Task<IActionResult> Get()
+        [HttpGet("course-getall")]
+        public async Task<IActionResult> Get(
+    [FromQuery] int? studyModeId,
+    [FromQuery] int? departmentId,
+    [FromQuery] int? categoryId,
+    [FromQuery] int? parentId,
+    [FromQuery] string? search)
         {
             try
             {
-                var data = await _unitOfWork.Course.GetAll();
+                // ✅ Repository ko filter parameters pass kiye
+                var data = await _unitOfWork.Course.GetAll(studyModeId, departmentId, categoryId, parentId, search);
 
                 return Ok(new
                 {
                     Success = true,
-                    //PageNo = pageNo,
-                    //PageSize = pageSize,
                     TotalRecords = data.Count,
                     Data = data
                 });
@@ -47,7 +52,6 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                 });
             }
         }
-
         [HttpPost("course-create")]
         public async Task<IActionResult> Create([FromForm] CoursePostDTOs model)
         {
@@ -333,6 +337,28 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                 });
             }
         }
+        [HttpGet("course-update-material-get/{id}")]
+        public async Task<IActionResult> getEditCourseMaterial(int id)
+        {
+            try
+            {
+                var data = await _unitOfWork.Course.getEditCourseMaterial(id);
+
+                return Ok(new
+                {
+                    Success = true,
+                    Data = data
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = ex.Message
+                });
+            }
+        }
 
 
         [HttpPost("create-course-material")]
@@ -407,6 +433,79 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                 );
             }
         }
+        [HttpPut("Update-course-material")]
+
+        public async Task<IActionResult> UpdateCourseMaterial([FromForm] ProductMaterialDtos model)
+        {
+            try
+            {
+                if (model == null || model.GetType().GetProperties().All(p => p.GetValue(model) == null))
+                {
+                    return BadRequest("Course Material is required");
+                }
+
+                string folderPath = Path.Combine(
+                    _environment.WebRootPath,
+                    "Uploads"
+                );
+
+                Directory.CreateDirectory(folderPath);
+
+                // =========================
+                // FILE UPLOAD
+                // =========================
+
+                if (model.Fileupload1 != null &&
+                    model.Fileupload1.Length > 0)
+                {
+                    string fileName =
+                        $"{Guid.NewGuid():N}"[..8] +
+                        "_" +
+                        Path.GetFileName(model.Fileupload1.FileName);
+
+                    string filePath = Path.Combine(
+                        folderPath,
+                        fileName
+                    );
+
+                    await using (var stream = new FileStream(
+                        filePath,
+                        FileMode.Create
+                    ))
+                    {
+                        await model.Fileupload1.CopyToAsync(stream);
+                    }
+
+                    model.Fileupload = fileName;
+                }
+
+                // =========================
+                // DATABASE SAVE
+                // =========================
+
+                var result = await _unitOfWork.Course.CreateCourseMaterial(model);
+
+                if (result.Contains("Something went wrong"))
+                {
+                    return StatusCode(500, result);
+                }
+
+                return Ok(new
+                {
+                    success = true,
+                    message = "Course Material created successfully",
+                    fileName = model.Fileupload
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(
+                    500,
+                    "Something went wrong: " + ex.Message
+                );
+            }
+        }
+
 
         [HttpPost("set-franchise-commission-amount")]
         public async Task<IActionResult> SetFramchiseAmount([FromBody] List<CommissionDtos> model)

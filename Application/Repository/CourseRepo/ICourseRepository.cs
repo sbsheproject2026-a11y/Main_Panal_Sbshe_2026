@@ -6,8 +6,9 @@ namespace Application.Repository
     public interface ICourseRepository
     {
 
-       // Task<List<CourseGetDTOs>> GetAll(int ReferenceId, int pageNo, int pageSize, string? search);
-        Task<List<CourseGetDTOs>> GetAll();
+        // Task<List<CourseGetDTOs>> GetAll(int ReferenceId, int pageNo, int pageSize, string? search);
+        //Task<List<CourseGetDTOs>> GetAll();
+        Task<List<CourseGetDTOs>> GetAll(int? studyModeId, int? departmentId, int? categoryId, int? parentId, string? search);
 
         Task<string> Create(CoursePostDTOs model);
         Task<CourseGetDTOs> GetById(int id);
@@ -31,7 +32,9 @@ namespace Application.Repository
 
         Task<List<ProductMaterialGetDtos>> getCourseMaterial(int id);
         Task<string> DeleteCourseMaterial(int Id);
-        Task<CourseGetDTOs?> GetStudentCourseDetailById(int id);
+        Task<List<CourseGetDTOs>> GetStudentCourseDetailById(int id);
+        Task<ProductMaterialGetDtos?> getEditCourseMaterial(int id);
+        Task<string> UpdateCourseMaterial(ProductMaterialDtos model);
 
 
 

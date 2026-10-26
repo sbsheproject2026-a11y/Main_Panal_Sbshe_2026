@@ -136,10 +136,9 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
                 });
             }
         }
+       
         [HttpPost("emp-online-wallet-create")]
-
-     
-        public async Task<IActionResult> Createonline([FromForm] WalletPostDTOs model)
+         public async Task<IActionResult> Createonline([FromForm] WalletPostDTOs model)
         {
             try
             {
@@ -172,7 +171,7 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
                 }
                 
 
-                 var result = (await _unitOfWork.GetWayWorking.GenrateOrder((int)model.FranchiseId,Convert.ToDecimal(model.TotalAmount),4)).Split(",");
+                 var result = (await _unitOfWork.GetWayWorking.GenrateOrder((int)model.FranchiseId,Convert.ToDecimal(model.TotalAmount),4,1)).Split(",");
                 var msg = result[0];
                 var entityId = result[1];
                 var oId = result[2];

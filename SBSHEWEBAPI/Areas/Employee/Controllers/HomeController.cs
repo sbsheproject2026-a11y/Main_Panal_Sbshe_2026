@@ -1,5 +1,6 @@
 ﻿using Application.DTOs;
 using Application.Helper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace SBSHEWEBAPI.Areas.Employee.Controllers
@@ -125,6 +126,84 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
                 Success = true,
                 Message = result
             });
+        }
+
+        
+        [HttpPost("franchise-applyforbook")]
+        public async Task<IActionResult> ApplyForBooks([FromForm] ApplyStudentPostDTOs model)
+        {
+            try
+            {
+                //int finalUserId;
+
+
+                //var claims = User.Claims.ToDictionary(x => x.Type, x => x.Value);
+                //var tokenUserId = claims.GetValueOrDefault("UserId");
+
+                //if (string.IsNullOrEmpty(tokenUserId))
+                //{
+                //    return BadRequest(new
+                //    {
+                //        Success = false,
+                //        Message = "UserId not found"
+                //    });
+                //}
+
+                //model.UserId = Convert.ToInt32(tokenUserId);
+
+                if (model == null)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Request data is required."
+                    });
+                }
+
+
+                if (!model.UserId.HasValue || model.UserId.Value <= 0)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Franchise is required."
+                    });
+                }
+                if (!model.Amount.HasValue || model.Amount.Value <= 0)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Amount is required."
+                    });
+                }
+               // model.CourseId = 68;
+
+                var resultaddress = (await _unitOfWork.Student.CreateBookDeliveryAddress(model));
+                var result = (await _unitOfWork.GetWayWorking.GenrateOrderBook((int)model.UserId, Convert.ToDecimal(model.Amount), (int)model.CourseId, (int)model.Quantity)).Split(",");
+                var msg = result[0];
+                var entityId = result[1];
+                var oId = result[2];
+                HttpContext.Session.SetString("User", entityId);
+                HttpContext.Session.SetString("Key", oId);
+                // ✅ IDs frontend ko bhi bhejo
+                return Ok(new
+                {
+                    success = true,
+                    message = msg,
+                    userid = entityId,      // ← Ye frontend bhejega payment pe
+                    paymentid = oId         // ← Ye bhi
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Something went wrong.",
+                    error = ex.Message
+                });
+            }
         }
 
 

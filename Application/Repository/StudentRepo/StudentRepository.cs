@@ -754,6 +754,32 @@ namespace Application.Repository
                 return "Something went wrong: " + ex.Message;
             }
         }
+        public async Task<string> GetGenerateUserCode(int Id,int Code)
+        {
+            try
+            {
+                var connectionString = _context.Database.GetConnectionString();
+
+                using (var connection = new SqlConnection(connectionString))
+                using (var command = new SqlCommand("GetGenerateUserCode", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    command.Parameters.Add(new SqlParameter("@Id", Id));
+                    command.Parameters.Add(new SqlParameter("@Code", Code));
+
+                    await connection.OpenAsync();
+
+                    var result = await command.ExecuteScalarAsync();
+
+                    return result?.ToString() ?? "Employee Delete successfully";
+                }
+            }
+            catch (Exception ex)
+            {
+                return "Something went wrong: " + ex.Message;
+            }
+        }
 
 
 
@@ -1059,8 +1085,39 @@ namespace Application.Repository
         }
 
 
+        public async Task<string> CreateBookDeliveryAddress(ApplyStudentPostDTOs model)
+        {
+            try
+            {
 
-        
+                if (model.UserId == null || model.UserId == 0)
+                {
+                    return "Invalid Details!";
+                }
+                 
+                    var data = new AddressProfile
+                    {
+                        EntityId = model.UserId,
+                        Address = model.Address,
+                        Pincode = null,
+                        LandMark = model.Remark,
+                        AddressTypeId = 1164,
+                        LocationId = null,
+                        IsActive = 1
+                    };
+
+                    await _context.AddressProfile.AddAsync(data);
+                   await _context.SaveChangesAsync();
+
+                return "created successfully";
+            }
+            catch (Exception ex)
+            {
+                return "Something went wrong: " + ex.Message;
+            }
+        }
+
+
 
         public async Task<string> viewbalview(int FranchiseId, int aa)
         {

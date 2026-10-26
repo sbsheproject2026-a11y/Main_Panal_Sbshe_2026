@@ -10,6 +10,7 @@ namespace Application.DTOs
 
         
     }
+    
 
     public class AmountDetailRequest
     {

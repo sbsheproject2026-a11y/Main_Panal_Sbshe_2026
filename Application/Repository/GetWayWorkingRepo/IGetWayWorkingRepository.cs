@@ -12,8 +12,10 @@ namespace Application.Repository
         Task<List<OrderList>> offlinepayment(string viewtype);
         Task<List<OrderList>> GetStudentFee(int Id);
 
-        Task<string> GenrateOrder(int Eid, decimal amount, int productid);
+        Task<string> GenrateOrder(int Eid, decimal amount, int productid, int quantity);
         Task<string> OfflinePayPayment(OfflinePaymentRequest request);
+        Task<string> GenrateOrderBook(int Eid, decimal amount, int productid, int quantity);
+        Task<List<OrderList>> offlinepaymentBook(string viewtype);
 
     }
 }
