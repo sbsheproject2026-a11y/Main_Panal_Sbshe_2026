@@ -228,6 +228,86 @@ namespace SBSHEWEBAPI
                 });
             }
         }
+        [HttpPost("upgrade-after-payment")]
+        public async Task<IActionResult> UpgradeAfterpayment([FromForm] AfterPaymentRequest request)
+        {
+            try
+            {
+                if (request == null || request.UserId <= 0 || request.OId <= 0)
+                    return Unauthorized(new { success = false, message = "Invalid request" });
+
+                var List = _unitOfWork.GetWayWorking
+                            .OrderListAll("Print", request.OId, request.UserId);
+
+                if (List == null || List.Count == 0)
+                    return NotFound(new { success = false, message = "Order not found" });
+
+                string order_id = List[0].OrderId;
+                decimal amount = List[0].Amount;
+                string productId = Convert.ToString(List[0].ProductId);
+
+                // ✅ Form values (case match frontend se)
+                var R_orderId = Request.Form["R_orderId"].ToString();
+                var paymentId = Request.Form["PaymentId"].ToString();
+                var signature = Request.Form["Signature"].ToString();
+                var paymentstatus = Request.Form["PaymentStatus"].ToString();
+
+                if (paymentstatus == "Fail")
+                {
+                    return Ok(new
+                    {
+                        success = false,
+                        status = "Fail",
+                        message = "Payment failed"
+                    });
+                }
+
+                var checkSignature = CompareSignature(R_orderId, paymentId, signature);
+
+                if (checkSignature)
+                {
+                    var response = _unitOfWork.GetWayWorking.InsertOrderStstus(
+                                        order_id, paymentId, paymentstatus,
+                                        R_orderId, amount, request.OId, "");
+
+                    string msg = "Your OrderId is " + order_id +
+                                 " and ReferenceNo Is " + paymentId +
+                                 " and Status Is " + paymentstatus;
+
+
+                    string Insertmsg = await _unitOfWork.Student.StudentUpgradeRequest(request.UserId);
+
+
+                    return Ok(new
+                    {
+                        success = true,
+                        status = "Success",
+                        message = msg,
+                        productId = productId,
+                        OId = List[0].OId
+                    });
+                }
+                else
+                {
+                    return Ok(new
+                    {
+                        success = false,
+                        status = "Fail",
+                        message = "Signature mismatch"
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Please try again!",
+                    error = ex.Message
+                });
+            }
+        }
+
 
         private bool CompareSignature(string R_orderId, string paymentId, string signature)
         {

@@ -291,6 +291,33 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                 });
             }
         }
+        [HttpGet("request-online-upgrade-student-list")]
+        public async Task<IActionResult> GetOnlineUpgradeStudentList(int pageNo = 1, int pageSize = 100, string? search = null)
+        {
+            try
+            {
+
+
+                var data = await _unitOfWork.Student.GetOnlineUpgradeStudentList(pageNo, pageSize, search);
+
+                return Ok(new
+                {
+                    Success = true,
+                    PageNo = pageNo,
+                    PageSize = pageSize,
+                    TotalRecords = data.Count,
+                    Data = data
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new
+                {
+                    Success = false,
+                    Message = ex.Message
+                });
+            }
+        }
 
         [HttpPost("request-upgrade-addclass")]
         public async Task<IActionResult> AddClassStudent([FromBody] StudentClassDto model)
@@ -360,6 +387,69 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                 });
             }
         }
+    
+        [HttpPost("request-online-upgrade-addclass")]
+        public async Task<IActionResult> AddClassOnlineStudent([FromBody] StudentClassDto model)
+        {
+            try
+            {
+                if (model == null)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Request data is required."
+                    });
+                }
+                 
+
+                if (model.PUid == null || !model.PUid.Any())
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Please select at least one student."
+                    });
+                }
+
+                var results = new List<string>();
+
+                foreach (var puid in model.PUid)
+                {
+                    var studentModel = new StudentClassDto
+                    {
+                        //ClassId = model.ClassId,
+                        ExamSessionId = model.ExamSessionId,
+                        PUid = new List<int> { puid }
+                    };
+
+                    var result = await _unitOfWork.Student.OnlineAddClassStudentNew(studentModel);
+
+                    results.Add(result);
+                }
+
+                return Ok(new
+                {
+                    success = true,
+                    message = "Students processed successfully.",
+                    totalStudents = model.PUid.Count,
+                    results = results
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Something went wrong.",
+                    error = ex.Message
+                });
+            }
+        }
+    
+    
+    
+    
     }
 }
 

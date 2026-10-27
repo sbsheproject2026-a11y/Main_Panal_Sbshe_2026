@@ -25,6 +25,7 @@ namespace Application.DTOs
         public int MasterSessionId { get; set; }
         public string? MasterSessionName { get; set; }
         public int? IsActive { get; set; }
+        public int? ParentId { get; set; }
         public int? Status { get; set; }
     }
 }

@@ -25,14 +25,17 @@ namespace Application.Repository
         Task<string> SaveStudentMarks(StudentMarksDto model);
 
         Task<List<StudentGetDTOs>> GetUpgradeStudentList(int pageNo, int pageSize, string? search);
+        Task<List<StudentGetDTOs>> GetOnlineUpgradeStudentList(int pageNo, int pageSize, string? search);
      
 
         Task<string> AddClassStudent(StudentClassDto model);
+        Task<string> OnlineAddClassStudentNew(StudentClassDto model);
         Task<List<AcademicDetailGetDTO>> GetAcademicDetailsById(int id);
         Task<string> viewbalview(int FranchiseId, int aa);
         Task<List<StudentGetDTOs>> GetStudentProfileData(int? referenceId);
         Task<string> CreateBookDeliveryAddress(ApplyStudentPostDTOs model);
         Task<string> GetGenerateUserCode(int Id, int Code);
+        Task<string> StudentUpgradeRequest(int Id);
 
     }
 }

@@ -41,7 +41,8 @@ namespace Application.Repository
                                       IssueDate = pa.IssueDate,
                                       MasterSessionId = (int)pa.MasterSessionId,
                                       IsActive = pa.IsActive,
-                                      Status = pa.Status
+                                      Status = pa.Status,
+                                      ParentId = pa.ParentId
 
                                   })
                   .ToListAsync();
@@ -73,6 +74,7 @@ namespace Application.Repository
                     StartDate = model.StartDate,
                     EndDate = model.EndDate,
                     IssueDate = model.IssueDate,
+                    ParentId = model.ParentId ?? null,
                     IsActive = model.IsActive,
                     Status = 1,
                 };
@@ -105,6 +107,7 @@ namespace Application.Repository
                         StartDate = x.StartDate,
                         EndDate = x.EndDate,
                         IssueDate = x.IssueDate,
+                        ParentId = (int)x.ParentId,
                         MasterSessionId = (int)x.MasterSessionId,
 
                     })
@@ -138,6 +141,7 @@ namespace Application.Repository
                 data.Name = model.Name;
                 data.ShortName = model.ShortName;
                 data.MasterSessionId = model.MasterSessionId;
+                data.ParentId = model.ParentId;
                 data.StartDate = model.StartDate;
                 data.EndDate = model.EndDate;
                 data.IssueDate = model.IssueDate;

@@ -1007,6 +1007,65 @@ namespace Application.Repository
                 throw new Exception("Error while fetching Upgrade Student data.", ex);
             }
         }
+        public async Task<List<StudentGetDTOs>> GetOnlineUpgradeStudentList(
+     int pageNo,
+     int pageSize,
+     string? search)
+        {
+            try
+            {
+                var data = new List<StudentGetDTOs>();
+
+                var connectionString = _context.Database.GetConnectionString();
+
+                using (var connection = new SqlConnection(connectionString))
+                using (var command = new SqlCommand("GetOnlineUpgradeStudentList", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    command.Parameters.Add(new SqlParameter("@PageNo", pageNo));
+                    command.Parameters.Add(new SqlParameter("@PageSize", pageSize));
+                    command.Parameters.Add(new SqlParameter(
+                        "@Search",
+                        search ?? (object)DBNull.Value));
+
+                    await connection.OpenAsync();
+
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            data.Add(new StudentGetDTOs
+                            {
+                                Id = Convert.ToInt32(reader["Id"]),
+                                PuId = Convert.ToInt32(reader["PuId"]),
+                                CourseId = Convert.ToInt32(reader["CourseId"]),
+                                EnrollmentNo = reader["EnrollmentNo"]?.ToString(),
+                                Name = reader["Name"]?.ToString(),
+                                FatherName = reader["FatherName"]?.ToString(),
+                                MotherName = reader["MotherName"]?.ToString(),
+                                Address = reader["Address"]?.ToString(),
+                                MobileNo = reader["MobileNo"]?.ToString(),
+                                Email = reader["Email"]?.ToString(),
+
+                                SelfImageShow =
+                                    
+                                    reader["SelfImage"]?.ToString(),
+
+                                CourseName = reader["CourseName"]?.ToString(),
+                                StartDate = reader["ExamSession"]?.ToString(),
+                            });
+                        }
+                    }
+                }
+
+                return data;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error while fetching Upgrade Student data.", ex);
+            }
+        }
 
 
         public async Task<string> AddClassStudent(StudentClassDto model)
@@ -1025,6 +1084,35 @@ namespace Application.Repository
                    // command.Parameters.Add(  new SqlParameter("@ClassId", model.ClassId));
 
                     command.Parameters.Add(  new SqlParameter("@ExamSession", model.ExamSessionId));
+
+                    await connection.OpenAsync();
+
+                    var result = await command.ExecuteScalarAsync();
+
+                    return result?.ToString() ?? "Employee Delete successfully";
+                }
+            }
+            catch (Exception ex)
+            {
+                return "Something went wrong: " + ex.Message;
+            }
+        }
+        public async Task<string> OnlineAddClassStudentNew(StudentClassDto model)
+        {
+            try
+            {
+                var connectionString = _context.Database.GetConnectionString();
+
+                using (var connection = new SqlConnection(connectionString))
+                using (var command = new SqlCommand("OnlineAddClassStudentNew", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    command.Parameters.Add( new SqlParameter("@puId", model.PUid[0]));
+
+                   // command.Parameters.Add(  new SqlParameter("@ClassId", model.ClassId));
+
+                    //command.Parameters.Add(  new SqlParameter("@ExamSession", model.ExamSessionId));
 
                     await connection.OpenAsync();
 
@@ -1149,5 +1237,32 @@ namespace Application.Repository
             }
         }
 
+
+        public async Task<string> StudentUpgradeRequest(int Id)
+        {
+            try
+            {
+                var connectionString = _context.Database.GetConnectionString();
+
+                using (var connection = new SqlConnection(connectionString))
+                using (var command = new SqlCommand("StudentUpgradeRequest", connection))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    command.Parameters.Add(new SqlParameter("@Id", Id));
+                    command.Parameters.Add(new SqlParameter("@Code", 3));
+
+                    await connection.OpenAsync();
+
+                    var result = await command.ExecuteScalarAsync();
+
+                    return result?.ToString() ?? "Employee Delete successfully";
+                }
+            }
+            catch (Exception ex)
+            {
+                return "Something went wrong: " + ex.Message;
+            }
+        }
     }
 }
