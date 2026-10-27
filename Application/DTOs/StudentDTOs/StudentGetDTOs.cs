@@ -37,6 +37,10 @@
         public string? PasswordHash { get; set; }
         public string? IdNumber { get; set; }
         public string? InstituteName { get; set; }
+        public string? RegCode { get; set; }
+        public string? NOCSRNO { get; set; }
+        public string? BonafideCode { get; set; }
+        public string? TrainingReqCode { get; set; }
         public string? Relacition { get; set; }
         public string? EntityType { get; set; }
         public string? CityName { get; set; }
@@ -59,13 +63,14 @@
         public string? AadhaarCardBack { get; set; }
         public DateTime? AdmissionDate { get; set; }
         public string? AdmissionDate1 { get; set; }
+        public string? Date { get; set; }
         public string? IssueDate { get; set; }
         public string? StartDate { get; set; }
         public string? EndDate { get; set; }
         public string? IssueYear { get; set; }
         public string? SrnoDiploma { get; set; }
         public string? MigrationSrno { get; set; }
-        public string? NOCSRNO { get; set; }
+ 
         public string? DepartmentName { get; set; }
         public string? CertificateName { get; set; }
         public DateTime? DOB { get; set; }

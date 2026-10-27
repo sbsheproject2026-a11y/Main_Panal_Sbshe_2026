@@ -7,7 +7,7 @@ using Model;
 
 
 
-namespace Application.Repository 
+namespace Application.Repository
 {
     public class MasterSessionRepository : IMasterSessionRepository
     {
@@ -22,21 +22,29 @@ namespace Application.Repository
         {
             try
             {
-                var data = await _context.MasterSession.Where(x => x.Status == 1).OrderByDescending(x => x.Id)
-                    .Select(x => new MasterSessionGetDTOs
-                    {
-                        Id = x.Id,
-                        Name = x.Name,
-                        ShortName = x.ShortName,
-                        StartDate = x.StartDate,
-                        EndDate = x.EndDate,
-                        IssueDate = x.IssueDate,
-                        MasterSessionId = (int)x.MasterSessionId,
-                        IsActive = x.IsActive,
-                        Status = x.Status
+                var data = await (from pa in _context.MasterSession
+                                  join p in _context.MasterTypeDetail on pa.MasterSessionId equals p.Id into productGroup
+                                  from p in productGroup.DefaultIfEmpty()
 
-                    })
-                    .ToListAsync();
+
+                                  where pa.Status == 1
+
+                                  orderby pa.Id descending
+                                  select new MasterSessionGetDTOs
+                                  {
+                                      Id = pa.Id,
+                                      Name = pa.Name,
+                                      ShortName = pa.ShortName,
+                                      MasterSessionName = p.Name,
+                                      StartDate = pa.StartDate,
+                                      EndDate = pa.EndDate,
+                                      IssueDate = pa.IssueDate,
+                                      MasterSessionId = (int)pa.MasterSessionId,
+                                      IsActive = pa.IsActive,
+                                      Status = pa.Status
+
+                                  })
+                  .ToListAsync();
 
                 foreach (var item in data)
                 {
@@ -48,7 +56,7 @@ namespace Application.Repository
             }
             catch (Exception ex)
             {
-                 
+
                 throw new Exception("Error while fetching MasterTypeDetail data.", ex);
             }
         }
@@ -62,9 +70,9 @@ namespace Application.Repository
                     ShortName = model.ShortName,
                     Name = model.Name,
                     MasterSessionId = model.MasterSessionId,
-                    StartDate =  model.StartDate,
-                    EndDate =  model.EndDate,
-                    IssueDate =  model.IssueDate,
+                    StartDate = model.StartDate,
+                    EndDate = model.EndDate,
+                    IssueDate = model.IssueDate,
                     IsActive = model.IsActive,
                     Status = 1,
                 };
@@ -98,7 +106,7 @@ namespace Application.Repository
                         EndDate = x.EndDate,
                         IssueDate = x.IssueDate,
                         MasterSessionId = (int)x.MasterSessionId,
-                         
+
                     })
                     .FirstOrDefaultAsync();
                 if (data != null)
@@ -134,7 +142,7 @@ namespace Application.Repository
                 data.EndDate = model.EndDate;
                 data.IssueDate = model.IssueDate;
                 data.IsActive = model.IsActive;
-              
+
                 await _context.SaveChangesAsync();
 
                 return "MasterSession updated successfully";
@@ -157,7 +165,7 @@ namespace Application.Repository
                 }
 
                 data.Status = 0;
-                
+
 
                 await _context.SaveChangesAsync();
 
@@ -173,7 +181,7 @@ namespace Application.Repository
 
         //----------------------Master Type Drop Down----------------------------------------
 
-         
+
 
     }
 }

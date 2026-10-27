@@ -124,7 +124,7 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
         {
             try
             {
-                var data = await _unitOfWork.DropDown.getCourseAmount(68);
+                var data = await _unitOfWork.DropDown.getCourseAmount(id);
 
                 return Ok(new
                 {

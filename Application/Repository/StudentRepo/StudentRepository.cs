@@ -246,6 +246,10 @@ namespace Application.Repository
                                 SelfImageShow =   reader["SelfImage"]?.ToString(),
                                 CourseName = reader["CourseName"]?.ToString(),
                                 InstituteName = reader["CentreName"]?.ToString(),
+                                RegCode = reader["RegCode"]?.ToString(),
+                                NOCSRNO = reader["NOCSRNO"]?.ToString(),
+                                BonafideCode = reader["BonafideCode"]?.ToString(),
+                                TrainingReqCode = reader["TrainingReqCode"]?.ToString(),
                             });
                             if (reader["TotalRows"] != DBNull.Value)
                             {

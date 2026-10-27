@@ -10,7 +10,11 @@ namespace Application.DTOs
 
         
     }
-    
+    public class GenerateUserCodeRequest
+    {
+        public int Id { get; set; }
+        public int Code { get; set; }
+    }
 
     public class AmountDetailRequest
     {

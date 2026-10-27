@@ -115,28 +115,20 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
         }
 
 
+   
+      
+
         [HttpPut("request-student-usercode")]
-        public async Task<IActionResult> GetGenerateUserCode([FromBody] int Id, int code)
+        public async Task<IActionResult> GetGenerateUserCode([FromBody] GenerateUserCodeRequest request)
         {
-            if (Id <= 0)
+            if (request.Id <= 0)
             {
-                return BadRequest(new
-                {
-                    Success = false,
-                    Message = "Please provide at least one student ID."
-                });
+                return BadRequest(new { Success = false, Message = "Please provide at least one student ID." });
             }
 
-            var result = await _unitOfWork.Student.GetGenerateUserCode(Id, code);
+            var result = await _unitOfWork.Student.GetGenerateUserCode(request.Id, request.Code);
 
-            return Ok(new
-            {
-                Success = true,
-                Message = result
-            });
-
-
-
+            return Ok(new { Success = true, Message = result });
         }
 
 

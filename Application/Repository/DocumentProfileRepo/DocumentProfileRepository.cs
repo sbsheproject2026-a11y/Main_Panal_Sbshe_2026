@@ -35,7 +35,7 @@ namespace Application.Repository
                 {
                     command.CommandType = CommandType.StoredProcedure;
 
-                    command.Parameters.Add( new SqlParameter("@Id", id));
+                    command.Parameters.Add(new SqlParameter("@Id", id));
 
                     await connection.OpenAsync();
 
@@ -47,7 +47,7 @@ namespace Application.Repository
                             {
                                 Id = GetInt(reader, "Id"),
                                 EntityTypeId = GetInt(reader, "EntityTypeId"),
-                                SelfImage =  GetString(reader, "SelfImage"),
+                                SelfImage = GetString(reader, "SelfImage"),
                                 Code = reader["Code"]?.ToString(),
                                 Name = reader["Name"]?.ToString(),
                                 FatherName = reader["FatherName"]?.ToString(),
@@ -89,7 +89,7 @@ namespace Application.Repository
                     ex);
             }
         }
-        
+
 
         // ---------------------------------------------
         // Diploma Print Data
@@ -126,48 +126,48 @@ namespace Application.Repository
                                 Name = GetString(reader, "Name"),
                                 FirstName = GetString(reader, "FirstName"),
 
-                                StudentNameHindi =   GetString(reader, "StudentNameHindi"),
+                                StudentNameHindi = GetString(reader, "StudentNameHindi"),
 
-                                FatherNameHindi =  GetString(reader, "FatherNameHindi"),
+                                FatherNameHindi = GetString(reader, "FatherNameHindi"),
 
-                                CourseName =   GetString(reader, "CourseName"),
+                                CourseName = GetString(reader, "CourseName"),
 
-                                CourseNameHindi =  GetString(reader, "CourseNameHindi"),
+                                CourseNameHindi = GetString(reader, "CourseNameHindi"),
 
                                 DOB = GetDateTime(reader, "DOB"),
                                 DOB1 = GetString(reader, "DOB1"),
 
-                                FatherName =   GetString(reader, "FatherName"),
+                                FatherName = GetString(reader, "FatherName"),
 
-                                MotherName =  GetString(reader, "MotherName"),
+                                MotherName = GetString(reader, "MotherName"),
 
-                                Address =   GetString(reader, "Address"),
+                                Address = GetString(reader, "Address"),
 
-                                Pincode =   GetString(reader, "PinCode"),
+                                Pincode = GetString(reader, "PinCode"),
 
-                                MobileNo =   GetString(reader, "MobileNo"),
+                                MobileNo = GetString(reader, "MobileNo"),
 
-                                Email =  GetString(reader, "Email"),
+                                Email = GetString(reader, "Email"),
 
-                                SelfImage =  GetString(reader, "SelfImage"),
+                                SelfImage = GetString(reader, "SelfImage"),
 
-                                IssueDate =  GetString(reader, "IssueDate"),
+                                IssueDate = GetString(reader, "IssueDate"),
 
-                                StartDate =   GetString(reader, "StartDate"),
+                                StartDate = GetString(reader, "StartDate"),
 
-                                EndDate =  GetString(reader, "EndDate"),
+                                EndDate = GetString(reader, "EndDate"),
 
-                                IssueYear =  GetString(reader, "IssueYear"),
+                                IssueYear = GetString(reader, "IssueYear"),
 
-                                AdmissionDate1 =  GetString(reader, "AdmissionDate"),
+                                AdmissionDate1 = GetString(reader, "AdmissionDate"),
 
                                 SrnoDiploma = GetString(reader, "SrnoDiploma"),
 
-                                MigrationSrno =  GetString(reader, "MigrationSrno"),
+                                MigrationSrno = GetString(reader, "MigrationSrno"),
 
-                                DepartmentName =  GetString(reader, "DepartmentName"),
+                                DepartmentName = GetString(reader, "DepartmentName"),
 
-                                CertificateName =  GetString(reader, "CertificateName"),
+                                CertificateName = GetString(reader, "CertificateName"),
 
                                 CentreName = GetString(reader, "CentreName"),
                                 BranchAddress = GetString(reader, "BranchAddress")
@@ -185,6 +185,7 @@ namespace Application.Repository
                     ex);
             }
         }
+
         public async Task<StudentGetDTOs?> GetNOCPrintData(int id)
         {
             try
@@ -208,58 +209,37 @@ namespace Application.Repository
                             data = new StudentGetDTOs
                             {
                                 Id = GetInt(reader, "Id"),
-
                                 EnrollmentNo = GetString(reader, "EnrollmentNo"),
                                 Rollno = GetString(reader, "Rollno"),
                                 RollNo1 = GetString(reader, "RollNo1"),
-
                                 Name = GetString(reader, "Name"),
                                 FirstName = GetString(reader, "FirstName"),
-
-                                StudentNameHindi =   GetString(reader, "StudentNameHindi"),
-
-                                FatherNameHindi =  GetString(reader, "FatherNameHindi"),
-
-                                CourseName =   GetString(reader, "CourseName"),
-
-                                CourseNameHindi =  GetString(reader, "CourseNameHindi"),
-
+                                StudentNameHindi = GetString(reader, "StudentNameHindi"),
+                                FatherNameHindi = GetString(reader, "FatherNameHindi"),
+                                CourseName = GetString(reader, "CourseName"),
+                                CourseNameHindi = GetString(reader, "CourseNameHindi"),
                                 DOB = GetDateTime(reader, "DOB"),
                                 DOB1 = GetString(reader, "DOB1"),
-
-                                FatherName =   GetString(reader, "FatherName"),
-
-                                MotherName =  GetString(reader, "MotherName"),
-
-                                Address =   GetString(reader, "Address"),
-
-                                Pincode =   GetString(reader, "PinCode"),
-
-                                MobileNo =   GetString(reader, "MobileNo"),
-
-                                Email =  GetString(reader, "Email"),
-
-                                SelfImage =  GetString(reader, "SelfImage"),
-
-                                IssueDate =  GetString(reader, "IssueDate"),
-
-                                StartDate =   GetString(reader, "StartDate"),
-
-                                EndDate =  GetString(reader, "EndDate"),
-
-                                IssueYear =  GetString(reader, "IssueYear"),
-
-                                AdmissionDate1 =  GetString(reader, "AdmissionDate"),
-
+                                Date = GetString(reader, "Date"),
+                                FatherName = GetString(reader, "FatherName"),
+                                MotherName = GetString(reader, "MotherName"),
+                                Address = GetString(reader, "Address"),
+                                Pincode = GetString(reader, "PinCode"),
+                                MobileNo = GetString(reader, "MobileNo"),
+                                Email = GetString(reader, "Email"),
+                                SelfImage = GetString(reader, "SelfImage"),
+                                IssueDate = GetString(reader, "IssueDate"),
+                                StartDate = GetString(reader, "StartDate"),
+                                EndDate = GetString(reader, "EndDate"),
+                                IssueYear = GetString(reader, "IssueYear"),
+                                AdmissionDate1 = GetString(reader, "AdmissionDate"),
                                 SrnoDiploma = GetString(reader, "SrnoDiploma"),
-
-                                MigrationSrno =  GetString(reader, "MigrationSrno"),
-                                NOCSRNO =  GetString(reader, "NOCSRNO"),
-
-                                DepartmentName =  GetString(reader, "DepartmentName"),
-
-                                CertificateName =  GetString(reader, "CertificateName"),
-
+                                MigrationSrno = GetString(reader, "MigrationSrno"),
+                                NOCSRNO = GetString(reader, "NOCSRNO"),
+                                BonafideCode = GetString(reader, "BonafideCode"),
+                                TrainingReqCode = GetString(reader, "TrainingReqCode"),
+                                DepartmentName = GetString(reader, "DepartmentName"),
+                                CertificateName = GetString(reader, "CertificateName"),
                                 CentreName = GetString(reader, "CentreName"),
                                 BranchAddress = GetString(reader, "BranchAddress")
                             };

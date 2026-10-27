@@ -116,7 +116,7 @@ namespace Application.Repository
         {
             try
             {
-                var data = await _context.MasterSession.Where(x => x.IsActive == 1 && x.Status == 1)
+                var data = await _context.MasterSession.Where(x => x.IsActive == 1 && x.Status == 1 && x.MasterSessionId== 32)
                     .OrderByDescending(x => x.Id)
                     .Select(x => new DropDownDTOs
                     {
