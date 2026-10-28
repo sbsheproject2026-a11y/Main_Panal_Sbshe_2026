@@ -294,6 +294,8 @@ namespace Application.Repository
                                 Id = Convert.ToInt32(reader["Id"]),
                                 ReferenceId = Convert.ToInt32(reader["ReferenceId"]),
                                 CourseId = Convert.ToInt32(reader["CourseId"]),
+                                TotalClass = Convert.ToInt32(reader["TotalClass"]),
+                                ClassNo = Convert.ToInt32(reader["ClassNo"]),
                                 Code = reader["Code"]?.ToString(),
                                 EnrollmentNo = reader["EnrollmentNo"]?.ToString(),
                                 Rollno = reader["Rollno"]?.ToString(),
@@ -304,7 +306,6 @@ namespace Application.Repository
                                 Address = reader["Address"]?.ToString(),
                                 MobileNo = reader["MobileNo"]?.ToString(),
                                 Email = reader["Email"]?.ToString(),
-                                
                                 CityName = reader["CityName"]?.ToString(),
                                 DistrictName = reader["DistrictName"]?.ToString(),
                                 StateName = reader["StateName"]?.ToString(),
@@ -948,10 +949,7 @@ namespace Application.Repository
 
 
 
-        public async Task<List<StudentGetDTOs>> GetUpgradeStudentList(
-     int pageNo,
-     int pageSize,
-     string? search)
+        public async Task<List<StudentGetDTOs>> GetUpgradeStudentList(int pageNo, int pageSize, string? search)
         {
             try
             {
@@ -1007,10 +1005,7 @@ namespace Application.Repository
                 throw new Exception("Error while fetching Upgrade Student data.", ex);
             }
         }
-        public async Task<List<StudentGetDTOs>> GetOnlineUpgradeStudentList(
-     int pageNo,
-     int pageSize,
-     string? search)
+        public async Task<List<StudentGetDTOs>> GetOnlineUpgradeStudentList(int pageNo, int pageSize, string? search)
         {
             try
             {
@@ -1076,6 +1071,7 @@ namespace Application.Repository
 
                 using (var connection = new SqlConnection(connectionString))
                 using (var command = new SqlCommand("AddClassStudentNew", connection))
+                //using (var command = new SqlCommand("OnlineAddClassStudentNew", connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
 

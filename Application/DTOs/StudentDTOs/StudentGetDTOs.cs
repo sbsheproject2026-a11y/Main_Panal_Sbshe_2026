@@ -83,6 +83,8 @@
         public string? BranchAddress { get; set; }
         public int? CasteCategory { get; set; }
         public int? CourseId { get; set; }
+        public int? TotalClass { get; set; }
+        public int? ClassNo { get; set; }
         public int? ClassId { get; set; }
         public int? ExamSessionId { get; set; }
         public int? DistrictId { get; set; }

@@ -61,6 +61,7 @@ namespace Application.Repository
                        
                         balance = reader["balance"]?.ToString(),
                         Status = reader["Status"]?.ToString(),
+                        SlipUpload = reader["SlipUpload"]?.ToString(),
                     });
                 }
 
