@@ -27,6 +27,7 @@ namespace Application.Helper
         public IStudentRepository Student { get; private set; }
         public IDocumentProfileRepository DocumentProfile { get; private set; }
         public ILectureRepository Lecture { get; private set; }
+        public IExamRepository Exam { get; private set; }
         public IWebsiteContentRepository WebsiteContent { get; private set; }
         public IEnquiriesRepository Enquiries { get; private set; }
         public IAccRepository AccRegistration { get; private set; }
@@ -53,6 +54,7 @@ namespace Application.Helper
             Student = new StudentRepository(_context);
             DocumentProfile = new DocumentProfileRepository(_context);
             Lecture = new LectureRepository(_context);
+            Exam = new ExamRepository(_context);
             WebsiteContent = new WebsiteContentRepository(_context);
             Enquiries = new EnquiriesRepository(_context);
             AccRegistration = new AccRepository(_context);

@@ -1517,6 +1517,7 @@ namespace SBSHEWEBAPI
                         email = data.Email,
                         idNumber = data.IdNumber,
                         address = data.Address,
+                        date = data.Date,
                         pincode = data.Pincode,
                         stateId = data.StateId,
                         districtId = data.DistrictId,

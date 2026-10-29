@@ -22,6 +22,7 @@ namespace Application.Helper
         IStudentRepository Student { get; }
         IDocumentProfileRepository DocumentProfile { get; }
         ILectureRepository Lecture { get; }
+        IExamRepository Exam { get; }
         IWebsiteContentRepository WebsiteContent { get; }
         IEnquiriesRepository Enquiries { get; }
         IAccRepository AccRegistration { get; }

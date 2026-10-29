@@ -40,6 +40,10 @@ namespace Domain
         public DbSet<Commission> Commission { get; set; }
         public DbSet<FranchiseCommission> FranchiseCommission { get; set; }
         public DbSet<AddressProfile> AddressProfile { get; set; }
+        public DbSet<Paper> Paper { get; set; }
+        public DbSet<PaperAttempt> PaperAttempt { get; set; }
+        public DbSet<PaperAttemptDocument> PaperAttemptDocument { get; set; }
+        public DbSet<Questiones> Questiones { get; set; }
 
     }
 }

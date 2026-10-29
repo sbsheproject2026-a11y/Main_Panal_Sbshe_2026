@@ -603,7 +603,8 @@ namespace Application.Repository
                                 CourseCode =   reader["CourseCode"]?.ToString(),
                                 Duration =   reader["Duration"]?.ToString(),
 
-                                IdNumber = reader["IdNumber"]?.ToString()
+                                IdNumber = reader["IdNumber"]?.ToString(),
+                                Date = reader["Date"]?.ToString()
                             };
 
                             if (data != null)
@@ -1070,8 +1071,8 @@ namespace Application.Repository
                 var connectionString = _context.Database.GetConnectionString();
 
                 using (var connection = new SqlConnection(connectionString))
-                using (var command = new SqlCommand("AddClassStudentNew", connection))
-                //using (var command = new SqlCommand("OnlineAddClassStudentNew", connection))
+               // using (var command = new SqlCommand("AddClassStudentNew", connection))
+                using (var command = new SqlCommand("OnlineAddClassStudentNew", connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
 
@@ -1079,7 +1080,7 @@ namespace Application.Repository
 
                    // command.Parameters.Add(  new SqlParameter("@ClassId", model.ClassId));
 
-                    command.Parameters.Add(  new SqlParameter("@ExamSession", model.ExamSessionId));
+                   // command.Parameters.Add(  new SqlParameter("@ExamSession", model.ExamSessionId));
 
                     await connection.OpenAsync();
 

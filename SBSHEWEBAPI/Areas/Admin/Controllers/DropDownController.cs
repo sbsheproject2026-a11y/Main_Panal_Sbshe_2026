@@ -1,8 +1,5 @@
-﻿using Application.DTOs;
-using Application.DTOs.MasterTypeDTOs;
-using Application.Helper;
+﻿using Application.Helper;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Cryptography;
 
 namespace SBSHEWEBAPI.Areas.Employee.Controllers
 {
@@ -47,7 +44,7 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
                 });
             }
         }
-        
+
         [HttpGet("dropdown-franchise/{id}")]
         public async Task<IActionResult> getFranchise(int Id)
         {
@@ -70,7 +67,7 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
                 });
             }
         }
-      
+
         [HttpGet("dashboard")]
         public async Task<IActionResult> getDashboard()
         {
@@ -189,7 +186,7 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
                 });
             }
         }
-       
+
         [HttpGet("dropdown-getmastertypesdetail-parent")]
         public async Task<IActionResult> GetMasterDetailTypeParent()
         {
@@ -305,15 +302,24 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
             }
         }
 
- 
-    
+
+
 
         [HttpGet("dropdown-setfranchisecourse-amount/{id}")]
         public async Task<IActionResult> SetFranchiseCourseAmount(int id, [FromQuery] int? Fid)
         {
             try
             {
-                var data = await _unitOfWork.DropDown.SetFranchiseCourseAmount(id, Fid ?? 0);
+                object data;
+
+                if (Fid == null || Fid == 0)
+                {
+                    data = await _unitOfWork.DropDown.SetCourseCommission(id);
+                }
+                else
+                {
+                    data = await _unitOfWork.DropDown.SetFranchiseCourseAmount(id, Fid.Value);
+                }
 
                 return Ok(new { Success = true, Data = data });
             }
@@ -322,7 +328,7 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
                 return BadRequest(new { Success = false, Message = ex.Message });
             }
         }
-        
+
         [HttpGet("dropdown-set-commission-amount/{id}")]
         public async Task<IActionResult> SetFranchiseCourseAmount(int id)
         {
@@ -337,10 +343,10 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
                 return BadRequest(new { Success = false, Message = ex.Message });
             }
         }
-    
-    
-    
-    
+
+
+
+
     }
 }
 
