@@ -23,6 +23,7 @@ namespace Model
         public int? CousreId { get; set; }
         public int? SubjectId { get; set; }
         public int? IsActive { get; set; }
+        public int? isDelete { get; set; }
         public string? TotalTimeInMinute { get; set; }
 
     }

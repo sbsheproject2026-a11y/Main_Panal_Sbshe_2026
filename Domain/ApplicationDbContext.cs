@@ -44,6 +44,7 @@ namespace Domain
         public DbSet<PaperAttempt> PaperAttempt { get; set; }
         public DbSet<PaperAttemptDocument> PaperAttemptDocument { get; set; }
         public DbSet<Questiones> Questiones { get; set; }
+        public DbSet<StudentNotes> StudentNotes { get; set; }
 
     }
 }

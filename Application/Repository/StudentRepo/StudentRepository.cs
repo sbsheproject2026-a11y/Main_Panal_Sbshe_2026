@@ -1,12 +1,9 @@
 ﻿using Application.DTOs;
-using Application.DTOs.MasterTypeDTOs;
 using Domain;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Model;
 using System.Data;
-using System.Drawing;
-using System.Linq;
 
 
 
@@ -65,7 +62,7 @@ namespace Application.Repository
                                 CityName = reader["CityName"]?.ToString(),
                                 DistrictName = reader["DistrictName"]?.ToString(),
                                 StateName = reader["StateName"]?.ToString(),
-                                SelfImageShow =   reader["SelfImage"]?.ToString(),
+                                SelfImageShow = reader["SelfImage"]?.ToString(),
                                 CourseName = reader["CourseName"]?.ToString(),
                                 InstituteName = reader["CentreName"]?.ToString(),
                             });
@@ -127,7 +124,7 @@ namespace Application.Repository
                                 CityName = reader["CityName"]?.ToString(),
                                 DistrictName = reader["DistrictName"]?.ToString(),
                                 StateName = reader["StateName"]?.ToString(),
-                                SelfImageShow =   reader["SelfImage"]?.ToString(),
+                                SelfImageShow = reader["SelfImage"]?.ToString(),
                                 CourseName = reader["CourseName"]?.ToString(),
                                 InstituteName = reader["CentreName"]?.ToString(),
                             });
@@ -183,7 +180,7 @@ namespace Application.Repository
                                 CityName = reader["CityName"]?.ToString(),
                                 DistrictName = reader["DistrictName"]?.ToString(),
                                 StateName = reader["StateName"]?.ToString(),
-                                SelfImageShow =   reader["SelfImage"]?.ToString(),
+                                SelfImageShow = reader["SelfImage"]?.ToString(),
                                 CourseName = reader["CourseName"]?.ToString(),
                                 InstituteName = reader["CentreName"]?.ToString(),
                             });
@@ -199,7 +196,7 @@ namespace Application.Repository
             }
         }
 
-        public async  Task<(List<StudentGetDTOs> StudentList, int TotalCount)> GetConfirmAddmissions(int? referenceId,int? pageNo, int? pageSize, string? search, int? studyModeId )
+        public async Task<(List<StudentGetDTOs> StudentList, int TotalCount)> GetConfirmAddmissions(int? referenceId, int? pageNo, int? pageSize, string? search, int? studyModeId)
         {
             try
             {
@@ -243,7 +240,7 @@ namespace Application.Repository
                                 CityName = reader["CityName"]?.ToString(),
                                 DistrictName = reader["DistrictName"]?.ToString(),
                                 StateName = reader["StateName"]?.ToString(),
-                                SelfImageShow =   reader["SelfImage"]?.ToString(),
+                                SelfImageShow = reader["SelfImage"]?.ToString(),
                                 CourseName = reader["CourseName"]?.ToString(),
                                 InstituteName = reader["CentreName"]?.ToString(),
                                 RegCode = reader["RegCode"]?.ToString(),
@@ -266,13 +263,13 @@ namespace Application.Repository
                 throw new Exception("Error while fetching confirmed admissions.", ex);
             }
         }
-        
-        public async  Task<List<StudentGetDTOs>> GetStudentProfileData(int? referenceId)
+
+        public async Task<List<StudentGetDTOs>> GetStudentProfileData(int? referenceId)
         {
             try
             {
                 var data = new List<StudentGetDTOs>();
-               
+
                 var connectionString = _context.Database.GetConnectionString();
 
                 using (var connection = new SqlConnection(connectionString))
@@ -281,7 +278,7 @@ namespace Application.Repository
                     command.CommandType = CommandType.StoredProcedure;
 
                     command.Parameters.Add(new SqlParameter("@ReferenceId", referenceId));
-                     
+
 
                     await connection.OpenAsync();
 
@@ -309,11 +306,11 @@ namespace Application.Repository
                                 CityName = reader["CityName"]?.ToString(),
                                 DistrictName = reader["DistrictName"]?.ToString(),
                                 StateName = reader["StateName"]?.ToString(),
-                                SelfImage =   reader["SelfImage"]?.ToString(),
+                                SelfImage = reader["SelfImage"]?.ToString(),
                                 CourseName = reader["CourseName"]?.ToString(),
                                 InstituteName = reader["CentreName"]?.ToString(),
                             });
-                            
+
                         }
                     }
                 }
@@ -325,7 +322,7 @@ namespace Application.Repository
                 throw new Exception("Error while fetching  data !", ex);
             }
         }
-        
+
 
         public async Task<string> Create(StudentPostDTOs model)
         {
@@ -381,7 +378,7 @@ namespace Application.Repository
                 return "Something went wrong: " + ex.Message;
             }
         }
-      
+
         public async Task<string> CreateNew(StudentPostDTOs model)
         {
             try
@@ -507,7 +504,7 @@ namespace Application.Repository
                                 CourseTypeId = Convert.ToInt32(reader["CourseTypeId"]),
                                 ExamSessionId = Convert.ToInt32(reader["ExamSessionId"]),
 
-                               
+
                                 Name = reader["Name"]?.ToString(),
                                 StudentNameHindi = reader["StudentNameHindi"]?.ToString(),
                                 DOB = Convert.ToDateTime(reader["DOB"]),
@@ -524,7 +521,7 @@ namespace Application.Repository
                                 AadhaarCardFrant = reader["AadhaarCardFrant"]?.ToString(),
                                 AadhaarCardBack = reader["AadhaarCardBack"]?.ToString(),
 
-                                 
+
 
                                 IdNumber = reader["IdNumber"]?.ToString()
                             };
@@ -596,12 +593,12 @@ namespace Application.Repository
                                 AadhaarCardFrant = reader["AadhaarCardFrant"]?.ToString(),
                                 AadhaarCardBack = reader["AadhaarCardBack"]?.ToString(),
 
-                                SelfImageShow =   reader["SelfImage"]?.ToString(),
-                                SignatureImageShow =  reader["SignatureImage"]?.ToString(),
-                                AadhaarCardFrantShow =   reader["AadhaarCardFrant"]?.ToString(),
-                                AadhaarCardBackShow =   reader["AadhaarCardBack"]?.ToString(),
-                                CourseCode =   reader["CourseCode"]?.ToString(),
-                                Duration =   reader["Duration"]?.ToString(),
+                                SelfImageShow = reader["SelfImage"]?.ToString(),
+                                SignatureImageShow = reader["SignatureImage"]?.ToString(),
+                                AadhaarCardFrantShow = reader["AadhaarCardFrant"]?.ToString(),
+                                AadhaarCardBackShow = reader["AadhaarCardBack"]?.ToString(),
+                                CourseCode = reader["CourseCode"]?.ToString(),
+                                Duration = reader["Duration"]?.ToString(),
 
                                 IdNumber = reader["IdNumber"]?.ToString(),
                                 Date = reader["Date"]?.ToString()
@@ -687,7 +684,8 @@ namespace Application.Repository
                     command.CommandType = CommandType.StoredProcedure;
 
                     command.Parameters.Add(new SqlParameter("@Id", Id));
-                    command.Parameters.Add(new SqlParameter("@Code", 12));
+                    command.Parameters.Add(new SqlParameter("@Code", 1));
+
 
                     await connection.OpenAsync();
 
@@ -702,14 +700,14 @@ namespace Application.Repository
             }
         }
 
-        public async Task<string> insSendForConfirm(int Id,int FranchiseId, int ParentFranchiseId, int TotalAmount, string unic6)
+        public async Task<string> insSendForConfirm(int Id, int FranchiseId, int ParentFranchiseId, int TotalAmount, string unic6)
         {
             try
             {
                 var connectionString = _context.Database.GetConnectionString();
 
                 using (var connection = new SqlConnection(connectionString))
-               // using (var command = new SqlCommand("GetSendToAdmin", connection))
+                // using (var command = new SqlCommand("GetSendToAdmin", connection))
                 using (var command = new SqlCommand("insSendForConfirm", connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
@@ -719,7 +717,7 @@ namespace Application.Repository
                     command.Parameters.Add(new SqlParameter("@ParentFranchiseId", ParentFranchiseId));
                     command.Parameters.Add(new SqlParameter("@TotalAmount", TotalAmount));
                     command.Parameters.Add(new SqlParameter("@demoId", unic6));
-                      
+
                     await connection.OpenAsync();
 
                     var result = await command.ExecuteScalarAsync();
@@ -760,7 +758,7 @@ namespace Application.Repository
                 return "Something went wrong: " + ex.Message;
             }
         }
-        public async Task<string> GetGenerateUserCode(int Id,int Code)
+        public async Task<string> GetGenerateUserCode(int Id, int Code)
         {
             try
             {
@@ -831,7 +829,7 @@ namespace Application.Repository
                                 CityName = reader["CityName"]?.ToString(),
                                 DistrictName = reader["DistrictName"]?.ToString(),
                                 StateName = reader["StateName"]?.ToString(),
-                                SelfImageShow =  reader["SelfImage"]?.ToString(),
+                                SelfImageShow = reader["SelfImage"]?.ToString(),
                                 CourseName = reader["CourseName"]?.ToString(),
                             });
                         }
@@ -989,7 +987,7 @@ namespace Application.Repository
                                 Email = reader["Email"]?.ToString(),
 
                                 SelfImageShow =
-                                    
+
                                     reader["SelfImage"]?.ToString(),
 
                                 CourseName = reader["CourseName"]?.ToString(),
@@ -1045,7 +1043,7 @@ namespace Application.Repository
                                 Email = reader["Email"]?.ToString(),
 
                                 SelfImageShow =
-                                    
+
                                     reader["SelfImage"]?.ToString(),
 
                                 CourseName = reader["CourseName"]?.ToString(),
@@ -1071,16 +1069,16 @@ namespace Application.Repository
                 var connectionString = _context.Database.GetConnectionString();
 
                 using (var connection = new SqlConnection(connectionString))
-               // using (var command = new SqlCommand("AddClassStudentNew", connection))
+                // using (var command = new SqlCommand("AddClassStudentNew", connection))
                 using (var command = new SqlCommand("OnlineAddClassStudentNew", connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
 
-                    command.Parameters.Add( new SqlParameter("@puId", model.PUid[0]));
+                    command.Parameters.Add(new SqlParameter("@puId", model.PUid[0]));
 
-                   // command.Parameters.Add(  new SqlParameter("@ClassId", model.ClassId));
+                    // command.Parameters.Add(  new SqlParameter("@ClassId", model.ClassId));
 
-                   // command.Parameters.Add(  new SqlParameter("@ExamSession", model.ExamSessionId));
+                    // command.Parameters.Add(  new SqlParameter("@ExamSession", model.ExamSessionId));
 
                     await connection.OpenAsync();
 
@@ -1105,9 +1103,9 @@ namespace Application.Repository
                 {
                     command.CommandType = CommandType.StoredProcedure;
 
-                    command.Parameters.Add( new SqlParameter("@puId", model.PUid[0]));
+                    command.Parameters.Add(new SqlParameter("@puId", model.PUid[0]));
 
-                   // command.Parameters.Add(  new SqlParameter("@ClassId", model.ClassId));
+                    // command.Parameters.Add(  new SqlParameter("@ClassId", model.ClassId));
 
                     //command.Parameters.Add(  new SqlParameter("@ExamSession", model.ExamSessionId));
 
@@ -1157,7 +1155,7 @@ namespace Application.Repository
                                 RollNo = reader["RollNo"]?.ToString(),
                                 BoardUniversity = reader["BoardUniversity"]?.ToString(),
                                 PercentageCgpa = reader["PercentageCgpa"]?.ToString(),
-                                FileName =   reader["FileName"]?.ToString()
+                                FileName = reader["FileName"]?.ToString()
                             });
                         }
                     }
@@ -1183,20 +1181,20 @@ namespace Application.Repository
                 {
                     return "Invalid Details!";
                 }
-                 
-                    var data = new AddressProfile
-                    {
-                        EntityId = model.UserId,
-                        Address = model.Address,
-                        Pincode = null,
-                        LandMark = model.Remark,
-                        AddressTypeId = 1164,
-                        LocationId = null,
-                        IsActive = 1
-                    };
 
-                    await _context.AddressProfile.AddAsync(data);
-                   await _context.SaveChangesAsync();
+                var data = new AddressProfile
+                {
+                    EntityId = model.UserId,
+                    Address = model.Address,
+                    Pincode = null,
+                    LandMark = model.Remark,
+                    AddressTypeId = 1164,
+                    LocationId = null,
+                    IsActive = 1
+                };
+
+                await _context.AddressProfile.AddAsync(data);
+                await _context.SaveChangesAsync();
 
                 return "created successfully";
             }
@@ -1261,5 +1259,38 @@ namespace Application.Repository
                 return "Something went wrong: " + ex.Message;
             }
         }
+
+
+
+        public async Task<string> CreateStudentNotes(ApplyStudentPostDTOs model)
+        {
+            try
+            {
+
+                if (model.UserId == null || model.UserId == 0)
+                {
+                    return "Invalid Details!";
+                }
+
+                var data = new StudentNotes
+                {
+                    EntityId = model.UserId,
+                    Title = model.Remark,
+                    NoteContent = model.Address,
+                    CreatedDate = DateTime.Now,
+                    IsActive = 1
+                };
+
+                await _context.StudentNotes.AddAsync(data);
+                await _context.SaveChangesAsync();
+
+                return "created successfully";
+            }
+            catch (Exception ex)
+            {
+                return "Something went wrong: " + ex.Message;
+            }
+        }
+
     }
 }

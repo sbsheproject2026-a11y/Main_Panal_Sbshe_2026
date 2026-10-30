@@ -115,8 +115,8 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
         }
 
 
-   
-      
+
+
 
         [HttpPut("request-student-usercode")]
         public async Task<IActionResult> GetGenerateUserCode([FromBody] GenerateUserCodeRequest request)
@@ -387,7 +387,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                 });
             }
         }
-    
+
         [HttpPost("request-online-upgrade-addclass")]
         public async Task<IActionResult> AddClassOnlineStudent([FromBody] StudentClassDto model)
         {
@@ -401,7 +401,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                         message = "Request data is required."
                     });
                 }
-                 
+
 
                 if (model.PUid == null || !model.PUid.Any())
                 {
@@ -446,10 +446,46 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                 });
             }
         }
-    
-    
-    
-    
+
+
+        [HttpPost("add-collage")]
+        public async Task<IActionResult> ApplyForBooks([FromForm] ApplyStudentPostDTOs model)
+        {
+            try
+            {
+
+                if (model == null)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Request data is required."
+                    });
+                }
+
+                var resultaddress = (await _unitOfWork.Student.CreateStudentNotes(model));
+
+                return Ok(new
+                {
+                    success = true,
+                    message = resultaddress,
+
+
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Something went wrong.",
+                    error = ex.Message
+                });
+            }
+        }
+
+
+
     }
 }
 

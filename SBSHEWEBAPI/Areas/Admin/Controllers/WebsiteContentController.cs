@@ -1,5 +1,4 @@
 ﻿using Application.DTOs;
-using Application.DTOs.MasterTypeDTOs;
 using Application.Helper;
 using Microsoft.AspNetCore.Mvc;
 
@@ -131,18 +130,34 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
             string folderPath = Path.Combine(_environment.WebRootPath, "Uploads");
             Directory.CreateDirectory(folderPath);
 
-            async Task<string> UploadFile(IFormFile file)
+            async Task<string> UploadFile(IFormFile file, string oldFile)
             {
-                string fileName = $"{Guid.NewGuid():N}"[..8] + "_" +
-                                  Path.GetFileName(file.FileName);
+                if (file == null || file.Length == 0)
+                    return oldFile;
+
+                // Old file delete
+                if (!string.IsNullOrEmpty(oldFile))
+                {
+                    string oldPath = Path.Combine(folderPath, oldFile);
+
+                    if (System.IO.File.Exists(oldPath))
+                        System.IO.File.Delete(oldPath);
+                }
+
+                // New file name
+                string fileName =
+                    $"{Guid.NewGuid():N}"[..8] + "_" +
+                    Path.GetFileName(file.FileName);
 
                 string filePath = Path.Combine(folderPath, fileName);
 
+                // Save new file
                 using var stream = new FileStream(filePath, FileMode.Create);
                 await file.CopyToAsync(stream);
 
                 return fileName;
             }
+
             if (model.ProductCategoryDocuments != null && model.ProductCategoryDocuments.Count > 0)
             {
                 foreach (var academic in model.ProductCategoryDocuments)
@@ -150,7 +165,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                     if (academic.File != null &&
                         academic.File.Length > 0)
                     {
-                        academic.Path = await UploadFile(academic.File);
+                        academic.Path = await UploadFile(academic.File, academic.Path);
                     }
                 }
             }
@@ -170,6 +185,8 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                 Message = result
             });
         }
+
+
         [HttpDelete("delete/{id}")]
         public async Task<IActionResult> Delete(int Id)
         {
@@ -192,8 +209,8 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
         }
 
 
- 
-        
+
+
 
 
     }

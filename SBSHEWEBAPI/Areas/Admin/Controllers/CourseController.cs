@@ -21,7 +21,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
             _configuration = configuration;
             _environment = environment;
         }
-        
+
 
         [HttpGet("course-getall")]
         public async Task<IActionResult> Get(
@@ -455,9 +455,12 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                 // FILE UPLOAD
                 // =========================
 
-                if (model.Fileupload1 != null &&
-                    model.Fileupload1.Length > 0)
+                if (model.Fileupload1 != null && model.Fileupload1.Length > 0)
                 {
+                    // ✅ 1. Purani file ka naam ek variable me save karein (Delete karne ke liye)
+                    string oldFile = model.Fileupload;
+
+                    // 2. Nayi file ka unique naam banayein
                     string fileName =
                         $"{Guid.NewGuid():N}"[..8] +
                         "_" +
@@ -468,6 +471,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                         fileName
                     );
 
+                    // 3. PEHLE Nayi file ko server par save karein
                     await using (var stream = new FileStream(
                         filePath,
                         FileMode.Create
@@ -476,7 +480,26 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                         await model.Fileupload1.CopyToAsync(stream);
                     }
 
+                    // 4. Model me nayi file ka naam set karein
                     model.Fileupload = fileName;
+
+                    // ✅ 5. Nayi file save hone ke BAAD, purani file ko server se delete karein
+                    if (!string.IsNullOrEmpty(oldFile))
+                    {
+                        string oldPath = Path.Combine(folderPath, oldFile);
+
+                        if (System.IO.File.Exists(oldPath))
+                        {
+                            try
+                            {
+                                System.IO.File.Delete(oldPath); // Purani file delete
+                            }
+                            catch
+                            {
+                                // Agar file kisi process me open ho aur delete na ho paye, toh error ignore karein
+                            }
+                        }
+                    }
                 }
 
                 // =========================
@@ -565,7 +588,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                 foreach (var item in model)
                 {
                     // Validation
-                    if (!item.Amount.HasValue ||  
+                    if (!item.Amount.HasValue ||
                         !item.DepartmentId.HasValue || !item.ProductId.HasValue)
                     {
                         results.Add($"Skipped — Amount/DepartmentId/ProductId required");

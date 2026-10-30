@@ -36,6 +36,7 @@ namespace Application.Repository
         Task<string> CreateBookDeliveryAddress(ApplyStudentPostDTOs model);
         Task<string> GetGenerateUserCode(int Id, int Code);
         Task<string> StudentUpgradeRequest(int Id);
+        Task<string> CreateStudentNotes(ApplyStudentPostDTOs model);
 
     }
 }

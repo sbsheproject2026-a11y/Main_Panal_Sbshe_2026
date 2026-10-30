@@ -13,4 +13,17 @@ namespace Model
 
 
     }
+    public class StudentNotes
+    {
+        [Key]
+        public int Id { get; set; }
+   
+        public int? EntityId { get; set; }
+        public string? Title { get; set; }
+        public string? NoteContent { get; set; }
+        public DateTime? CreatedDate { get; set; }
+        public int? IsActive { get; set; }
+
+
+    }
 }

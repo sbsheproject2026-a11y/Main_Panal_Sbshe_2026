@@ -1,10 +1,6 @@
-﻿using Application;
-using Application.DTOs;
-using Application.DTOs.MasterTypeDTOs;
+﻿using Application.DTOs;
 using Application.Helper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Model;
 
 namespace SBSHEWEBAPI.Areas.Admin.Controllers
 {
@@ -78,7 +74,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
             return Ok(data);
         }
 
-      
+
         [HttpPost("exam-update-question")]
         public async Task<IActionResult> Update([FromBody] ExamPostDTOs model)
         {
@@ -113,6 +109,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                 });
             }
         }
+
         [HttpDelete("exam-delete/{id}")]
         public async Task<IActionResult> Delete(int Id)
         {
@@ -135,52 +132,92 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
         }
 
 
-        [HttpGet("student-exam-detail/{id}")]
-        public async Task<IActionResult> StudentExamDetails(int id)
+        [HttpGet("exam-student-result/{id}")]
+        public async Task<IActionResult> GetStudentResult(int id)
         {
             try
             {
-                var data = await _unitOfWork.Exam.StudentExamDetails(id);
+                // 1. Repository se List fetch karein
+                var dataList = await _unitOfWork.Exam.GetStudentAllResult(id);
 
-                return Ok(new
+                // 2. Agar list null hai ya khali hai
+                if (dataList == null || dataList.Count == 0)
                 {
-                    Success = true,
-                    Data = data
-                });
+                    return NotFound(new
+                    {
+                        Success = false,
+                        Message = "Result not found for this student."
+                    });
+                }
+
+                // 3. List ko map karein (Agar multiple results hain)
+                var response = dataList.Select(data => new
+                {
+                    id = data.Id,
+                    code = data.Code,
+                    name = data.Name,
+                    date = data.Date,        // Repository me pehle se string hai
+                    starttime = data.IssueDate,
+                    endtime = data.IssueYear,
+                    startDate = data.StartDate,
+                    endDate = data.EndDate,
+                    filepath = data.SelfImage
+                }).ToList();
+
+                // 4. Response return karein
+                return Ok(response);
             }
             catch (Exception ex)
             {
                 return BadRequest(new
                 {
                     Success = false,
-                    Message = ex.Message
+                    Message = "Something went wrong: " + ex.Message
                 });
             }
         }
-        [HttpGet("student-exam-question-detail/{id}")]
-        public async Task<IActionResult> GetExamQuestionDetails(int id)
+       
+        
+        
+        [HttpGet("all-exam-student-result")]
+        public async Task<IActionResult> GetSubmitStudentAllResult()
         {
             try
             {
-                var data = await _unitOfWork.Exam.GetExamQuestionDetails(id);
+                // 1. Repository se List fetch karein
+                var dataList = await _unitOfWork.Exam.GetSubmitStudentAllResult(0);
 
-                return Ok(new
+                // 2. Agar list null hai ya khali hai
+                if (dataList == null || dataList.Count == 0)
                 {
-                    Success = true,
-                    Data = data
-                });
+                    return NotFound(new
+                    {
+                        Success = false,
+                        Message = "Result not found for this student."
+                    });
+                }
+
+                // 3. List ko map karein (Agar multiple results hain)
+                var response = dataList.Select(data => new
+                {
+                    id = data.Id,
+                    code = data.Code,
+                    name = data.Name,
+                    courseName = data.CourseName 
+                }).ToList();
+
+                // 4. Response return karein
+                return Ok(response);
             }
             catch (Exception ex)
             {
                 return BadRequest(new
                 {
                     Success = false,
-                    Message = ex.Message
+                    Message = "Something went wrong: " + ex.Message
                 });
             }
         }
-
-
 
 
     }

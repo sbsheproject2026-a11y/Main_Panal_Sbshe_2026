@@ -113,13 +113,28 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
             string folderPath = Path.Combine(_environment.WebRootPath, "Uploads");
             Directory.CreateDirectory(folderPath);
 
-            async Task<string> UploadFile(IFormFile file)
+            async Task<string> UploadFile(IFormFile file, string oldFile)
             {
-                string fileName = $"{Guid.NewGuid():N}"[..8] + "_" +
-                                  Path.GetFileName(file.FileName);
+                if (file == null || file.Length == 0)
+                    return oldFile;
+
+                // Old file delete
+                if (!string.IsNullOrEmpty(oldFile))
+                {
+                    string oldPath = Path.Combine(folderPath, oldFile);
+
+                    if (System.IO.File.Exists(oldPath))
+                        System.IO.File.Delete(oldPath);
+                }
+
+                // New file name
+                string fileName =
+                    $"{Guid.NewGuid():N}"[..8] + "_" +
+                    Path.GetFileName(file.FileName);
 
                 string filePath = Path.Combine(folderPath, fileName);
 
+                // Save new file
                 using var stream = new FileStream(filePath, FileMode.Create);
                 await file.CopyToAsync(stream);
 
@@ -127,7 +142,8 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
             }
 
             if (model.File != null && model.File.Length > 0)
-                model.FilePath = await UploadFile(model.File);
+                model.FilePath = await UploadFile(model.File, model.FilePath);
+
             var result = await _unitOfWork.MasterTypeDetail.Update(model);
 
             return Ok(new

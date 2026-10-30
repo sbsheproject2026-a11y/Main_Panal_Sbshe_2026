@@ -99,6 +99,8 @@ namespace SBSHEWEBAPI.Areas.Student.Controllers
                 });
             }
         }
+      
+        
         [HttpPost("pay-student-pending-amount")]
         public async Task<IActionResult> PayPendingAmount([FromForm] ApplyStudentPostDTOs model)
         {

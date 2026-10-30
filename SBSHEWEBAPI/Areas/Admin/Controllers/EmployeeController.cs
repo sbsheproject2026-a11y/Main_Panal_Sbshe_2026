@@ -203,6 +203,7 @@ namespace SBSHEWEBAPI.Areas.Admin.Controllers
                 Message = result
             });
         }
+      
         [HttpDelete("employee-delete/{id}")]
         public async Task<IActionResult> Delete(int Id)
         {

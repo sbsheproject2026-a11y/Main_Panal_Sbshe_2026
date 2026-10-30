@@ -1,129 +1,124 @@
-﻿using Application;
-using Application.DTOs.MasterTypeDTOs;
-using Application.Helper;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Model;
+﻿//using System;
+//using System.IO;
+//using System.Threading.Tasks;
+//using Microsoft.AspNetCore.Http;
+//using SixLabors.ImageSharp;
+//using SixLabors.ImageSharp.Processing;
+//using SixLabors.ImageSharp.Formats.Jpeg;
 
-namespace SBSHEWEBAPI.Areas.Admin.Controllers
-{
-    [Area("Admin")]
-    [ApiController]
-    [Route("api/[controller]")]
-    public class CityController : ControllerBase
-    {
+//// iText7 ke liye using
+//using iText.Kernel.Pdf;
 
+//// Conflict hatane ke liye
+//using Image = SixLabors.ImageSharp.Image;
 
-        private readonly IUnitOfWork _unitOfWork;
+//namespace Application
+//{
+//    public static class FileHelper
+//    {
+//        public static bool IsFileSizeValid(IFormFile file, long maxSizeInMB = 2)
+//        {
+//            if (file == null || file.Length == 0) return false;
+//            long maxBytes = maxSizeInMB * 1024 * 1024;
+//            return file.Length <= maxBytes;
+//        }
 
-        public CityController(IUnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
-        }
-        [HttpGet("city-getall")]
-        public async Task<IActionResult> Get()
-        {
-            try
-            {
-                var data = await _unitOfWork.Location.GetAll(4);
+//        // ⭐ MASTER METHOD (Jo khud check karega)
+//        public static async Task<string> ProcessAndSaveFileAsync(IFormFile file, string folderPath)
+//        {
+//            if (file == null || file.Length == 0) return null;
+//            string extension = Path.GetExtension(file.FileName).ToLower();
 
-                return Ok(new
-                {
-                    Success = true,
-                    Data = data
-                });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new
-                {
-                    Success = false,
-                    Message = ex.Message
-                });
-            }
-        }
+//            if (extension == ".jpg" || extension == ".jpeg" || extension == ".png")
+//            {
+//                return await SaveCompressedImageAsync(file, folderPath, 60);
+//            }
+//            else if (extension == ".pdf")
+//            {
+//                return await CompressPdfAsync(file, folderPath); // iText7 wala method
+//            }
+//            else
+//            {
+//                return await SaveFileAsync(file, folderPath);
+//            }
+//        }
 
-        [HttpPost("city-create")]
-        public async Task<IActionResult> Create(LocationPostDTOs model)
-        {
-            if (model == null)
-            {
-                return BadRequest(new
-                {
-                    Success = false,
-                    Message = "data is required"
-                });
-            }
-            model.TypeId = 4;
-            var result = await _unitOfWork.Location.Create(model);
+//        public static async Task<string> SaveFileAsync(IFormFile file, string folderPath)
+//        {
+//            if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
+//            string uniqueFileName = $"{Guid.NewGuid():N}".Substring(0, 8) + "_" + Path.GetFileName(file.FileName);
+//            string filePath = Path.Combine(folderPath, uniqueFileName);
+//            using var stream = new FileStream(filePath, FileMode.Create);
+//            await file.CopyToAsync(stream);
+//            return uniqueFileName;
+//        }
 
-            return Ok(new
-            {
-                success = true,
-                message = result
-            });
-        }
+//        public static async Task<string> SaveCompressedImageAsync(IFormFile file, string folderPath, int quality = 60)
+//        {
+//            if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
+//            string uniqueFileName = $"{Guid.NewGuid():N}".Substring(0, 8) + "_" + Path.GetFileNameWithoutExtension(file.FileName) + ".jpg";
+//            string filePath = Path.Combine(folderPath, uniqueFileName);
 
+//            using var image = await Image.LoadAsync(file.OpenReadStream());
+//            if (image.Width > 1920 || image.Height > 1080)
+//            {
+//                image.Mutate(x => x.Resize(new ResizeOptions { Mode = ResizeMode.Max, Size = new Size(1920, 1080) }));
+//            }
+//            await image.SaveAsJpegAsync(filePath, new JpegEncoder { Quality = quality });
+//            return uniqueFileName;
+//        }
 
-        [HttpGet("city-getbyid/{id}")]
-        public async Task<IActionResult> GetById(int id)
-        {
-            var data = await _unitOfWork.Location.GetById(id);
+//        // ✅ NAYA: iText7 se PDF Compress (Bina Ghostscript ke)
+//        public static async Task<string> CompressPdfAsync(IFormFile file, string folderPath)
+//        {
+//            if (!Directory.Exists(folderPath)) Directory.CreateDirectory(folderPath);
 
-            if (data == null)
-            {
-                return NotFound("MasterType not found");
-            }
+//            string uniqueFileName = $"{Guid.NewGuid():N}".Substring(0, 8) + "_" + Path.GetFileName(file.FileName);
+//            string inputFilePath = Path.Combine(folderPath, uniqueFileName);
 
-            return Ok(data);
-        }
+//            // Pehle original file save karein
+//            using (var stream = new FileStream(inputFilePath, FileMode.Create))
+//            {
+//                await file.CopyToAsync(stream);
+//            }
 
-        [HttpPut("city-update")]
-        public async Task<IActionResult> Update(LocationPostDTOs model)
-        {
-            if (model.Id <= 0)
-            {
-                return BadRequest(new
-                {
-                    Success = false,
-                    Message = "Id is required"
-                });
-            }
+//            string outputFileName = "compressed_" + uniqueFileName;
+//            string outputFilePath = Path.Combine(folderPath, outputFileName);
 
-            model.TypeId = 4;
-            var result = await _unitOfWork.Location.Update(model);
+//            try
+//            {
+//                // iText7 ka use karke compress karein
+//                using (PdfDocument pdfDoc = new PdfDocument(new PdfReader(inputFilePath), new PdfWriter(outputFilePath, new WriterProperties().SetFullCompressionMode(true))))
+//                {
+//                    // Khali chhod dein, ye automatically compress karke save kar dega
+//                }
 
-            return Ok(new
-            {
-                Success = true,
-                Message = result
-            });
-        }
-        [HttpDelete("city-delete/{id}")]
-        public async Task<IActionResult> Delete(int Id)
-        {
-            if (Id <= 0)
-            {
-                return BadRequest(new
-                {
-                    Success = false,
-                    Message = "Id is required"
-                });
-            }
+//                // Agar compress hone ke baad file ban gayi, toh original delete karein
+//                if (File.Exists(outputFilePath))
+//                {
+//                    long originalSize = new FileInfo(inputFilePath).Length;
+//                    long compressedSize = new FileInfo(outputFilePath).Length;
 
-            var result = await _unitOfWork.Location.Delete(Id);
+//                    // Agar compress hone ke baad size kam hua hai, toh nayi file return karein
+//                    if (compressedSize < originalSize)
+//                    {
+//                        File.Delete(inputFilePath);
+//                        return outputFileName;
+//                    }
+//                    else
+//                    {
+//                        // Agar size kam nahi hua, toh original hi return karein
+//                        File.Delete(outputFilePath);
+//                    }
+//                }
+//            }
+//            catch (Exception ex)
+//            {
+//                // Agar koi error aaye (jaise password protected PDF), toh original file hi rahne dein
+//                Console.WriteLine("PDF Compression Error: " + ex.Message);
+//            }
 
-            return Ok(new
-            {
-                Success = true,
-                Message = result
-            });
-        }
-
-        //----------------------------Drop Down  State-----------------------------------//
-
-        
-
-
-    }
-}
+//            return uniqueFileName; // Fallback: Original file
+//        }
+//    }
+//}

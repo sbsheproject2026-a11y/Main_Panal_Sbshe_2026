@@ -57,13 +57,28 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
             string folderPath = Path.Combine(_environment.WebRootPath, "Uploads");
             Directory.CreateDirectory(folderPath);
 
-            async Task<string> UploadFile(IFormFile file)
+            async Task<string> UploadFile(IFormFile file, string oldFile)
             {
-                string fileName = $"{Guid.NewGuid():N}"[..8] + "_" +
-                                  Path.GetFileName(file.FileName);
+                if (file == null || file.Length == 0)
+                    return oldFile;
+
+                // Old file delete
+                if (!string.IsNullOrEmpty(oldFile))
+                {
+                    string oldPath = Path.Combine(folderPath, oldFile);
+
+                    if (System.IO.File.Exists(oldPath))
+                        System.IO.File.Delete(oldPath);
+                }
+
+                // New file name
+                string fileName =
+                    $"{Guid.NewGuid():N}"[..8] + "_" +
+                    Path.GetFileName(file.FileName);
 
                 string filePath = Path.Combine(folderPath, fileName);
 
+                // Save new file
                 using var stream = new FileStream(filePath, FileMode.Create);
                 await file.CopyToAsync(stream);
 
@@ -71,25 +86,25 @@ namespace SBSHEWEBAPI.Areas.Employee.Controllers
             }
 
             if (model.PassportPhoto1 != null && model.PassportPhoto1.Length > 0)
-                model.PassportPhoto = await UploadFile(model.PassportPhoto1);
+                model.PassportPhoto = await UploadFile(model.PassportPhoto1, model.PassportPhoto);
 
             if (model.AuthorizedSignature1 != null && model.AuthorizedSignature1.Length > 0)
-                model.AuthorizedSignature = await UploadFile(model.AuthorizedSignature1);
+                model.AuthorizedSignature = await UploadFile(model.AuthorizedSignature1, model.AuthorizedSignature);
 
             if (model.AadhaarCard1 != null && model.AadhaarCard1.Length > 0)
-                model.AadhaarCardimage = await UploadFile(model.AadhaarCard1);
+                model.AadhaarCardimage = await UploadFile(model.AadhaarCard1, model.AadhaarCardimage);
 
             if (model.PanCard1 != null && model.PanCard1.Length > 0)
-                model.PanCardimage = await UploadFile(model.PanCard1);
+                model.PanCardimage = await UploadFile(model.PanCard1, model.PanCardimage);
 
             if (model.InstituteCertificate1 != null && model.InstituteCertificate1.Length > 0)
-                model.InstituteCertificate = await UploadFile(model.InstituteCertificate1);
+                model.InstituteCertificate = await UploadFile(model.InstituteCertificate1, model.InstituteCertificate);
 
             if (model.BuildingPhoto11 != null && model.BuildingPhoto11.Length > 0)
-                model.BuildingPhoto1 = await UploadFile(model.BuildingPhoto11);
+                model.BuildingPhoto1 = await UploadFile(model.BuildingPhoto11, model.BuildingPhoto1);
 
             if (model.BuildingPhoto22 != null && model.BuildingPhoto22.Length > 0)
-                model.BuildingPhoto2 = await UploadFile(model.BuildingPhoto22);
+                model.BuildingPhoto2 = await UploadFile(model.BuildingPhoto22, model.BuildingPhoto2);
 
 
             var result = await _unitOfWork.Frenchise.UpdateDocument(model);
